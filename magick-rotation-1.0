@@ -93,6 +93,8 @@ class engine:
                 debug_on = True
         self.debug = debug(debug_on, self.win)
         self.notifier = listener(debug_on, self.win)
+        self.touch_toggle = 0
+        self.toggle_touch()
         # notify init
         if pynotify_support:
             notify_timeout = int(self.win.adv_table.get_isnotify_timeout())
@@ -114,6 +116,14 @@ class engine:
     def toggle_rotate(self, option=None, data=None):
         self.notifier.toggle_polling()
         self.tray.update_poll_status(self.notifier.get_polling_status())
+
+    def toggle_touch(self):
+        self.touch_toggle =  not self.touch_toggle
+        device = touch()
+        device.toggle_touch(self.touch_toggle)
+
+    def get_touch_status(self):
+        return self.touch_toggle
 
     def process_rotation(self, is_normal):
         device = rotate()

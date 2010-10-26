@@ -83,6 +83,13 @@ class devices:
                     return 1
         return 0
 
+    def is_evdev_touch(self, id_val):
+        idx = self.get_id_num(id_val)
+        if self.is_evdev(id_val):
+            if "Touch" in self.devices[idx][0]:
+                return 1
+        return 0
+
     def is_wacom(self, id_val):
         idx = self.get_id_num(id_val)
         for prop in self.devices[idx][2]:
@@ -101,6 +108,25 @@ class wacom:
         self.wac_to_randr = {"none":"normal", "ccw":"left", "half":"inverted", "cw":"right"}
         self.randr_to_wac = {"normal":"none", "left":"ccw", "inverted":"half", "right":"cw"}
         self.rotate_order = ["normal", "left", "inverted", "right"]
+
+    def is_touch(self):
+        dev_type = self.dev.get_property("Wacom Tool Type")
+	if dev_type == "TOUCH":
+            return 1
+        return 0
+
+    def toggle_touch(self, toggle):
+        if toggle:
+            switch = "On"
+        else:
+            switch = "Off"
+
+        val_string = "xsetwacom set " + str(self.id_val) + " Touch " + switch
+        result =  getstatusoutput(val_string)[1]
+        if debug:
+            if result:
+                print result
+            print
 
     def get_next_rotation(self):
 
@@ -143,6 +169,19 @@ class linuxwacom:
     def __init__(self):
         pass
 
+    def toggle_touch(self, name, toggle):
+        if toggle:
+            switch = "On"
+        else:
+            switch = "Off"
+
+        val_string = "xsetwacom set " + str(name) + " Touch " + switch
+        result =  getstatusoutput(val_string)[1]
+        if debug:
+            if result:
+                print result
+            print
+
     def rotate(self, name, direction):
         self.randr_to_wac = {"normal":"none", "left":"ccw", "inverted":"half", "right":"cw"}
         new_dir = self.randr_to_wac[direction]
@@ -167,6 +206,14 @@ class evdev:
         self.top_y = 0
         self.bottom_x = 9600
         self.bottom_y = 7200
+
+    def toggle_touch(self, toggle):
+        val_string = "xinput set-prop " + str(self.id_val) + " 'Device Enabled' " + str(toggle)
+        result =  getstatusoutput(val_string)[1]
+        if debug:
+            if result:
+                print result
+            print
 
     def get_next_rotation(self, inv_x, inv_y):
         inv_dict = {(0,0):"normal", (1,0):"left", (1,1):"inverted", (0,1):"right"}
@@ -395,7 +442,7 @@ class rotate:
 
         id_val = int(id_val)
 
-	wacom_count = 0
+        wacom_count = 0
 
         if self.dev.is_evdev(id_val):
             processing = "rotating evdev device "
@@ -442,6 +489,35 @@ class rotate:
             if debug:
                 print "testing " , id_val
             self.rotate_device(direction, id_val)
+
+class touch:
+    def __init__(self):
+        self.dev = devices()
+    def toggle_touch(self, toggle):
+        toggle = int(toggle)
+        dev_list = self.dev.get_id_list()
+        wacom_count = 0
+        for id_val in dev_list:
+            if self.dev.is_evdev_touch(id_val):
+                ev_touch = evdev(self.dev.get_device(id_val), id_val)
+                ev_touch.toggle_touch(toggle)
+            if self.dev.is_wacom(id_val):
+                wac = wacom(self.dev.get_device(id_val), id_val)
+                if wac.is_touch():
+                    wacom_count += 1
+                    wac.toggle_touch(toggle)
+
+        if wacom_count == 0:
+            wacom_dev = linuxwacom()
+            devices = getoutput("xsetwacom list")
+            devices = devices.split("\n")
+            for item in devices:
+                name = item.split()[0]
+                tool_type = item.split()
+                if len(tool_type) == 3:
+                    tool_type = tool_type[2]
+                if tool_type == "TOUCH":
+               	    wacom_dev.toggle_touch(name, direction)
 
 if __name__ == "__main__":
     r = rotate()

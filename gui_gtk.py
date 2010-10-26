@@ -32,15 +32,19 @@ class about_dlg(gtk.Dialog):
         <b><span size="22000">Magick Rotation</span></b>""")
         about_title.set_use_markup(True)
         about_label=gtk.Label("""
-                This program supports the HP Pavilion TX2* series
-                            and the HP 2700 series tablet pc's
+                This program supports HP's Pavilion TX2000 & TX2500 series,
+                            TouchSmart TX2z series, Elitebook 2700p series,
+                            & TouchSmart TM2 series tablet pc's
+
                                             Version """ + prog_ver + """
 
-                        Author:  Red_Lion (red_lion@inbox.ru)
-                            Contributors:  Ayuthia & Favux
-        
-        Thanks to zoomy942 from the Ubuntu Forums for testing
+                        Authors:  Red_Lion (red_lion@inbox.ru)
+                                     jayhawk
+
+                            Contributor:  Favux
+
         Also see http://ubuntuforums.org/showthread.php?t=996830""")
+
         self.vbox.add(about_title)
         self.vbox.add(about_label)
         # OK button
@@ -232,8 +236,6 @@ class magick_gui(gtk.Window):
 
         button_box = gtk.HBox()
 
-        separator = gtk.HSeparator()
-
         # Save button
         save_button = gtk.Button(stock=gtk.STOCK_SAVE)
         save_button.connect('pressed', self.save_data)
@@ -251,7 +253,6 @@ class magick_gui(gtk.Window):
 
         box.pack_start(self.basic_table)
         box.pack_start(adv_expander)
-        box.pack_start(separator)
         box.pack_start(button_box)
 
         self.load_data()
@@ -303,15 +304,39 @@ class tray_gui(gtk.StatusIcon):
         self.set_visible(True)
         self.menu = tray_menu_gui(engine)
         self.connect('popup-menu', self.menu.popup_menu, self.menu)
+        self.connect('activate', self.update_touch_status)
+        self.engine = engine
 
     def update_poll_status(self, polling):
+        touch_on = self.engine.get_touch_status()
         if not polling:
-            self.set_from_file(self.path + "magick-rotation-disabled.png")
-            self.menu.option_enable.child.set_text("Enable")
+            if touch_on:
+            	self.set_from_file(self.path + "magick-rotation-disabled.png")
+            else:
+                self.set_from_file(self.path + "magick-rotation-disabled-touchoff.png")
+#            self.menu.option_enable.child.set_text("Enable")
         else:
-            self.set_from_file(self.path + "magick-rotation-enabled.png")
-            self.menu.option_enable.child.set_text("Disable")
-        print "Now I'm enabled?", polling
+            if touch_on:
+            	self.set_from_file(self.path + "magick-rotation-enabled.png")
+            else:
+                self.set_from_file(self.path + "magick-rotation-enabled-touchoff.png")
+#            self.menu.option_enable.child.set_text("Enable")
+#        print "Now I'm enabled?", polling
+
+    def update_touch_status(self, data=None):
+        self.engine.toggle_touch()
+        touch_on = self.engine.get_touch_status()
+        if touch_on:
+            if self.menu.option_enable.get_active():
+                self.set_from_file(self.path + "magick-rotation-enabled.png")
+            else:
+                self.set_from_file(self.path + "magick-rotation-disabled.png")
+        else:
+            if self.menu.option_enable.get_active():
+                self.set_from_file(self.path + "magick-rotation-enabled-touchoff.png")
+            else:
+                self.set_from_file(self.path + "magick-rotation-disabled-touchoff.png")
+
       
 class tray_menu_gui(gtk.Menu):
     def __init__(self, engine):
