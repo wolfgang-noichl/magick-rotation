@@ -10,7 +10,7 @@ class debug:
 
     def debug(self, data):
         debug_log = self.win.adv_table.get_debug_log()
-        log_file = "~/magic-log"
+        log_file = "~/magick-log"
 
         if self.debug_on:
             print data

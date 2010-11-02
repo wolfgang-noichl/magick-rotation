@@ -2,7 +2,6 @@
 
 from time import sleep
 import os.path
-from config import *
 from xrotate import *
 
 import datetime
