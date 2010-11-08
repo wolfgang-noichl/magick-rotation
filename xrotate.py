@@ -475,9 +475,39 @@ class rotate:
 
     # To rotate only the devices and not the screen
     def rotate_devices(self, direction):
+        if debug:
+            print "Entered rotate_devices"
         dev_list = self.dev.get_id_list()
+        self.wacom_count = 0
         for id_val in dev_list:
             self.rotate_device(direction, id_val)
+
+        self.wacom_count = 0
+        if debug:
+            print "wacom count: ", self.wacom_count
+            print "direction: " + direction
+
+        # for versions less than Lucid we will check 
+        # xsetwacom to see if there are any devices to 
+        # rotate
+        if self.wacom_count == 0:
+            wacom_dev = linuxwacom()
+            devices = getoutput("xsetwacom list")
+            if devices:
+                devices = devices.split("\n")
+                for item in devices:
+                    name = ""
+                    item_list = item.split()
+                    # Rebuild the device name with spaces but
+                    # skip the last word because it is the tool type
+                    for index in range(len(item_list) - 1):
+                        name += item_list[index]
+                        if index != (len(item_list) - 2):
+                            name += " "
+                    if debug:
+                        print "name: " + name + " direction: " + direction
+                    wacom_dev.rotate(name, direction)
+
 
     def rotate(self, direction):
         dev_list = self.dev.get_id_list()

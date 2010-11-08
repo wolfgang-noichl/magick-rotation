@@ -217,6 +217,12 @@ class btn_box(gtk.HBox):
 class magick_gui(gtk.Window):
     def __init__(self, title=""):
         gtk.Window.__init__(self)
+        dir_name = os.path.dirname(sys.argv[0])
+        if not dir_name:
+            dir_name = "."
+        self.path = dir_name + "/"
+			
+
         self.set_resizable(False)
         self.set_border_width(5)
 
@@ -256,6 +262,9 @@ class magick_gui(gtk.Window):
         self.load_data()
  
         self.add(box)
+
+    def get_path(self):
+        return self.path
 
     def load_data(self):
         cfg = config()
