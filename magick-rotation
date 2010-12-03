@@ -64,6 +64,10 @@
 #    added HP TM2t to supported models in About
 # 1.0 Converted scripts to be object oriented and separated the
 #     notifier, configuration file, GUI, and main section
+# 1.1 Added touch on/off capabilities
+# 1.2 Pulled hp-wmi logic out of the magick-rotation and is now
+#     listening to xrandr events instead.  hp-wmi is now its own
+#     script that listens to the hp-wmi event.
 
 prog_ver="1.2"
 
@@ -200,6 +204,35 @@ class engine:
         self.notifier.stop_processing()
 
 if __name__ == "__main__":
+    path = "."
+    if argv:
+        path = os.path.dirname(sys.argv[0])
+        if not path:
+            path = "."
+
+    sudo = "gksu "
+    command = "stat /usr/bin/gksudo"
+    is_gksudo = getstatusoutput(command) [0]
+    if is_gksudo == 0:
+       sudo = "gksudo "
+       
+    command = "stat /usr/bin/gksu"
+    is_gksu = getstatusoutput(command) [0]
+    if is_gksu == 0:
+       sudo = "gksu "
+
+    command = "stat /usr/bin/kdesudo"
+    is_kdesudo = getstatusoutput(command)[0]
+    if is_kdesudo == 0:
+        sudo = "kdesudo -c "
+    
+    command = "stat " + path + "/firstrun"
+    run_install = getstatusoutput(command)[0]
+    
+    if run_install == 0: 
+        command = sudo + "'python " + path + "/installer_gtk.py'"
+        success = getstatusoutput(command)[0]
+        sys.exit(success)
     magick = engine()
     magick.run()
 
@@ -217,7 +250,7 @@ if __name__ == "__main__":
 #11) format buttons & setup windows // made (in 0.3-2)
 #12) add GPL // made (in 0.3-3)
 
-##############################################################
+#######################################)#######################
 ##  This program is free software; you can redistribute it  ##
 ##  and/or modify it under the terms of the GNU General     ##
 ##  Public license as published by the Free Software        ##

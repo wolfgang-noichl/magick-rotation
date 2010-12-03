@@ -9,7 +9,7 @@ import os.path
 from config import *
 from listener import *
 
-#prog_ver="1.0"
+prog_ver="1.2"
 
 # supports threads in pygtk
 gobject.threads_init()
@@ -24,6 +24,7 @@ except:
 class about_dlg(gtk.Dialog):
     def __init__(self, name, version):
         gtk.Dialog.__init__(self, name)
+        version = prog_ver
         self.set_resizable(False)
         self.set_border_width(8)
         self.set_has_separator(False)

@@ -1,0 +1,207 @@
+#!/usr/bin/env python
+
+import gtk
+import pygtk
+import gobject
+import thread
+from apt_pm import *
+import sys
+import os.path
+from commands import getstatusoutput
+import platform
+
+class installer_dialog(gtk.MessageDialog):
+    def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
+        gtk.MessageDialog.__init__(self, parent,  flags,  type,  buttons,  message_format)
+        self.add_buttons(gtk.STOCK_OK,  gtk.RESPONSE_ACCEPT,  gtk.STOCK_CANCEL,  gtk.RESPONSE_REJECT)
+
+    def list_packages(self, packages,  win):
+        message = "The following packages are going to be installed:\n"
+        for package in packages:
+            message += " " + str(package) + '\n'
+        message += "\n Ok to install?"
+        
+        self.set_markup(message)
+        self.connect("close",  self.close)
+        self.connect("response",  self.check_response,  win)
+
+        self.show()
+    
+    def check_response(self,  dialog,  response, engine):
+        self.destroy()
+        if response == gtk.RESPONSE_ACCEPT:
+            thread.start_new_thread(engine.run_installer,  (None, ))
+
+    def close(self,  dialog=None):
+        self.destroy()
+        return True
+
+class installer_window(gtk.Window):
+    def __init__(self,  filepath):
+        gtk.Window.__init__(self)
+        self.filepath = filepath
+        image_filename = filepath + "MagickSplash.png"
+        HBox = gtk.HBox()
+        VBox = gtk.VBox()
+
+        self.fetching = False
+        self.installing = False
+
+        self.buffer = gtk.TextBuffer()
+        self.text_view = gtk.TextView()
+        self.text_view.set_editable(False)
+        self.text_view.set_buffer(self.buffer)
+        self.text_view.set_cursor_visible(False)
+        self.text_win = gtk.ScrolledWindow()
+        self.text_win.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        self.text_win.add(self.text_view)
+        self.text_win.set_size_request(250, 100)
+        
+        self.pkg_label = gtk.Label()
+        self.progress_bar = gtk.ProgressBar()
+        self.pkg_label.set_line_wrap(20)
+
+        image = gtk.Image()
+        image.set_from_file(image_filename) 
+
+        HBox.pack_start(image)        
+        HBox.pack_start(self.text_win)
+
+        VBox.pack_start(HBox)
+        VBox.pack_start(self.pkg_label)
+        VBox.pack_start(self.progress_bar)
+
+        self.add(VBox)
+        self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        self.connect("delete-event", self.close_window)
+
+    def get_filepath(self):
+        return self.filepath
+
+    def add_text(self,  text):
+        self.buffer.insert_at_cursor(text)
+        #Once we print the information, move the scrollbar where 
+        #the last bit of information was written.
+        vscroll = self.text_win.get_vscrollbar()
+        #The adjustment has the slider values
+        vadj = vscroll.get_adjustment()
+        #The upper value is the maximum scroll point
+        value = vadj.get_upper()
+        vadj.set_value(value)
+        
+    def dialog_hide(self):
+        self.dialog.hide()
+        
+    def list_packages(self, packages,  win):
+        message = "The following packages are going to be installed:\n"
+        for package in packages:
+            message += " " + str(package) + '\n'
+        message += "\n Ok to install?"
+        
+        self.set_markup(message)
+
+    def close_window(self, widget=None, data=None):
+        # Prevent the window from closing when the system is
+        # installing the packages
+        if self.installing and not self.fetching:
+            pass
+        else:
+            self.destroy()
+            gtk.main_quit()
+        return True
+
+class installer_engine:
+    def __init__(self,  path):
+        self.win = installer_window(path)
+        self.filepath = path
+
+    def compile_checkmagick(self):
+        version = platform.machine()
+        if version == "x86_64":
+            version = "checkmagick64"
+        else:
+            version = "checkmagick32"
+
+
+        command = "gcc -lX11 -lXrandr " +  self.filepath + "check.c -o " + self.filepath + version
+        success = getstatusoutput(command)
+        return success
+
+    def install_udev_rules(self):
+        command = "cp 62-magick.rules /etc/udev/rules.d/"
+        success = getstatusoutput(command)
+        return success
+
+    def remove_install_check(self):
+        command = "rm " + self.filepath + "firstrun"
+        success = getstatusoutput(command)
+        return success
+
+    def execute_steps(self,  data=None):
+        self.win.add_text("Checking for C libraries...\n")
+        self.apt = apt_pm()
+
+        #packages = self.apt.find_uninstalled(["libx11-dev", "libxrandr-dev"])
+        packages = self.apt.find_uninstalled(["kbattleship"])
+
+        if packages[1]:
+            for pkg in packages[1]:
+                self.win.add_text("Unable to find ")
+                self.win.add_text(pkg)
+                self.win.add_text('\n')
+                return -1
+        else:
+            # Ask the user if they want to install the package
+            # If they don't, then exit installer and do not 
+            # launch magick-rotation
+            package_string = ""
+            self.packages_to_install = False
+            if packages[0]:
+                for package in packages[0]:
+                    if not package_string:
+                        package_string += package
+                    else:
+                        package_string += (" " + package)
+                self.apt.mark_packages(packages[0])
+                self.packages_to_install = True
+
+                packages = self.apt.list_packages()
+                package_list = []
+                for package in packages:
+                    package_list.append(package.name)
+                    
+                package_list.append("\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n")
+                dialog = installer_dialog(self.win,  0, gtk.MESSAGE_INFO,  gtk.BUTTONS_NONE,  None)
+                dialog.list_packages(package_list,  self)
+                
+    def close_dialog(self,  dialog=None):
+        self.win.add_text("Canceling installation.")
+        dialog.close()
+        return True
+            
+
+    def run_installer(self,  data=None):
+            if self.packages_to_install:
+                self.apt.install(self.win)
+            self.win.add_text("Compiling check.c\n")
+            success = self.compile_checkmagick()
+            self.win.add_text("Installing udev rules\n")
+            success = self.install_udev_rules()
+            success = self.remove_install_check()
+            self.win.add_text("Installation complete.\n")
+            self.win.add_text("\n\nA system restart is \nrequired to ensure that \n")
+            self.win.add_text("magick-rotaiton will work\n")        
+
+
+    def run(self):
+        gobject.threads_init()
+        self.win.show_all()
+        thread.start_new_thread(self.execute_steps, (None, ))
+        gtk.main()
+
+if __name__ == "__main__" :
+    path = os.path.dirname(sys.argv[0])
+    if not path or path == ".":
+        path = "./"
+    i = installer_engine(path)
+    i.run()
