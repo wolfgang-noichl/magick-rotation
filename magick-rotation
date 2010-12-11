@@ -69,7 +69,7 @@
 #     listening to xrandr events instead.  hp-wmi is now its own
 #     script that listens to the hp-wmi event.
 
-prog_ver="1.2"
+prog_ver="1.3-development"
 
 import thread
 from gui_gtk import *
