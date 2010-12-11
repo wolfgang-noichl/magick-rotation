@@ -1,15 +1,16 @@
-# udev rules for HP WMI tablets.
+# udev rules for tablet pc's using an OEM-WMI
 #
 # These rules were compiled for the Ubuntu/Debian GNU/Linux distribution, but others may,
 # and indeed are encouraged to, use them also.
 #
-# Should you do so, PLEASE CO-ORDINATE ANY CHANGES OR ADDITIONS to hpwmi.rules with Jayhawk
-# so that we can try to present users with a standard set of device nodes which they can
-# rely on across the board.
+# Should you do so, PLEASE CO-ORDINATE ANY CHANGES OR ADDITIONS to 62-magick.rules with
+# Jayhawk so that we can try to present users with a standard set of device nodes which
+# they can rely on across the board.
 
-KERNEL!="event[0-9]*", GOTO="hp-wmi_end"
+KERNEL!="event[0-9]*", GOTO="oem-wmi_end"
 
-# The symlink constructed by the following rule is used in Magick Rotation's hpwmi.py.
+# The symlinks constructed by the following rules are used in Magick Rotation's oem_wmi.py.
 ATTRS{name}=="HP WMI hotkeys", SUBSYSTEM=="input", MODE="644" SYMLINK+="input/hp-wmi"
+ATTRS{name}=="Dell WMI hotkeys", SUBSYSTEM=="input", MODE="644" SYMLINK+="input/dell-wmi"
 
-LABEL="hp-wmi_end"
+LABEL="oem-wmi_end"
