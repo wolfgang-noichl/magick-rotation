@@ -25,17 +25,23 @@ class about_dlg(gtk.Dialog):
     def __init__(self, name, version):
         gtk.Dialog.__init__(self, name)
         version = prog_ver
+        filepath = os.path.dirname(sys.argv[0]) + "/"
+        image_filename = filepath + "MagickAbout.png"
+        HBox = gtk.HBox()
         self.set_resizable(False)
         self.set_border_width(8)
         self.set_has_separator(False)
         self.connect('delete_event', self.close_about)
-        about_title=gtk.Label("""
-        <b><span size="22000">Magick Rotation</span></b>""")
+        about_title=gtk.Label("""<b><span size="22000">Magick Rotation  </span></b>""")
         about_title.set_use_markup(True)
-        about_label=gtk.Label("""\nThis program supports HP's Pavilion TX2000 & TX2500 series, \nTouchSmart TX2z series, Elitebook 2700p series, & \nTouchSmart TM2 series tablet pc's\n\nVersion """ + version + """\n\nAuthors:  Red_Lion (red_lion@inbox.ru)\njayhawk\n\nContributor:  Favux\n\nAlso see http://ubuntuforums.org/showthread.php?t=996830""")
+        about_label=gtk.Label("""\nThis program supports HP's Pavilion TX2000 & TX2500 series,\nTouchSmart TX2z series, Elitebook 2700p series, &\nTouchSmart TM2 series tablet pc's\n\nVersion """ + version + """\n\nAuthors:  Red_Lion\njayhawk\n\nContributor:  Favux""")
         about_label.set_justify(gtk.JUSTIFY_CENTER)
-
-        self.vbox.add(about_title)
+        image = gtk.Image()
+        image.set_from_file(image_filename)
+        HBox.pack_start(image)
+        HBox.pack_start(about_title)
+        self.vbox.add(HBox)
+#        self.vbox.add(about_title)
         self.vbox.add(about_label)
         # OK button
         ok_button = gtk.Button(stock=gtk.STOCK_OK)
