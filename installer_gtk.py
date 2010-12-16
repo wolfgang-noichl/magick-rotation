@@ -83,7 +83,7 @@ class installer_window(gtk.Window):
     def __init__(self,  filepath):
         gtk.Window.__init__(self)
         self.filepath = filepath
-        image_filename = filepath + "/MagickSplash.png"
+        image_filename = filepath + "/MagickIcons/MagickSplash.png"
         HBox = gtk.HBox()
         VBox = gtk.VBox()
 
