@@ -35,7 +35,6 @@ class about_dlg(gtk.Dialog):
         about_title=gtk.Label("""<b><span size="22000">Magick Rotation  </span></b>""")
         about_title.set_use_markup(True)
         about_label=gtk.Label("""\nThis program supports HP's Pavilion TX2000 & TX2500 series,\nTouchSmart TX2z series, Elitebook 2700p series, &\nTouchSmart TM2 series tablet pc's\n\nVersion """ + version + """\n\nAuthors:  Red_Lion & jayhawk\n\nContributor:  Favux""")
-#\nAuthors:  Red_Lion\njayhawk\n\nContributor:  Favux""")
         about_label.set_justify(gtk.JUSTIFY_CENTER)
         image = gtk.Image()
         image.set_from_file(image_filename)
