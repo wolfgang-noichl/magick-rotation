@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import sys
 import pickle
 from xml.dom import minidom
@@ -48,7 +49,8 @@ class config:
 
         return [bool(autostart), rotate_mode, run_tablet_before, run_tablet, \
                 run_normal_before, run_normal, bool(isnotify), int(notify_timeout), \
-                float(waittime), bool(debug_log), bool(touch_toggle), version]
+                float(waittime), bool(debug_log), bool(touch_toggle), \
+                bool(hingevalue_toggle), version]
 
     def load_xml(self):
         # Default values
@@ -63,6 +65,7 @@ class config:
         self.option["waittime"] = 0.25
         self.option["debug_log"] = False
         self.option["touch_toggle"] = True
+        self.option["hingevalue_toggle"] = False
         self.option["version"] = "1.1"
 
         config = minidom.parse(os.path.expanduser(self.filename))
@@ -87,7 +90,8 @@ class config:
         return [self.option["autostart"], self.option["rotate_mode"], self.option["run_tablet_before"], \
                 self.option["run_tablet"], self.option["run_normal_before"], self.option["run_normal"], \
                 self.option["isnotify"], int(self.option["notify_timeout"]), float(self.option["waittime"]), \
-                self.option["debug_log"], self.option["touch_toggle"], self.option["version"]]
+                self.option["debug_log"], self.option["touch_toggle"],  self.option["hingevalue_toggle"], \
+                self.option["version"]]
 
     def write_data(self, data):
         self.option["autostart"] = data[0]
@@ -101,11 +105,12 @@ class config:
         self.option["waittime"] = data[8]
         self.option["debug_log"] = data[9]
         self.option["touch_toggle"] = data[10]
-        self.option["version"] = data[11]
+        self.option["hingevalue_toggle"] = data[11]
+        self.option["version"] = data[12]
 
         # Convert back to xml format
         write_str = "<magick-rotation>\n"
-        write_str += '    <version>"' + data[11] + '"</version>\n'
+        write_str += '    <version>"' + data[12] + '"</version>\n'
         for name, value in self.option.iteritems():
             if name != "version":
                 write_str += '    <option name="' + str(name) + '">\n' + \
@@ -141,8 +146,6 @@ Comment=Helps with automatic rotation
         else:
             if os.path.exists(os.path.expanduser(autostart_file_path)):
                 os.remove(os.path.expanduser(autostart_file_path))
-
-
 
 if __name__ == "__main__":
     c = config()

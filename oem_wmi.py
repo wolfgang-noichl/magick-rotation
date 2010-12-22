@@ -3,6 +3,7 @@
 import struct
 import os.path
 from commands import getoutput
+
 from config import *
 
 class oem_wmi:
@@ -46,10 +47,18 @@ class oem_wmi:
             rotate = ROTATE_LAPTOP
             if ev_type == EV_SW:
                 if ev_code == SW_TABLET_MODE:
-                    if ev_val:
-                        rotate = ROTATE_TABLET
+                    hingevalue_toggle = self.win.basic_table.get_hingevalue_toggle()
+                    if hingevalue_toggle == False:
+                        if ev_val:
+                            rotate = ROTATE_TABLET
+                        else:
+                            rotate = ROTATE_LAPTOP
+                    # Added for HP models Compaq TC4200 & 4400
                     else:
-                        rotate = ROTATE_LAPTOP
+                        if ev_val:
+                            rotate = ROTATE_LAPTOP
+                        else:
+                            rotate = ROTATE_TABLET
                     command = "xrandr -o " + rotate
         #            print command
                     getoutput(command)

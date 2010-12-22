@@ -34,7 +34,7 @@ class about_dlg(gtk.Dialog):
         self.connect('delete_event', self.close_about)
         about_title=gtk.Label("""<b><span size="22000">Magick Rotation  </span></b>""")
         about_title.set_use_markup(True)
-        about_label=gtk.Label("""\nThis program supports HP's Pavilion TX2000 & TX2500 series,\nTouchSmart TX2z series, Elitebook 2700p series, &\nTouchSmart TM2 series tablet pc's\n\nVersion """ + version + """\n\nAuthors:  Red_Lion & jayhawk\n\nContributor:  Favux""")
+        about_label=gtk.Label("""\nThis program supports HP (Compaq TC4200 & TC4400, Pavilion TX2000\n& TX2500, TouchSmart TX2z, Elitebook 2700p, & TouchSmart TM2)\nand Dell (Latitude XT & XT2) tablet pc's\n\nVersion """ + version + """\n\nAuthors:  Red_Lion & jayhawk\n\nContributor:  Favux""")
         about_label.set_justify(gtk.JUSTIFY_CENTER)
         image = gtk.Image()
         image.set_from_file(image_filename)
@@ -196,6 +196,10 @@ class main_table(gtk.Table):
         self.touch_toggle = gtk.CheckButton("Click tray icon to turn on/off touch?")
         self.attach(self.touch_toggle, 0, 1, 2, 3)
 
+        # Added for HP models Compaq TC4200 & 4400
+        self.hingevalue_toggle = gtk.CheckButton("BIOS hinge switch values reversed?")
+        self.attach(self.hingevalue_toggle, 0, 1, 3, 4)
+
     def set_autostart(self, data):
         self.autostart.set_active(data)
 
@@ -207,6 +211,12 @@ class main_table(gtk.Table):
 
     def get_touch_toggle(self):
         return self.touch_toggle.get_active()
+
+    def set_hingevalue_toggle(self, data):
+        self.hingevalue_toggle.set_active(data)
+
+    def get_hingevalue_toggle(self):
+        return self.hingevalue_toggle.get_active()
 
     def set_swivel_option(self, data):
         option_table = ["right", "inverted", "left", "normal"]
@@ -228,7 +238,6 @@ class magick_gui(gtk.Window):
             dir_name = "."
         self.path = dir_name + "/"
 			
-
         self.set_resizable(False)
         self.set_border_width(5)
 
@@ -287,7 +296,8 @@ class magick_gui(gtk.Window):
         self.adv_table.set_waittime(data[8])
         self.adv_table.set_debug_log(data[9])
         self.basic_table.set_touch_toggle(data[10])
-        self.version = data[11]
+        self.basic_table.set_hingevalue_toggle(data[11])
+        self.version = data[12]
 
     def show_about(self, widget=None):
         about = about_dlg("About", self.version)
@@ -306,6 +316,7 @@ class magick_gui(gtk.Window):
                         self.adv_table.get_waittime(), \
                         self.adv_table.get_debug_log(), \
                         self.basic_table.get_touch_toggle(), \
+                        self.basic_table.get_hingevalue_toggle(), \
                         self.version])
 
     def close_window(self, widget=None, data=None):
@@ -352,7 +363,6 @@ class tray_gui(gtk.StatusIcon):
                 else:
                     self.set_from_file(self.path + "magick-rotation-disabled-touchoff.png")
 
-      
 class tray_menu_gui(gtk.Menu):
     def __init__(self, engine):
         gtk.Menu.__init__(self)
