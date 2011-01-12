@@ -125,7 +125,7 @@ class engine:
 
     def run(self):
         if self.switch:
-            thread.start_new_thread(self.switch.run, (None,))
+            thread.start_new_thread(self.switch.run, (self.notifier,))
         thread.start_new_thread(self.notifier.state_notifier, (self.state_change,))
         gtk.main()
 

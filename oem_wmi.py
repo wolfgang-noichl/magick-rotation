@@ -16,7 +16,7 @@ class oem_wmi:
         self.filename = filepath
         self.win = win
 
-    def run(self, data=None):
+    def run(self, listener=None):
         fd = open(self.filename, "r")
 
         while True:
@@ -61,7 +61,14 @@ class oem_wmi:
                             rotate = ROTATE_TABLET
                     command = "xrandr -o " + rotate
         #            print command
-                    getoutput(command)
+                    run_command = True
+                    # This is to turn of rotation if the user
+                    # turns off the polling
+                    if listener:
+                        if not listener.get_polling_status():
+                            run_command = False
+                    if run_command:
+                        getoutput(command)
 
 if __name__ == "__main__":
     h = oem_wmi(None)
