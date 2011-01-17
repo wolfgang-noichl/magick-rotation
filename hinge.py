@@ -14,7 +14,7 @@ class hinge:
             for filename in filename_list:
                 command = "stat " + filename
                 if not getstatusoutput(command)[0]:
-                    ret_switch = oem_wmi(self.win)
+                    ret_switch = oem_wmi(filename=filename, win=self.win)
                     break
         return ret_switch
 

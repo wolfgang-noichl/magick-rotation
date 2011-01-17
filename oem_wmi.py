@@ -7,13 +7,8 @@ from commands import getoutput
 from config import *
 
 class oem_wmi:
-    def __init__(self, win=None):
-        dev_node = os.path.exists("/dev/input/hp-wmi")
-        if dev_node == True:
-            filepath = "/dev/input/hp-wmi"
-        else:
-            filepath = "/dev/input/dell-wmi"
-        self.filename = filepath
+    def __init__(self, filename=None, win=None):
+        self.filename = filename
         self.win = win
 
     def run(self, listener=None):
