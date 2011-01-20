@@ -33,6 +33,7 @@ class config:
         waittime = 0.25
         debug_log = False
         touch_toggle = True
+        hingevalue_toggle = False
         version = "1.1"
 
         config = os.path.expanduser(self.old_filename)

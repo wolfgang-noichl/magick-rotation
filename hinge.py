@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 from commands import getstatusoutput
+
 from oem_wmi import *
 
 class hinge:
     def __init__(self, win):
-        self.hingelist = {"oem_wmi":["/dev/input/hp-wmi", "/dev/input/dell-wmi"]}
+        self.hingelist = {"oem_wmi":["/dev/input/hp-wmi", "/dev/input/dell-wmi", "/dev/input/lenovo-acpi"]}
         self.win = win
 
     def get_switch(self):

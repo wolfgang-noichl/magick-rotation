@@ -1,6 +1,8 @@
 
-Magick Rotation 1.1						October 25, 2010
+Magick Rotation 1.2						December 3, 2010
 
+ChangeLog:
+1.2 - Removed hp-wmi out of magick-rotation, changed magick-rotation to listen to xrandr events, added installer to help get dependencies and compile check.c
 1.1 - Added touch on/off feature with associated icons, changed config file from .conf to .xml, removed separator line above buttons, modified About dialog label, changed description box in magick-rotation
 1.0 - Major code reorganization by Ayuthia - converted scripts to be object oriented and separated out the notifier, configuration file, GUI, and main sections
 0.5 - Added Ayuthia's evdev rotation support

@@ -1,4 +1,4 @@
-# udev rules for tablet pc's using an OEM-WMI
+# udev rules for tablet pc's using an OEM-WMI or OEM-ACPI
 #
 # These rules were compiled for the Ubuntu/Debian GNU/Linux distribution, but others may,
 # and indeed are encouraged to, use them also.
@@ -12,5 +12,6 @@ KERNEL!="event[0-9]*", GOTO="oem-wmi_end"
 # The symlinks constructed by the following rules are used in Magick Rotation's oem_wmi.py.
 ATTRS{name}=="HP WMI hotkeys", SUBSYSTEM=="input", MODE="644" SYMLINK+="input/hp-wmi"
 ATTRS{name}=="Dell WMI hotkeys", SUBSYSTEM=="input", MODE="644" SYMLINK+="input/dell-wmi"
+ATTRS{name}=="ThinkPad Extra Buttons", SUBSYSTEM=="input", MODE="644" SYMLINK+="input/lenovo-acpi"
 
 LABEL="oem-wmi_end"
