@@ -97,6 +97,9 @@ class devices:
             for prop_data in prop_info:
                 if prop_data.startswith("Wacom"):
                     return 1
+                # added for serial wacom tablet pc's
+                elif prop_data.startswith("Serial Wacom"):
+                    return 1
         return 0
 
 class wacom:
@@ -174,10 +177,11 @@ class linuxwacom:
         pass
 
     def toggle_touch(self, name, toggle):
+        # some versions of xsetwacom are case sensitive, use "o" instead of "O"
         if toggle:
-            switch = "On"
+            switch = "on"
         else:
-            switch = "Off"
+            switch = "off"
 
         val_string = 'xsetwacom set "' + str(name) + '" Touch ' + switch
         if debug:
