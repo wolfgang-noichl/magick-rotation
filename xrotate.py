@@ -74,6 +74,7 @@ class devices:
 
         return idx_list
 
+    # check if the device is using the evdev driver
     def is_evdev(self, id_val):
         idx = self.get_id_num(id_val)
         for prop in self.devices[idx][2]:
@@ -90,15 +91,13 @@ class devices:
                 return 1
         return 0
 
+    # check if the device is using the wacom driver
     def is_wacom(self, id_val):
         idx = self.get_id_num(id_val)
         for prop in self.devices[idx][2]:
             prop_info = prop.split("\t")
             for prop_data in prop_info:
                 if prop_data.startswith("Wacom"):
-                    return 1
-                # added for serial wacom tablet pc's
-                elif prop_data.startswith("Serial Wacom"):
                     return 1
         return 0
 
@@ -121,11 +120,15 @@ class wacom:
 
     def toggle_touch(self, toggle):
         if toggle:
-            switch = str(1)
+#            switch = str(1)
+            switch = "on"
         else:
-            switch = str(0)
+#            switch = str(0)
+            switch = "off"
 
-        val_string = 'xinput set-prop ' + str(self.id_val) + ' "Device Enabled" ' + switch
+#        val_string = 'xinput set-prop ' + str(self.id_val) + ' "Device Enabled" ' + switch
+        # use xsetwacom for touch toggle to accommodate serial tablet pc's
+        val_string = 'xsetwacom set "' + str(self.id_val) + '" Touch ' + switch
         if debug:
             print val_string
 
@@ -486,7 +489,6 @@ class rotate:
         for id_val in dev_list:
             self.rotate_device(direction, id_val)
 
-        self.wacom_count = 0
         if debug:
             print "wacom count: ", self.wacom_count
             print "direction: " + direction

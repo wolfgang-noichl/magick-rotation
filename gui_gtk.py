@@ -34,7 +34,7 @@ class about_dlg(gtk.Dialog):
         self.connect('delete_event', self.close_about)
         about_title=gtk.Label("""<b><span size="22000">Magick Rotation  </span></b>""")
         about_title.set_use_markup(True)
-        about_label=gtk.Label("""\nThis program supports Dell, HP, and ThinkPad tablet pc's.\n\nVersion """ + version + """\n\nAuthors:  Red_Lion & jayhawk\n\nContributor:  Favux""")
+        about_label=gtk.Label("""\nThis program supports Dell, HP, and Lenovo tablet pc's.\n\nVersion """ + version + """\n\nAuthors:  Red_Lion & jayhawk\n\nContributor:  Favux""")
         about_label.set_justify(gtk.JUSTIFY_CENTER)
         image = gtk.Image()
         image.set_from_file(image_filename)
