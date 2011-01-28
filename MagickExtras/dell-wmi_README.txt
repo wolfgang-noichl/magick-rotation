@@ -2,11 +2,11 @@ The default dell-wmi with the kernel does not report the hinge switch state whic
 
 Open a terminal and copy the dell-wmi-20101214-rafi folder to /usr/src.  Either use the path to the MagickExtras folder (assuming you extracted it onto your Desktop): 
 
-    cp -a /home/yourusername/Desktop/magick-rotation/MagickExtras/dell-wmi-20101214-rafi /usr/src/
+    sudo cp -a /home/yourusername/Desktop/magick-rotation/MagickExtras/dell-wmi-20101214-rafi /usr/src/
 
 or after you change directories into the MagickExtras folder:
 
-    cp -a dell-wmi-20101214-rafi /usr/src/
+    sudo cp -a dell-wmi-20101214-rafi /usr/src/
 
 Then continue with the following:
 

@@ -130,7 +130,7 @@ class config:
         autostart_desktop="""
 [Desktop Entry]
 Type=Application
-Name = Magick Rotation for HP tablet pc's
+Name = Magick Rotation for tablet pc's
 Exec=%s
 Icon = redo
 Comment=Helps with automatic rotation
