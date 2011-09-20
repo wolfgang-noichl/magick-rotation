@@ -188,6 +188,19 @@ class installer_engine:
         self.log.write("\n")
         return success
 
+#    def install_whitelist(self):
+#        command = "python " + self.filepath + "/whitelist.py " + self.filepath
+##        command = self.filepath + "/whitelist.py " + self.filepath
+#        self.log.write("Checking Unity whitelist\n")
+#        self.log.write(command)
+#        success = getstatusoutput(command)
+#        self.log.write("\n")
+#        self.log.write(str(success[0]))
+#        self.log.write("\n")
+#        self.log.write(str(success[1]))
+#        self.log.write("\n")
+#        return success
+
     def remove_install_check(self):
         command = "rm " + self.filepath + "/firstrun"
         self.log.write("Removing installed filecheck\n")
@@ -253,6 +266,8 @@ class installer_engine:
             success = self.compile_checkmagick()
             self.win.add_text("Installing udev rules\n")
             success = self.install_udev_rules()
+#            self.win.add_text("Checking for Unity system tray\nwhitelist\n")
+#            success = self.install_whitelist()
             success = self.remove_install_check()
             self.win.add_bold_text("\n\n\nINSTALLATION COMPLETE")
             self.win.add_text("\nA system restart is \nrequired to ensure that \n")

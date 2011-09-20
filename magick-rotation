@@ -69,7 +69,7 @@
 #     listening to xrandr events instead.  hp-wmi is now its own
 #     script that listens to the hp-wmi event.
 
-prog_ver="1.3-development"
+prog_ver="1.4"
 
 import thread
 from gui_gtk import *
@@ -203,6 +203,28 @@ class engine:
         gtk.main_quit()
         self.notifier.stop_processing()
 
+class autostart:
+    def __init__(self):
+        pass
+
+    def add_autostart(self):
+        autostart_desktop="""
+[Desktop Entry]
+Type=Application
+Name = Magick Rotation for tablet pc's
+Exec=%s
+Icon = redo
+Comment=Helps with automatic rotation
+"""
+        autostart_file_path = "~/.config/autostart/magick-rotation.desktop"
+
+        astfl=os.path.abspath(sys.argv[0])
+        if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+            os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+        wr=open(os.path.expanduser(autostart_file_path), "w")
+        wr.write(autostart_desktop % astfl)
+        wr.close()
+
 if __name__ == "__main__":
     path = "."
     if argv:
@@ -228,10 +250,15 @@ if __name__ == "__main__":
     
     command = "stat " + path + "/firstrun"
     run_install = getstatusoutput(command)[0]
+
+    wl = path + "/whitelist.py"
+    val = getstatusoutput(wl)[0]
     
     if run_install == 0: 
         command = sudo + "'python " + path + "/installer_gtk.py'"
         success = getstatusoutput(command)[0]
+        start = autostart()
+        start.add_autostart()
         sys.exit(success)
     magick = engine()
     magick.run()

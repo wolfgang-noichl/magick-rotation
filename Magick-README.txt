@@ -1,9 +1,9 @@
 
-Magick Rotation 1.3						January 28, 2011
+Magick Rotation 1.4						May 15, 2011
 
 
 NOTE: In the Advanced Setup command boxes do no use '&' after a program. For example adding '&' to Cairo Dock as in "cairo-dock -o &".  Adding the '&' will cause Magick Rotation to "hang".
-
+NOTE: If the stylus and other input tools have right and left orientation reversed when in a portrait tablet mode (cw or ccw), you likely have a known bug in xf86-input-wacom.  The bug caused cw and ccw to be reversed for xsetwacom in versions 0.10.9 through 0.11.0.  It is suggested you update xf86-input-wacom to a later version.  Cloning its git repository to update is described in the FAQ.
 
 PRELIMINARIES:  First make sure the infrastructure is in place.
 

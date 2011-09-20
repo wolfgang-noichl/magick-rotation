@@ -67,7 +67,7 @@ class config:
         self.option["debug_log"] = False
         self.option["touch_toggle"] = True
         self.option["hingevalue_toggle"] = False
-        self.option["version"] = "1.1"
+        self.option["version"] = "1.4"
 
         config = minidom.parse(os.path.expanduser(self.filename))
 

@@ -246,6 +246,167 @@ class evdev:
         # Return the randr name of the value
         return rotate_order[new_rotated_val]
 
+    def rotate_ctm(self, direction):
+        cur_ctm = self.dev.get_property("Coordinate Transformation Matrix").split(", ") 
+        # Do not run the function if the property does not exist
+        if not cur_ctm:
+            return None
+
+        cosine = {"normal":1, "right":0, "inverted":-1, "left":0}
+        sine   = {"normal":0, "right":-1, "inverted":0, "left":1}
+
+        normal_ctm = [1.0000, 0.0000, 0.0000, \
+                      0.0000, 1.0000, 0.0000, \
+                      0.0000, 0.0000, 1.0000]
+        ctm = [1.0000, 0.0000, 0.0000, \
+               0.0000, 1.0000, 0.0000, \
+               0.0000, 0.0000, 1.0000]
+
+        if debug:
+            print "normal: ",
+            print ctm
+        ctm[0] = float(normal_ctm[0]) * float(cosine[direction]) - float(normal_ctm[3]) * float(sine[direction])
+        ctm[1] = float(normal_ctm[1]) * float(cosine[direction]) - float(normal_ctm[4]) * float(sine[direction])
+        ctm[2] = float(0.0)
+        ctm[3] = float(normal_ctm[0]) * float(sine[direction])   + float(normal_ctm[3]) * float(cosine[direction])
+        ctm[4] = float(normal_ctm[1]) * float(sine[direction])   + float(normal_ctm[4]) * float(cosine[direction])
+        ctm[5] = float(0.0)
+#        ctm[2] = float(cur_ctm[2]) * float(cosine[direction]) - float(cur_ctm[5]) * float(sine[direction])
+#        ctm[5] = float(cur_ctm[2]) * float(sine[direction])   + float(cur_ctm[5]) * float(cosine[direction])
+
+        if (ctm[0] < 0 or ctm[1] < 0):
+            ctm[2] = 1
+        
+        if (ctm[3] < 0 or ctm[4] < 0):
+            ctm[5] = 1
+        
+        mon = monitor()
+        tablet = mon.get_monitor()
+
+        if not tablet:
+            return None
+
+        x_offset = 0
+        y_offset = 0
+
+# This is for testing only.  It is used to adjust the tablet offset to
+# simulate another monitor
+#        tablet.x_offset = 1280
+#        tablet.y_offset = 0
+
+        max_x = 0
+        sum_x = 0
+        max_y = 0
+        sum_y = 0
+        cur_dir = tablet.direction
+        
+        if (cur_dir == 'normal' or
+            cur_dir == 'inverted'):
+            screen_x = tablet.x
+            screen_y = tablet.y
+            screen_x_offset = tablet.x_offset
+            screen_y_offset = tablet.y_offset
+        else:
+            screen_x = tablet.y
+            screen_y = tablet.x
+            screen_x_offset = tablet.x_offset
+            screen_y_offset = tablet.y_offset
+
+        mon_list = mon.monitor_list
+
+        for index in range(mon.count):
+            if mon_list[index].name not in ["LVDS", "DFP"]:
+                sum_x += float(mon_list[index].x)
+                sum_y += float(mon_list[index].y)
+                if float(mon_list[index].x) > float(max_x):
+                    max_x = float(mon_list[index].x)
+                if float(mon_list[index].y) > float(max_y):
+                    max_y = float(mon_list[index].y)
+
+#        cur_dir = tablet.direction
+
+        if (direction == 'normal' or
+            direction == 'inverted'):
+            top_x = float(screen_x)
+            top_y = float(screen_y)
+            sum_x += float(screen_x)
+            sum_y += float(screen_y)
+            if max_x < float(screen_x):
+                max_x = float(screen_x)
+            if max_y < float(screen_y):
+                max_y = float(screen_y)
+            if direction == 'inverted':
+                x_offset = 1
+                y_offset = 1
+        if (direction == 'left' or
+            direction == 'right'):
+            top_x = float(screen_y)
+            top_y = float(screen_x)
+            sum_x += float(screen_x)
+            sum_y += float(screen_y)
+            if max_x < float(screen_y):
+                max_x = float(screen_y)
+            if max_y < float(screen_x):
+                max_y = float(screen_x)
+            if direction == 'left':
+                x_offset = 1
+                screen_x_offset = float(screen_x_offset) + float(screen_y)
+                screen_y_offset = float(screen_y_offset)
+            else:
+                y_offset = 1
+                screen_x_offset = float(screen_x_offset)
+                screen_y_offset = float(screen_y_offset) + float(screen_x)
+
+        if debug:
+            print cur_dir
+            print "tablet x: ", tablet.x
+            print "screen x: ", screen_x
+            print "tablet y: ", tablet.y
+            print "screen y: ", screen_y
+            print "top x: ", top_x
+            print "max x: ", max_x
+            print "sum x: ", sum_x
+            print "top y: ", top_y
+            print "max y: ", max_y
+            print "sum y: ", sum_y
+            print "tablet x offset: ", tablet.x_offset
+            print "tablet y offset: ", tablet.y_offset
+            print "screen x offset: ", screen_x_offset
+            print "screen y offset: ", screen_y_offset
+
+        if float(tablet.x_offset) > 0.0:
+            ctm[0] = float(ctm[0]) * float(top_x) / float(sum_x)
+            ctm[1] = float(ctm[1]) * float(top_x) / float(sum_x)
+            ctm[2] = float(screen_x_offset) / float(sum_x)
+        else:
+            ctm[0] = float(ctm[0]) * float(top_x) / float(max_x)
+            ctm[1] = float(ctm[1]) * float(top_x) / float(max_x)
+
+        if float(tablet.y_offset) > 0.0:
+            ctm[3] = float(ctm[3]) * float(top_y) / float(sum_y)
+            ctm[4] = float(ctm[4]) * float(top_y) / float(sum_y)
+            ctm[5] = float(screen_y_offset) / float(sum_y)
+        else:
+            ctm[3] = float(ctm[3]) * float(top_y) / float(max_y)
+            ctm[4] = float(ctm[4]) * float(top_y) / float(max_y)
+
+        if debug:
+            print "%s: " % direction,
+            print ctm
+
+        val_string = "xinput set-prop " + str(self.id_val) + " 'Coordinate Transformation Matrix' " + str(ctm[0]) + " " + str(ctm[1]) + " " + str(ctm[2]) + " " + str(ctm[3]) + " " + str(ctm[4]) + " " + str(ctm[5]) + " " + str(ctm[6]) + " " + str(ctm[7]) + " " + str(ctm[8])
+        print val_string
+
+        result =  getstatusoutput(val_string)[1]
+        if debug:
+            if result:
+                print result
+        
+        print "%s: " % direction,
+        print ctm
+
+        return 1
+
     def rotate(self, direction):
         direction_dict = {"normal":[0,0,0], "left":[1,0,1], \
                           "inverted":[1,1,0], "right":[0,1,1]}
@@ -395,26 +556,25 @@ class evdev:
             print calib_bottom_y, "    ", new_bottom_y
 
 class screen:
-    def __init__(self):
-        pass
+    name = ""
+    x = 0
+    y = 0
+    x_offset = 0
+    y_offset = 0
+    direction = ""
 
-    def get_cur_value(self):
-#        xrandr = getoutput("xrandr -q --verbose").split('\n')
-#        randr_name = "normal"
-#        for line in xrandr:
-#            display_info = line.split(" ")
-#            if len(display_info) > 5:
-#                connected = display_info[1]
-#                if connected == "connected":
-#                    randr_name = display_info[4]
-#        return randr_name
-        xrandr = getoutput("echo $(xrandr -q --verbose | grep 'connected' | egrep -o  '\) (normal|left|inverted|right) \(' | egrep -o '(normal|left|inverted|right)')")
-        return xrandr
+    def __init__(self, new_name=None, new_x=None, new_y=None, new_x_offset=None, new_y_offset=None, new_direction=None):
+        screen.name = new_name
+        screen.x = new_x
+        screen.y = new_y
+        screen.x_offset = new_x_offset
+        screen.y_offset = new_y_offset
+        screen.direction = new_direction
 
-    def get_next_rotation(self):
+    def get_next_rotation(self, direction):
         rotate_order = ["normal", "left", "inverted", "right"]
-        randr_name = self.get_cur_value()
-
+        randr_name = direction
+   
         randr_val = rotate_order.index(randr_name)
         # Add one to get the next rotation value and
         # do a modulo (gets the remainder) to get the next value
@@ -433,10 +593,57 @@ class screen:
             print " Rotating screen"
             print val_string
         result =  getstatusoutput(val_string)[1]
+        screen.direction = new_dir
         if debug:
             if result:
                 print result
             print
+        return new_dir
+
+class monitor:
+    monitor_list = []
+    count = 0
+
+    def __init__(self):
+        cmd = "xrandr -q --verbose 2>/dev/null|grep connected|grep -v disconnected"
+        monitor_data = getoutput(cmd)
+        monitor_data = monitor_data.split("\n")
+        monitor_count = len(monitor_data)
+
+        #grab the resolution information
+        for index in range(monitor_count):
+            resolution  = monitor_data[index].split("connected ")[1].split(" (")[0]
+            if resolution.startswith("("):
+                # if it starts with a '(' then the monitor is plugged in but disabled
+                pass
+            else:
+                x_coord = resolution.split("x")[0]
+                y_coord = resolution.split("x")[1].split('+')[0]
+                off_x = resolution.split("x")[1].split('+')[1]
+                off_y = resolution.split("x")[1].split('+')[2]
+
+                direction = monitor_data[index].split(") ")[1].split(" (")[0]
+                name = monitor_data[index].split(" ")[0]
+
+                monitor.monitor_list.append(screen())
+                monitor.monitor_list[monitor.count].name = name
+                monitor.monitor_list[monitor.count].x = x_coord
+                monitor.monitor_list[monitor.count].y = y_coord
+                monitor.monitor_list[monitor.count].x_offset = off_x
+                monitor.monitor_list[monitor.count].y_offset = off_y
+                monitor.monitor_list[monitor.count].direction = direction
+#                mon = screen(name, x_coord, y_coord, off_x, off_y, direction)
+#                monitor.monitor_list.append(mon)
+#                monitor.monitor_list.append([mon.name, mon.x, mon.y, mon.x_offset, mon.y_offset, mon.direction])
+                monitor.count += 1
+
+    def get_monitor(self):
+        tablet_list = ["LVDS", "DFP"]
+        for mon in monitor.monitor_list:
+            if mon.name in tablet_list:
+                return mon
+
+        return None
 
 class rotate:
     def __init__(self):
@@ -466,7 +673,12 @@ class rotate:
             if debug:
                 print processing + self.dev.get_device_name(id_val)
             evdev_dev = evdev(self.dev.get_device(id_val), id_val)
-            evdev_dev.rotate(direction)
+            # This will try to rotate using the Coordinate
+            # Transformation Matrix but if it cannot, then
+            # it will fall back to other rotation method
+            print "going: %s" % direction
+            if not evdev_dev.rotate_ctm(direction):
+                evdev_dev.rotate(direction)
         elif self.dev.is_wacom(id_val):
             self.wacom_count += 1
             processing = "rotating wacom device "
@@ -479,6 +691,32 @@ class rotate:
 #            if debug:
 #                print processing + self.dev.get_device_name(id_val)
 
+    def rotate_ctm_device(self, direction, device):
+        id_val = 0
+        if not str(device).isdigit():
+            id_val = self.dev.find_id(device)
+        else:
+            id_val = device
+
+        id_val = int(id_val)
+
+        if self.dev.is_evdev(id_val):
+            processing = "rotating evdev device "
+            if debug:
+                print processing + self.dev.get_device_name(id_val)
+            evdev_dev = evdev(self.dev.get_device(id_val), id_val)
+            evdev_dev.rotate_ctm(direction)
+#        elif self.dev.is_wacom(id_val):
+#            self.wacom_count += 1
+#            processing = "rotating wacom device "
+#            if debug:
+#                print processing + self.dev.get_device_name(id_val)
+#            wacom_dev = wacom(self.dev.get_device(id_val), id_val)
+#            wacom_dev.rotate(direction)
+        else:
+            processing = "skipping "
+#            if debug:
+#                print processing + self.dev.get_device_name(id_val)
 
     # To rotate only the devices and not the screen
     def rotate_devices(self, direction):
@@ -518,9 +756,20 @@ class rotate:
     def rotate(self, direction):
         dev_list = self.dev.get_id_list()
 
-        display = screen()
-        display.rotate(direction)
-        direction = display.get_cur_value()
+        mon = monitor()
+        display = mon.get_monitor()
+
+        if not display:
+            if debug:
+                print "No tablet monitor found"
+                return None
+
+#        direction = display.direction
+        if not direction:
+            direction = display.get_next_rotation(display.direction)
+        display.direction = display.rotate(direction)
+
+        direction = display.direction
         self.wacom_count = 0
         for id_val in dev_list:
             if debug:
@@ -581,7 +830,7 @@ class touch:
 #                if len(tool_type) == 3:
 #                    tool_type = tool_type[2]
                     if tool_type in ["TOUCH", "touch"]:
-               	        wacom_dev.toggle_touch(name, toggle)
+                           wacom_dev.toggle_touch(name, toggle)
 
 if __name__ == "__main__":
     r = rotate()
@@ -590,6 +839,7 @@ if __name__ == "__main__":
 
 #    t = touch()
 #    t.toggle_touch(1)
+
 # Remember to uncomment this so that it will work properly
     if (len(argv) == 2):
         direction = argv[1]
@@ -605,6 +855,11 @@ if __name__ == "__main__":
         print "xrotate.py <normal/left/inverted/right>\n",
         print "Example: xrotate.py left'"
         exit(0)
+
+# These three lines are for testing the ctm rotation
+#    direction = argv[1]
+#    r.rotate_ctm_device(direction, d.find_id('Logitech USB Mouse'))
+#    r.rotate_ctm_device(direction, d.find_id('N-Trig MultiTouch'))
 
 #    if (len(argv) == 3):
 #        direction = argv[1]
