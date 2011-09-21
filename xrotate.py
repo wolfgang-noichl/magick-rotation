@@ -313,15 +313,18 @@ class evdev:
             screen_y_offset = tablet.y_offset
 
         mon_list = mon.monitor_list
+        tablet_list = ["LVDS", "DFP"]
 
         for index in range(mon.count):
-            if mon_list[index].name not in ["LVDS", "DFP"]:
-                sum_x += float(mon_list[index].x)
-                sum_y += float(mon_list[index].y)
-                if float(mon_list[index].x) > float(max_x):
-                    max_x = float(mon_list[index].x)
-                if float(mon_list[index].y) > float(max_y):
-                    max_y = float(mon_list[index].y)
+            for mon_type in tablet_list:
+                if mon_list[index].name.startswith(mon_type):
+                    sum_x += float(mon_list[index].x)
+                    sum_y += float(mon_list[index].y)
+                    if float(mon_list[index].x) > float(max_x):
+                        max_x = float(mon_list[index].x)
+                    if float(mon_list[index].y) > float(max_y):
+                        max_y = float(mon_list[index].y)
+                    break
 
 #        cur_dir = tablet.direction
 
@@ -640,8 +643,9 @@ class monitor:
     def get_monitor(self):
         tablet_list = ["LVDS", "DFP"]
         for mon in monitor.monitor_list:
-            if mon.name in tablet_list:
-                return mon
+            for check in tablet_list:
+                if mon.name.startswith(check):
+                    return mon
 
         return None
 
