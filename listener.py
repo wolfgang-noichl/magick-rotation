@@ -58,7 +58,10 @@ class listener:
                 check_machine = "checkmagick32"
                 if version == "x86_64":
                     check_machine = "checkmagick64"
-                randr_check = self.win.get_path() + check_machine
+                if os.path.exists("/usr/bin/" + check_machine):
+                    randr_check = "/usr/bin/" + check_machine
+                else:
+                    randr_check = self.win.get_path() + check_machine
                 self.debug.debug(randr_check)
                 cur_state = getstatusoutput(randr_check)[0] / 256
                 self.debug.debug("cur_state: %s " % cur_state)
