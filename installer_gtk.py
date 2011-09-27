@@ -161,11 +161,12 @@ class installer_engine:
     def compile_checkmagick(self):
         version = platform.machine()
         if version == "x86_64":
-            version = "/checkmagick64"
+            version = "checkmagick64"
         else:
-            version = "/checkmagick32"
+            version = "checkmagick32"
+        self.version = version
 
-        command = "gcc -lX11 -lXrandr " +  self.filepath + "/check.c -o " + self.filepath + version
+        command = "gcc -lX11 -lXrandr " +  self.filepath + "/check.c -o " + self.filepath + "/" + version
         self.log.write("Compiling check.c\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -176,9 +177,21 @@ class installer_engine:
         self.log.write("\n")
         return success
 
+    def install_checkmagick(self):
+        command = "mv " + self.version + " /usr/bin/"
+        self.log.write("Moving\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
     def install_udev_rules(self):
-        command = "cp 62-magick.rules /etc/udev/rules.d/"
-        self.log.write("Copying\n")
+        command = "mv 62-magick.rules /etc/udev/rules.d/"
+        self.log.write("Moving\n")
         self.log.write(command)
         success = getstatusoutput(command)
         self.log.write("\n")
@@ -248,7 +261,7 @@ class installer_engine:
                 for package in packages:
                     package_list.append(package.name)
                     
-            package_list.append("\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n")
+            package_list.append("\n\nFile to install in /usr/bin:\ncheckmagick\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n")
             dialog.list_packages(package_list,  self,  self.win)
                 
     def close_dialog(self,  dialog=None):
@@ -264,6 +277,8 @@ class installer_engine:
                 self.win.pkg_label.hide()
             self.win.add_text("Compiling check.c\n")
             success = self.compile_checkmagick()
+            self.win.add_text("Installing checkmagick\n")
+            success = self.install_checkmagick()
             self.win.add_text("Installing udev rules\n")
             success = self.install_udev_rules()
 #            self.win.add_text("Checking for Unity system tray\nwhitelist\n")
