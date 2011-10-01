@@ -5,16 +5,19 @@ import pygtk
 import gobject
 import sys
 import thread
+import os.path
+from commands import getstatusoutput
+import platform
+import pango
+
+sys.dont_write_bytecode = True
+
 try:
     from apt_pm import *
     apt_installed = True
 except ImportError:
     apt_installed = False
-    
-import os.path
-from commands import getstatusoutput
-import platform
-import pango
+
 
 class installer_dialog(gtk.MessageDialog):
     def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
@@ -164,9 +167,10 @@ class installer_engine:
             version = "checkmagick64"
         else:
             version = "checkmagick32"
-        self.version = version
+        self.bit_ver = version
 
         command = "gcc -lX11 -lXrandr " +  self.filepath + "/check.c -o " + self.filepath + "/" + version
+        self.log.write("\n\n")
         self.log.write("Compiling check.c\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -178,8 +182,8 @@ class installer_engine:
         return success
 
     def install_checkmagick(self):
-        command = "mv " + self.version + " /usr/bin/"
-        self.log.write("Moving\n")
+        command = "mv " + self.bit_ver + " /usr/bin/"
+        self.log.write("Moving checkmagick\n")
         self.log.write(command)
         success = getstatusoutput(command)
         self.log.write("\n")
@@ -191,7 +195,7 @@ class installer_engine:
 
     def install_udev_rules(self):
         command = "mv 62-magick.rules /etc/udev/rules.d/"
-        self.log.write("Moving\n")
+        self.log.write("Moving 62-magick.rules\n")
         self.log.write(command)
         success = getstatusoutput(command)
         self.log.write("\n")
@@ -201,22 +205,12 @@ class installer_engine:
         self.log.write("\n")
         return success
 
-#    def install_whitelist(self):
-#        command = "python " + self.filepath + "/whitelist.py " + self.filepath
-##        command = self.filepath + "/whitelist.py " + self.filepath
-#        self.log.write("Checking Unity whitelist\n")
-#        self.log.write(command)
-#        success = getstatusoutput(command)
-#        self.log.write("\n")
-#        self.log.write(str(success[0]))
-#        self.log.write("\n")
-#        self.log.write(str(success[1]))
-#        self.log.write("\n")
-#        return success
-
-    def remove_install_check(self):
-        command = "rm " + self.filepath + "/firstrun"
-        self.log.write("Removing installed filecheck\n")
+    def create_magick_folder(self):
+        if os.path.exists("/usr/share/magick-rotation"):
+            command = ""
+        else:
+            command = "mkdir /usr/share/magick-rotation"
+        self.log.write("Create folder magick-rotation in /usr/share\n")
         self.log.write(command)
         success = getstatusoutput(command)
         self.log.write("\n")
@@ -224,6 +218,101 @@ class installer_engine:
         self.log.write("\n")
         self.log.write(str(success[1]))
         self.log.write("\n")
+        return success
+
+    def install_readme(self):
+        command = "cp Magick-README.txt /usr/share/magick-rotation/"
+        self.log.write("Copying Magick-README\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
+    def install_magick_files(self):
+        magick_filename = {"magick_files":["ChangeLog", "config.py", "debug.py", "gui_gtk.py", "hinge.py", "listener.py", "magick-rotation", "oem_wmi.py", "xrotate.py"]}
+        self.log.write("Moving magick-rotation files\n")
+        for magick_files, filename_list in magick_filename.iteritems():
+            for filename in filename_list:
+                command = "mv " + self.filepath + "/" + filename + " /usr/share/magick-rotation/" + filename
+                self.log.write(command)
+                success = getstatusoutput(command)
+                self.log.write("\n")
+                self.log.write(str(success[0]))
+                self.log.write("\n")
+                self.log.write(str(success[1]))
+        return success
+
+    def create_magickicons_folder(self):
+        if os.path.exists("/usr/share/magick-rotation/MagickIcons"):
+            command = ""
+        else:
+            command = "mkdir /usr/share/magick-rotation/MagickIcons"
+        self.log.write("\n")
+        self.log.write("Create folder MagickIcons in /usr/share/magick-rotation\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
+    def install_magick_icons(self):
+        icon_filename = {"magick_icons":["MagickAbout.png", "magick-rotation-disabled.png", "magick-rotation-disabled-touchoff.png", "magick-rotation-enabled.png", "magick-rotation-enabled-touchoff.png"]}
+        self.log.write("Moving MagickIcon files\n")
+        for magick_icons, filename_list in icon_filename.iteritems():
+            for filename in filename_list:
+                command = "mv " + self.filepath + "/MagickIcons/" + filename + " /usr/share/magick-rotation/MagickIcons/" + filename
+                self.log.write(command)
+                success = getstatusoutput(command)
+                self.log.write("\n")
+                self.log.write(str(success[0]))
+                self.log.write("\n")
+                self.log.write(str(success[1]))
+        return success
+
+    def remove_splashicon(self):
+        command = "rm " + self.filepath + "/MagickIcons/MagickSplash.png"
+        self.log.write("\n")
+        self.log.write("Removing MagickSplash.png\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        return success
+
+    def remove_magickicons(self):
+        command = "rmdir " + self.filepath + "/MagickIcons"
+        self.log.write("\n")
+        self.log.write("Removing MagickIcons folder\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
+    def remove_install_files(self):
+        install_filename = {"install_files":["apt_installprogress_gtk.py", "apt_pm.py", "check.c", "firstrun", "installer_gtk.py", "whitelist.py"]}
+        self.log.write("Removing uneeded install files\n")
+        for install_files, filename_list in install_filename.iteritems():
+            for filename in filename_list:
+                command = "rm " + self.filepath + "/" + filename
+                self.log.write(command)
+                success = getstatusoutput(command)
+                self.log.write("\n")
+                self.log.write(str(success[0]))
+                self.log.write("\n")
+                self.log.write(str(success[1]))
         return success
 
     def execute_steps(self,  data=None):
@@ -261,7 +350,7 @@ class installer_engine:
                 for package in packages:
                     package_list.append(package.name)
                     
-            package_list.append("\n\nFile to install in /usr/bin:\ncheckmagick\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n")
+            package_list.append("\n\nFile to install in /usr/bin:\ncheckmagick\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n\nFolder to install in /usr/share:\nmagick-rotation\n")
             dialog.list_packages(package_list,  self,  self.win)
                 
     def close_dialog(self,  dialog=None):
@@ -281,10 +370,20 @@ class installer_engine:
             success = self.install_checkmagick()
             self.win.add_text("Installing udev rules\n")
             success = self.install_udev_rules()
-#            self.win.add_text("Checking for Unity system tray\nwhitelist\n")
-#            success = self.install_whitelist()
-            success = self.remove_install_check()
-            self.win.add_bold_text("\n\n\nINSTALLATION COMPLETE")
+            self.win.add_text("Installing magick-rotation folder\n")
+            success = self.create_magick_folder()
+            self.win.add_text("Moving magick-rotation files\n")
+            success = self.install_readme()
+            success = self.install_magick_files()
+            self.win.add_text("Installing MagickIcons folder\n")
+            success = self.create_magickicons_folder()
+            self.win.add_text("Moving MagickIcons files\n")
+            success = self.install_magick_icons()
+            self.win.add_text("Removing uneeded files\n")
+            success = self.remove_splashicon()
+            success = self.remove_magickicons()
+            success = self.remove_install_files()
+            self.win.add_bold_text("\nINSTALLATION COMPLETE")
             self.win.add_text("\nA system restart is \nrequired to ensure that \n")
             self.win.add_text("magick-rotation will work.\n")
 

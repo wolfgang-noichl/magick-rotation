@@ -67,7 +67,7 @@ class config:
         self.option["debug_log"] = False
         self.option["touch_toggle"] = True
         self.option["hingevalue_toggle"] = False
-        self.option["version"] = "1.4"
+        self.option["version"] = "1.5"
 
         config = minidom.parse(os.path.expanduser(self.filename))
 
@@ -131,13 +131,21 @@ class config:
 [Desktop Entry]
 Type=Application
 Name = Magick Rotation for tablet pc's
-Exec=%s
+Exec = %s
 Icon = redo
 Comment=Helps with automatic rotation
 """
         autostart_file_path = "~/.config/autostart/magick-rotation.desktop"
 
-        if autostart:
+        # Exec string (%s) dependent on where the magick-rotation script is located
+        if os.path.exists("/usr/share/magick-rotation"):
+            usr_share = "magick-rotation/magick-rotation"
+            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+            wr=open(os.path.expanduser(autostart_file_path), "w")
+            wr.write(autostart_desktop % usr_share)
+            wr.close()
+        elif autostart:
             astfl=os.path.abspath(sys.argv[0])
             if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
                 os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
@@ -147,6 +155,17 @@ Comment=Helps with automatic rotation
         else:
             if os.path.exists(os.path.expanduser(autostart_file_path)):
                 os.remove(os.path.expanduser(autostart_file_path))
+
+#        if autostart:
+#            astfl=os.path.abspath(sys.argv[0])
+#            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+#                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+#            wr=open(os.path.expanduser(autostart_file_path), "w")
+#            wr.write(autostart_desktop % astfl)
+#            wr.close()
+#        else:
+#            if os.path.exists(os.path.expanduser(autostart_file_path)):
+#                os.remove(os.path.expanduser(autostart_file_path))
 
 if __name__ == "__main__":
     c = config()

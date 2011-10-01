@@ -69,16 +69,25 @@
 #     listening to xrandr events instead.  hp-wmi is now its own
 #     script that listens to the hp-wmi event.
 
-prog_ver="1.4"
+prog_ver="1.5"
 
 import thread
-from gui_gtk import *
-from listener import *
-from debug import *
 import sys
 import os
-from hinge import *
 import platform
+
+if os.path.exists(os.path.dirname(sys.argv[0]) + "/firstrun"):
+    sys.dont_write_bytecode = True
+    from gui_gtk import *
+    from listener import *
+    from debug import *
+    from hinge import *
+else:
+    from gui_gtk import *
+    from listener import *
+    from debug import *
+    from hinge import *
+
 
 global pynotify_support
 try:
@@ -212,18 +221,34 @@ class autostart:
 [Desktop Entry]
 Type=Application
 Name = Magick Rotation for tablet pc's
-Exec=%s
+Exec = %s
 Icon = redo
 Comment=Helps with automatic rotation
 """
         autostart_file_path = "~/.config/autostart/magick-rotation.desktop"
 
-        astfl=os.path.abspath(sys.argv[0])
-        if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
-            os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
-        wr=open(os.path.expanduser(autostart_file_path), "w")
-        wr.write(autostart_desktop % astfl)
-        wr.close()
+        # Exec string (%s) dependent on where the magick-rotation script is located
+        if os.path.exists("/usr/share/magick-rotation"):
+            usr_share = "magick-rotation/magick-rotation"
+            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+            wr=open(os.path.expanduser(autostart_file_path), "w")
+            wr.write(autostart_desktop % usr_share)
+            wr.close()
+        else:
+            astfl=os.path.abspath(sys.argv[0])
+            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+            wr=open(os.path.expanduser(autostart_file_path), "w")
+            wr.write(autostart_desktop % astfl)
+            wr.close()
+
+#        astfl=os.path.abspath(sys.argv[0])
+#        if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+#            os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+#        wr=open(os.path.expanduser(autostart_file_path), "w")
+#        wr.write(autostart_desktop % astfl)
+#        wr.close()
 
 if __name__ == "__main__":
     path = "."
@@ -247,7 +272,7 @@ if __name__ == "__main__":
     is_kdesudo = getstatusoutput(command)[0]
     if is_kdesudo == 0:
         sudo = "kdesudo -c "
-    
+
     command = "stat " + path + "/firstrun"
     run_install = getstatusoutput(command)[0]
 
