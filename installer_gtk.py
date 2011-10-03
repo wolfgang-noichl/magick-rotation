@@ -169,7 +169,10 @@ class installer_engine:
             version = "checkmagick32"
         self.bit_ver = version
 
-        command = "gcc -lX11 -lXrandr " +  self.filepath + "/check.c -o " + self.filepath + "/" + version
+        # The new toolchain in Oneiric requires the linked libraries at the end of the compile command
+#        command = "gcc -lX11 -lXrandr " +  self.filepath + "/check.c -o " + self.filepath + "/" + version
+        # Fortunately the syntax is backwards compatible obviating a major headache
+        command = "gcc " +  self.filepath + "/check.c -o " + self.filepath + "/" + version + " -lX11 -lXrandr"
         self.log.write("\n\n")
         self.log.write("Compiling check.c\n")
         self.log.write(command)
