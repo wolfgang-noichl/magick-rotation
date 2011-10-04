@@ -139,8 +139,8 @@ Comment=Helps with automatic rotation
 
         if autostart:
             # Exec string (%s) dependent on where the magick-rotation script is located
-            if os.path.exists("/usr/share/magick-rotation"):
-                usr_share = "magick-rotation/magick-rotation"
+            if os.path.exists("/usr/share/magick-rotation/magick-rotation"):
+                usr_share = "/usr/share/magick-rotation/magick-rotation"
                 if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
                     os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
                 wr=open(os.path.expanduser(autostart_file_path), "w")
