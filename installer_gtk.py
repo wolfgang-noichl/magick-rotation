@@ -31,7 +31,7 @@ class installer_dialog(gtk.MessageDialog):
             message = "The following packages are going to be installed:\n"
         for package in packages:
             message += " " + str(package) + '\n'
-        message += "\nOk to install?\n"
+        message += "\nOK to install the above?\n"
         
         self.set_markup(message)
         engine.log.write(message)
@@ -155,7 +155,8 @@ class installer_window(gtk.Window):
         return True
 
 class installer_engine:
-    def __init__(self,  path):
+    def __init__(self,  path, usr_name=None):
+        self.usr_name = usr_name
         self.win = installer_window(path)
         self.filepath = path
         logfile = self.filepath + "/install_log"
@@ -208,11 +209,37 @@ class installer_engine:
         self.log.write("\n")
         return success
 
+    def add_group(self):
+        command = "groupadd -f magick"
+        self.log.write("Add magick group\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
+    def add_user(self):
+        username = self.usr_name
+        command = "gpasswd -a " + username + " magick"
+        self.log.write("Add user to magick group\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
     def create_magick_folder(self):
         if os.path.exists("/usr/share/magick-rotation"):
             command = ""
         else:
             command = "mkdir /usr/share/magick-rotation"
+        self.log.write("\n")
         self.log.write("Create folder magick-rotation in /usr/share\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -353,7 +380,7 @@ class installer_engine:
                 for package in packages:
                     package_list.append(package.name)
                     
-            package_list.append("\n\nFile to install in /usr/bin:\ncheckmagick\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n\nFolder to install in /usr/share:\nmagick-rotation\n")
+            package_list.append("\n\nFile to install in /usr/bin:\ncheckmagick\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n\nAdd group:\nmagick\n\nFolder to install in /usr/share:\nmagick-rotation\n")
             dialog.list_packages(package_list,  self,  self.win)
                 
     def close_dialog(self,  dialog=None):
@@ -373,12 +400,16 @@ class installer_engine:
             success = self.install_checkmagick()
             self.win.add_text("Installing udev rules\n")
             success = self.install_udev_rules()
-            self.win.add_text("Installing magick-rotation folder\n")
+            self.win.add_text("Creating magick group\n")
+            success = self.add_group()
+            self.win.add_text("Installing user in magick group\n")
+            success = self.add_user()
+            self.win.add_text("Creating magick-rotation folder\n")
             success = self.create_magick_folder()
             self.win.add_text("Moving magick-rotation files\n")
             success = self.install_readme()
             success = self.install_magick_files()
-            self.win.add_text("Installing MagickIcons folder\n")
+            self.win.add_text("Creating MagickIcons folder\n")
             success = self.create_magickicons_folder()
             self.win.add_text("Moving MagickIcons files\n")
             success = self.install_magick_icons()
@@ -398,10 +429,18 @@ class installer_engine:
 
 if __name__ == "__main__" :
     path = os.path.dirname(sys.argv[0])
+    if len(sys.argv) > 1:
+        usr_name = sys.argv[1]
+    else:
+        usr_name = None
 #    if not path or path == ".":
   #      path = "./"
     if not path:
         path = "."
 
-    i = installer_engine(path)
+    # pass username unchanged to class installer_engine
+    if usr_name:
+        i = installer_engine(path, usr_name)
+    else:
+        i = installer_engine(path)
     i.run()

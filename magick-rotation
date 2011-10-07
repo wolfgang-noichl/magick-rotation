@@ -74,20 +74,17 @@ prog_ver="1.5"
 import thread
 import sys
 import os
+import pwd
 import platform
+from commands import getstatusoutput
 
 if os.path.exists(os.path.dirname(sys.argv[0]) + "/firstrun"):
     sys.dont_write_bytecode = True
-    from gui_gtk import *
-    from listener import *
-    from debug import *
-    from hinge import *
 else:
     from gui_gtk import *
     from listener import *
     from debug import *
     from hinge import *
-
 
 global pynotify_support
 try:
@@ -243,16 +240,9 @@ Comment=Helps with automatic rotation
             wr.write(autostart_desktop % astfl)
             wr.close()
 
-#        astfl=os.path.abspath(sys.argv[0])
-#        if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
-#            os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
-#        wr=open(os.path.expanduser(autostart_file_path), "w")
-#        wr.write(autostart_desktop % astfl)
-#        wr.close()
-
 if __name__ == "__main__":
     path = "."
-    if argv:
+    if sys.argv:
         path = os.path.dirname(sys.argv[0])
         if not path:
             path = "."
@@ -280,7 +270,10 @@ if __name__ == "__main__":
     val = getstatusoutput(wl)[0]
     
     if run_install == 0: 
-        command = sudo + "'python " + path + "/installer_gtk.py'"
+        usr_for_group = pwd.getpwuid(os.getuid()).pw_name
+        # pass username as a command line argument
+        command = sudo + "'python " + path + "/installer_gtk.py " + \
+                  usr_for_group + "'"
         success = getstatusoutput(command)[0]
         start = autostart()
         start.add_autostart()
@@ -302,7 +295,7 @@ if __name__ == "__main__":
 #11) format buttons & setup windows // made (in 0.3-2)
 #12) add GPL // made (in 0.3-3)
 
-#######################################)#######################
+##############################################################
 ##  This program is free software; you can redistribute it  ##
 ##  and/or modify it under the terms of the GNU General     ##
 ##  Public license as published by the Free Software        ##

@@ -157,17 +157,6 @@ Comment=Helps with automatic rotation
             if os.path.exists(os.path.expanduser(autostart_file_path)):
                 os.remove(os.path.expanduser(autostart_file_path))
 
-#        if autostart:
-#            astfl=os.path.abspath(sys.argv[0])
-#            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
-#                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
-#            wr=open(os.path.expanduser(autostart_file_path), "w")
-#            wr.write(autostart_desktop % astfl)
-#            wr.close()
-#        else:
-#            if os.path.exists(os.path.expanduser(autostart_file_path)):
-#                os.remove(os.path.expanduser(autostart_file_path))
-
 if __name__ == "__main__":
     c = config()
     c.write_data(c.load_data())
