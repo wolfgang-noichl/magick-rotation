@@ -1,7 +1,16 @@
-If you are reading this file then the Magick Rotation Installer failed on your system.  You can still install what's needed manually and it should be fairly straight forward.
 
-What you are going to do is install gcc, and the libraries libx11-dev and libxrandr-dev, if they aren't already installed.  Using gcc and the libraries you will compile a small file of C code called check.c.  That will create a file called checkmagic32 or checkmagic64 depending on your system.  You will also copy into place a udev rule to create a device node "/dev/input/hpwmi". 
+Magick Rotation 1.5						October 9, 2011
 
+IF YOU ARE READING THIS the Magick Rotation Installer did not work on your system or you opted not to install all the files and instead want to run Magick Rotation out of the magick-rotation folder.
+
+
+SUMMARY
+What you are going to do is install gcc, and the libraries libx11-dev and libxrandr-dev, if they aren't already installed.  Using gcc and the libraries you will compile a small file of C code called check.c.  That will create a file called checkmagic32 or checkmagic64 depending on your system.  You will also copy into place 62-magick.rules which contains a udev rule to create a device node for your tablet PC and the symlink 'magick-rotation' at /dev/input for the node.  Then to access the new device node you will create a new group called 'magick' and add your username to the group.
+
+You can then either run Magick Rotation out of the magick-rotation folder as is or go on to install additional files into your system directories.
+
+
+COMPILE CHECKMAGICK
 First ensure you have gcc installed (the GNU C compiler) and the needed libraries.  Unfortunately the libraries will have slightly different names in different distros.  A little detective work is needed using the distro's package manager or google.
 Examples:
 For Ubuntu you could check with Synaptic Package Manager or the Software Center or use the command line by opening a terminal and entering:
@@ -16,20 +25,64 @@ Open a terminal, if you haven't already, and change directory into the magick-ro
 Next you want to compile check.c.  Determine if you have a 32-bit or 64-bit install by entering:
     uname -m
 Then, if you have a 32-bit install:
-    gcc -lX11 -lXrandr check.c -o checkmagick32
+    gcc check.c -o checkmagick32 -lX11 -lXrandr
 Or if you have a 64-bit install:
-    gcc -lX11 -lXrandr check.c -o checkmagick64
+    gcc check.c -o checkmagick64 -lX11 -lXrandr
+Verify that either checkmagick32 or checkmagick64 appeared in your magick-rotation folder.  At your option you could then go on to move the checkmagic executable binary to /usr/bin, e.g.:
+    sudo mv checkmagic64 /usr/bin/checkmagick64
 
-Verify that either checkmagick32 or checkmagick64 appeared in your magick-rotation folder.
 
-Now copy the 62-magick.rules file in the magick-rotation folder to where your distro wants custom udev rules added.  Use root/super user priviledges (since you are modifying a system file).
+UDEV RULES
+Now copy (cp) or move (mv) the 62-magick.rules file in the magick-rotation folder to where your distro wants custom udev rules added.  Use root/super user priviledges (since you are modifying a system file).
 Examples:
 For Ubuntu or openSUSE enter:
     sudo cp 62-magick.rules /etc/udev/rules.d/62-magick.rules
 For Fedora enter:
     su - -c "cp /home/yourusername/Desktop/magick-rotation/62-magick.rules /etc/udev/rules.d/62-magick.rules"
+Verify that 62-magick.rules is now present in /etc/udev/rules.d.
 
-Verify that 62-magick.rules is now present in /etc/udev/rules.d.  Once you do that you are done.  Reboot.
+Next you need to add a new group we'll call 'magick':
+    sudo groupadd -f magick
+Now add your username to the new group:
+    sudo gpasswd -a <your username> magick
+To verify the group 'magick' was added enter:
+    groups
+You should see 'magick' among the groups.  To verify your username was added to it enter:
+    getent group magick
+or
+    cat /etc/group | grep magick   
+Only your username should ever be in the group.
 
-Now be sure to remove or rename the file 'firstrun' in the magick-rotation folder.  If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  Drag and drop the magick-rotation folder onto 'yourusername' in the left column of 'Places' (/home/yourusername).  If it asks if you want to replace the magick-rotation folder say "Yes to all".  To install open the folder and right click on 'magick-rotation' and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on 'magick-rotation' and choose 'Run'. The applet is installed.  [In Fedora right click on the Magick Rotation tray icon (green arrow upper right) and then click on Save.  That will install Magic Rotation in Startup Applications.]   Magick Rotation should now be working for you.
+Once you do that you are done.  Reboot to activate the new udev rules.
 
+
+RUNNING MAGICK ROTATION
+Be sure to remove or rename the file 'firstrun' in the magick-rotation folder.
+FROM THE FOLDER
+If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  Drag and drop the magick-rotation folder onto 'yourusername' in the left column of 'Places' (/home/yourusername).  If it asks if you want to replace the magick-rotation folder say "Yes to all".  To install open the folder and right click on 'magick-rotation' and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on 'magick-rotation' and choose 'Run'. The applet is installed.  Magick Rotation should now be working for you.
+FROM /USR/SHARE
+If you decide on the optional additional file installation below, once that is done, go to the 'magick-rotation' file in /usr/share/magick-rotation and double click on it.  Choose 'Run' and the applet is installed.  Magick Rotation should now be working for you.
+
+
+FURTHER INSTALLATION - OPTIONAL
+If you wish to do this you've likely already installed checkmagick into /usr/bin.  You need to create a directory called 'magick-rotation' in /usr/share.
+    sudo mkdir /usr/share/magick-rotation
+And a MagickIcons directory in that:
+    sudo mkdir /usr/share/magick-rotation/MagickIcons
+While in the extracted magick-rotation folder copy or move the following files into the magick-rotation directory in /usr/share:  ChangeLog, config.py, debug.py, gui_gtk.py, hinge.py, listener.py, magick-rotation, oem_wmi.py, xrotate.py
+Example:
+    sudo mv magick-rotation /usr/share/magick-rotation/magick-rotation
+NOTE:  make sure that the magick-rotation file is executable before moving it.
+
+Copy or move the following icons into the MagickIcons directory:  MagickAbout.png, magick-rotation-disabled.png, magick-rotation-disabled-touchoff.png, magick-rotation-enabled.png, magick-rotation-enabled-touchoff.png
+Example:
+    sudo mv /MagickIcons/MagickAbout.png /usr/share/magick-rotation/MagickIcons/MagickAbout.png
+
+
+FILES YOU MAY SAFELY DELETE - OPTIONAL
+These files are Installer related and so not needed.
+In folder magick-rotation:  apt_installprogress_gtk.py, apt_pm.py, check.c, firstrun, installer_gtk.py, whitelist.py
+In folder magick-rotation/MagickIcons:  MagickSplash.png
+And of course you can delete any other files left in your original magick-rotation folder if you have installed them elsewhere.
+
+The Installer does a lot, doesn't it?  :)

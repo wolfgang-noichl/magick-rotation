@@ -18,7 +18,6 @@ try:
 except ImportError:
     apt_installed = False
 
-
 class installer_dialog(gtk.MessageDialog):
     def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
         gtk.MessageDialog.__init__(self, parent,  flags,  type,  buttons,  message_format)
