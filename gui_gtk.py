@@ -9,7 +9,7 @@ import os.path
 from config import *
 from listener import *
 
-prog_ver="1.5"
+prog_ver="1.6"
 
 # supports threads in pygtk
 gobject.threads_init()
