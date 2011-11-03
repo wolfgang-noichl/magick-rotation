@@ -1,0 +1,46 @@
+#!/usr/bin/python
+
+import sys
+import os
+import pwd
+from commands import getstatusoutput
+
+def uninstall(self):
+    gtk.main()
+
+if __name__ == "__main__":
+    path = "."
+    if sys.argv:
+        path = os.path.dirname(sys.argv[0])
+        if not path:
+            path = "."
+
+    sudo = "gksu "
+    command = "stat /usr/bin/gksudo"
+    is_gksudo = getstatusoutput(command) [0]
+    if is_gksudo == 0:
+       sudo = "gksudo "
+       
+    command = "stat /usr/bin/gksu"
+    is_gksu = getstatusoutput(command) [0]
+    if is_gksu == 0:
+       sudo = "gksu "
+
+    command = "stat /usr/bin/kdesudo"
+    is_kdesudo = getstatusoutput(command)[0]
+    if is_kdesudo == 0:
+        sudo = "kdesudo -c "
+
+    command = "stat /usr/bin/beesu"
+    is_beesu = getstatusoutput(command) [0]
+    if is_beesu == 0:
+        sudo = "beesu "
+
+    usr_for_group = pwd.getpwuid(os.getuid()).pw_name
+    # pass username as a command line argument
+    command = sudo + "'python " + path + "/uninstaller_gtk.py " + \
+              usr_for_group + "'"
+    success = getstatusoutput(command)[0]
+    sys.exit(success)
+    magick_uninstall = uninstall()
+    magick_uninstall.run()
