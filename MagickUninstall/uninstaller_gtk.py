@@ -209,9 +209,21 @@ class uninstaller_engine:
                 self.log.write(str(success[1]))
         return success
 
+    def remove_pyc_files(self):
+        command = "rm /usr/share/magick-rotation/*.pyc"
+        self.log.write("\n")
+        self.log.write("Removing pyc files from /usr/share/magick-rotation\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
     def remove_magick_folder(self):
         command = "rmdir /usr/share/magick-rotation"
-        self.log.write("\n")
         self.log.write("Removing folder magick-rotation from /usr/share\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -269,6 +281,8 @@ class uninstaller_engine:
             success = self.remove_magickicons_folder()
             self.win.add_text("Removing magick-rotation files\n")
             success = self.remove_magick_files()
+            self.win.add_text("Removing *.pyc files\n")
+            success = self.remove_pyc_files()
             self.win.add_text("Removing magick-rotation folder\n")
             success = self.remove_magick_folder()
             self.win.add_text("Removing Magick .xml file\n")
