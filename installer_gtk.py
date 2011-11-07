@@ -262,7 +262,7 @@ class installer_engine:
         return success
 
     def install_magick_files(self):
-        magick_filename = {"magick_files":["ChangeLog", "config.py", "debug.py", "gui_gtk.py", "hinge.py", "listener.py", "magick-rotation", "oem_wmi.py", "xrotate.py"]}
+        magick_filename = {"magick_files":["ChangeLog", "config.py", "debug.py", "gui_gtk.py", "hinge.py", "listener.py", "magick-rotation", "xrotate.py"]}
         self.log.write("Moving magick-rotation files\n")
         for magick_files, filename_list in magick_filename.iteritems():
             for filename in filename_list:
