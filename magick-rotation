@@ -188,7 +188,6 @@ if __name__ == "__main__":
         if not path:
             path = "."
 
-    sudo = "gksu "
     command = "stat /usr/bin/gksudo"
     is_gksudo = getstatusoutput(command) [0]
     if is_gksudo == 0:
@@ -203,6 +202,18 @@ if __name__ == "__main__":
     is_kdesudo = getstatusoutput(command)[0]
     if is_kdesudo == 0:
         sudo = "kdesudo -c "
+
+    # For Fedora
+    command = "stat /usr/bin/beesu"
+    is_beesu = getstatusoutput(command) [0]
+    if is_beesu == 0:
+        sudo = "beesu "
+
+    # For openSUSE
+    command = "stat /usr/bin/kdesu"
+    is_kdesu = getstatusoutput(command)[0]
+    if is_kdesu == 0:
+        sudo = "kdesu -c "
 
     command = "stat " + path + "/firstrun"
     run_install = getstatusoutput(command)[0]

@@ -15,7 +15,6 @@ if __name__ == "__main__":
         if not path:
             path = "."
 
-    sudo = "gksu "
     command = "stat /usr/bin/gksudo"
     is_gksudo = getstatusoutput(command) [0]
     if is_gksudo == 0:
@@ -31,10 +30,17 @@ if __name__ == "__main__":
     if is_kdesudo == 0:
         sudo = "kdesudo -c "
 
+    # For Fedora
     command = "stat /usr/bin/beesu"
     is_beesu = getstatusoutput(command) [0]
     if is_beesu == 0:
         sudo = "beesu "
+
+    # For openSUSE
+    command = "stat /usr/bin/kdesu"
+    is_kdesu = getstatusoutput(command)[0]
+    if is_kdesu == 0:
+        sudo = "kdesu -c "
 
     usr_for_group = pwd.getpwuid(os.getuid()).pw_name
     # pass username as a command line argument
@@ -44,3 +50,11 @@ if __name__ == "__main__":
     sys.exit(success)
     magick_uninstall = uninstall()
     magick_uninstall.run()
+
+##############################################################
+##  This program is free software; you can redistribute it  ##
+##  and/or modify it under the terms of the GNU General     ##
+##  Public license as published by the Free Software        ##
+##  Foundation; either version 2 of the License, or (at     ## 
+##  your option) any later version.                         ##
+##############################################################
