@@ -12,11 +12,20 @@ import pango
 
 sys.dont_write_bytecode = True
 
-try:
-    from apt_pm import *
-    apt_installed = True
-except ImportError:
-    apt_installed = False
+# for Fedora
+if os.path.exists("/usr/bin/yum"):
+    packman = "YUM"
+# for openSUSE
+elif os.path.exists("/usr/bin/zypper"):
+    packman = "YaST"
+# for Ubuntu and to tell non-supported Distros to manually install
+else:
+    try:
+        from apt_pm import *
+        apt_installed = True
+    except ImportError:
+        apt_installed = False
+    packman = "APT"
 
 class installer_dialog(gtk.MessageDialog):
     def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
@@ -24,12 +33,24 @@ class installer_dialog(gtk.MessageDialog):
 
     def list_packages(self, packages, engine,  win):
         self.add_buttons(gtk.STOCK_OK,  gtk.RESPONSE_ACCEPT,  gtk.STOCK_CANCEL,  gtk.RESPONSE_REJECT)
+        self.set_border_width(15)
         message = ""
-        
-        if len(packages) > 1:
-            message = "The following packages are going to be installed:\n"
-        for package in packages:
-            message += " " + str(package) + '\n'
+
+        if packman == "APT":
+            if len(packages) > 1:
+                message = "APT packages to be installed:\n"
+            for package in packages:
+                message += " " + str(package) + '\n'
+        elif packman == "YUM":
+            if len(packages) > 1:
+                message = "YUM packages to be installed:\n"
+            for package in packages:
+                message += " " + str(package) + '\n'
+        elif packman == "YaST":
+            if len(packages) > 1:
+                message = "YaST packages to be installed:\n"
+            for package in packages:
+                message += " " + str(package) + '\n'
         message += "\nOK to install the above?\n"
         
         self.set_markup(message)
@@ -105,7 +126,8 @@ class installer_window(gtk.Window):
 
         self.pkg_label = gtk.Label()
 	self.pkg_label.set_text("")
-        self.progress_bar = gtk.ProgressBar()
+        if packman == "APT":
+            self.progress_bar = gtk.ProgressBar()
         self.pkg_label.set_line_wrap(20)
 
         image = gtk.Image()
@@ -116,7 +138,8 @@ class installer_window(gtk.Window):
 
         VBox.pack_start(HBox)
         VBox.pack_start(self.pkg_label)
-        VBox.pack_start(self.progress_bar)
+        if packman == "APT":
+            VBox.pack_start(self.progress_bar)
 
         self.add(VBox)
         self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
@@ -161,6 +184,34 @@ class installer_engine:
         logfile = self.filepath + "/install_log"
         self.log = open(logfile,  "w")
 
+    if packman == "YUM":
+        def install_yum_packages(self):
+            packages = {"yum_packages":["gcc", "libX11-devel", "libXrandr-devel"]}
+            for yum_packages, package_list in packages.iteritems():
+                for package in package_list:
+                    command = "yum install " + package
+                    self.log.write(command)
+                    success = getstatusoutput(command)
+                    self.log.write("\n")
+                    self.log.write(str(success[0]))
+                    self.log.write("\n")
+                    self.log.write(str(success[1]))
+            return success
+
+    if packman == "YaST":
+        def install_zypper_packages(self):
+            packages = {"zypper_packages":["gcc", "xorg-x11-libX11-devel", "xorg-x11-devel"]}
+            for zypper_packages, package_list in packages.iteritems():
+                for package in package_list:
+                    command = "zypper --non-interactive install " + package
+                    self.log.write(command)
+                    success = getstatusoutput(command)
+                    self.log.write("\n")
+                    self.log.write(str(success[0]))
+                    self.log.write("\n")
+                    self.log.write(str(success[1]))
+            return success
+
     def compile_checkmagick(self):
         version = platform.machine()
         if version == "x86_64":
@@ -185,7 +236,7 @@ class installer_engine:
         return success
 
     def install_checkmagick(self):
-        command = "mv " + self.bit_ver + " /usr/bin/"
+        command = "mv "  +  self.filepath + "/" + str(self.bit_ver) + " /usr/bin/"
         self.log.write("Moving checkmagick\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -197,7 +248,7 @@ class installer_engine:
         return success
 
     def install_udev_rules(self):
-        command = "mv 62-magick.rules /etc/udev/rules.d/"
+        command = "mv "  +  self.filepath + "/" + "62-magick.rules /etc/udev/rules.d/"
         self.log.write("Moving 62-magick.rules\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -209,7 +260,7 @@ class installer_engine:
         return success
 
     def add_group(self):
-        command = "groupadd -f magick"
+        command = "groupadd magick"
         self.log.write("Add magick group\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -222,7 +273,10 @@ class installer_engine:
 
     def add_user(self):
         username = self.usr_name
-        command = "gpasswd -a " + username + " magick"
+        if packman == "YaST":
+            command = "usermod -A magick " + str(username)
+        else:
+            command = "gpasswd -a " + username + " magick"
         self.log.write("Add user to magick group\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -250,7 +304,7 @@ class installer_engine:
         return success
 
     def install_readme(self):
-        command = "cp Magick-README.txt /usr/share/magick-rotation/"
+        command = "cp " + self.filepath + "/" + "Magick-README.txt /usr/share/magick-rotation/"
         self.log.write("Copying Magick-README\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -346,41 +400,58 @@ class installer_engine:
 
     def execute_steps(self,  data=None):
         dialog = installer_dialog(self.win,  0, gtk.MESSAGE_INFO,  gtk.BUTTONS_NONE,  None)
-        if not apt_installed:
-            dialog.no_installer(self,  self.win)
-            return -1
-        self.apt = apt_pm()
 
-        packages = self.apt.find_uninstalled(["libx11-dev", "libxrandr-dev"])
+        if packman == "APT":
+            if not apt_installed:
+                dialog.no_installer(self,  self.win)
+                return -1
+            self.apt = apt_pm()
+
+            packages = self.apt.find_uninstalled(["libx11-dev", "libxrandr-dev"])
         
-        if packages[1]:
-            dialog.missing_packages(packages[1],  self,  self.win)
-            self.remove_install_check()
-            return -1
-        else:
-            # Ask the user if they want to install the package
-            # If they don't, then exit installer and do not 
-            # launch magick-rotation
+            if packages[1]:
+                dialog.missing_packages(packages[1],  self,  self.win)
+                self.remove_install_check()
+                return -1
+            else:
+                # Ask the user if they want to install the package
+                # If they don't, then exit installer and do not 
+                # launch magick-rotation
             
+                package_string = ""
+                package_list = []
+                self.packages_to_install = False
+                if packages[0]:
+                    for package in packages[0]:
+                        if not package_string:
+                            package_string += package
+                        else:
+                            package_string += (" " + package)
+                    self.apt.mark_packages(packages[0])
+                    self.packages_to_install = True
+
+                    packages = self.apt.list_packages()
+                
+                    for package in packages:
+                        package_list.append(package.name)
+        elif packman == "YUM":
             package_string = ""
             package_list = []
             self.packages_to_install = False
-            if packages[0]:
-                for package in packages[0]:
-                    if not package_string:
-                        package_string += package
-                    else:
-                        package_string += (" " + package)
-                self.apt.mark_packages(packages[0])
-                self.packages_to_install = True
+            packages = ["gcc", "libX11-devel", "libXrandr-devel"]
+            for package in packages:
+                package_list.append(package)
+        elif packman == "YaST":
+            package_string = ""
+            package_list = []
+            self.packages_to_install = False
+            packages = ["gcc", "xorg-x11-libX11-devel", "xorg-x11-devel"]
+            for package in packages:
+                package_list.append(package)
 
-                packages = self.apt.list_packages()
-                
-                for package in packages:
-                    package_list.append(package.name)
-                    
-            package_list.append("\n\nFile to install in /usr/bin:\ncheckmagick\n\nFile to install in /etc/udev/rules.d:\n62-magick.rules\n\nAdd group:\nmagick\n\nFolder to install in /usr/share:\nmagick-rotation\n")
-            dialog.list_packages(package_list,  self,  self.win)
+        package_list.append("\nMagick Rotation install changes.\n\nFile to install in /usr/bin:\n checkmagick")
+        package_list.append("\nFolder to install in /usr/share:\n magick-rotation\n\nFile to install in /etc/udev/rules.d:\n 62-magick.rules\n\nAdd group:\n magick\n")
+        dialog.list_packages(package_list,  self,  self.win)
                 
     def close_dialog(self,  dialog=None):
         self.win.add_text("Canceling installation.")
@@ -388,11 +459,20 @@ class installer_engine:
         return True
 
     def run_installer(self,  data=None):
-            if self.packages_to_install:
-                self.log.write("Installing packages\n")
-                self.apt.install(self.win)
-                self.win.progress_bar.hide()
-                self.win.pkg_label.hide()
+            if packman == "APT":
+                if self.packages_to_install:
+                    self.log.write("\nInstalling APT packages\n")
+                    self.apt.install(self.win)
+                    self.win.progress_bar.hide()
+                    self.win.pkg_label.hide()
+                else:
+                    self.log.write("\n\nAPT packages already installed\n")
+            if packman == "YUM":
+                self.log.write("\n\nInstalling YUM packages\n")
+                success = self.install_yum_packages()
+            if packman == "YaST":
+                self.log.write("\n\nInstalling YaST packages\n")
+                success = self.install_zypper_packages()
             self.win.add_text("Compiling check.c\n")
             success = self.compile_checkmagick()
             self.win.add_text("Installing checkmagick\n")

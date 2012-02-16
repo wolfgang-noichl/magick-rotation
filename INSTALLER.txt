@@ -1,11 +1,11 @@
 
-Magick Rotation 1.5						October 9, 2011
+Magick Rotation 1.6						February 15, 2012
 
 IF YOU ARE READING THIS the Magick Rotation Installer did not work on your system or you opted not to install all the files and instead want to run Magick Rotation out of the magick-rotation folder.
 
 
 SUMMARY
-What you are going to do is install gcc, and the libraries libx11-dev and libxrandr-dev, if they aren't already installed.  Using gcc and the libraries you will compile a small file of C code called check.c.  That will create a file called checkmagic32 or checkmagic64 depending on your system.  You will also copy into place 62-magick.rules which contains a udev rule to create a device node for your tablet PC and the symlink 'magick-rotation' at /dev/input for the node.  Then to access the new device node you will create a new group called 'magick' and add your username to the group.
+What you are going to do is install gcc, and the libraries libx11-dev and libxrandr-dev, if they aren't already installed.  Using gcc and the libraries you will compile a small file of C code called check.c.  That will create an executable binary called checkmagic32 or checkmagic64 depending on your system.  You will also copy into place 62-magick.rules which contains a udev rule to create a device node for your tablet PC and the symlink 'magick-rotation' at /dev/input for the node.  Then to access the new device node you will create a new group called 'magick' and add your username to the group.
 
 You can then either run Magick Rotation out of the magick-rotation folder as is or go on to install additional files into your system directories.
 
@@ -17,8 +17,8 @@ For Ubuntu you could check with Synaptic Package Manager or the Software Center 
     sudo apt-get install gcc libx11-dev libxrandr-dev
 For Fedora look in Add/Remove Software.  Using Find you'll discover the libraries' slightly different names, or you could use 'yum search libx11-dev' say.  In which case you'd discover the library in Fedora is called 'libX11-devel'.  So if you want to install in a terminal instead of using Add/Remove Software:
     su - -c "yum install gcc libX11-devel libXrandr-devel"
-For OpenSUSE, go into YaST->Software Management and install gcc libX11-devel xorg-x11-devel.  If you want to use the terminal:
-    sudo zypper install gcc libX11-devel xorg-x11-devel
+For OpenSUSE, go into YaST->Software Management and install gcc xorg-x11-libX11-devel xorg-x11-devel.  If you want to use the terminal:
+    su - -c "zypper install gcc +xorg-x11-libX11-devel +xorg-x11-devel"
 
 Open a terminal, if you haven't already, and change directory into the magick-rotation folder.  If you extracted the tar onto your Desktop:
     cd Desktop/magick-rotation
@@ -42,9 +42,11 @@ For Fedora enter:
 Verify that 62-magick.rules is now present in /etc/udev/rules.d.
 
 Next you need to add a new group we'll call 'magick':
-    sudo groupadd -f magick
+    sudo groupadd magick
 Now add your username to the new group:
     sudo gpasswd -a <your username> magick
+For openSUSE to add your username use:
+    su - -c "usermod -A magick <your username>"
 To verify the group 'magick' was added enter:
     groups
 You should see 'magick' among the groups.  To verify your username was added to it enter:

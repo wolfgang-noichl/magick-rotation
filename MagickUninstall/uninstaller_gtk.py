@@ -16,7 +16,9 @@ class uninstaller_dialog(gtk.MessageDialog):
 
     def list_packages(self, packages, engine,  win):
         self.add_buttons(gtk.STOCK_OK,  gtk.RESPONSE_ACCEPT,  gtk.STOCK_CANCEL,  gtk.RESPONSE_REJECT)
+        self.set_border_width(15)
         message = ""
+        message = "Magick Rotation files to be uninstalled.\n"
         
         for package in packages:
             message += " " + str(package) + '\n'
@@ -144,7 +146,10 @@ class uninstaller_engine:
 
     def remove_user(self):
         username = self.usr_name
-        command = "gpasswd -d " + username + " magick"
+        if os.path.exists("/usr/bin/zypper"):
+            command = "usermod -R magick " + str(username)
+        else:
+            command = "gpasswd -d " + username + " magick"
         self.log.write("Remove user in magick group\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -263,7 +268,7 @@ class uninstaller_engine:
     def execute_steps(self,  data=None):
         dialog = uninstaller_dialog(self.win,  0, gtk.MESSAGE_INFO,  gtk.BUTTONS_NONE,  None)
         package_list = []
-        package_list.append("\n\nFile to remove in /usr/bin:\ncheckmagick\n\nFile to remove in /etc/udev/rules.d:\n62-magick.rules\n\nRemove group:\nmagick\n\nFolder to remove in /usr/share:\nmagick-rotation\n\nFiles to remove in /home/username\n.magick-rotation.xml\nmagick-rotation.desktop\n")
+        package_list.append("\nFile to remove in /usr/bin:\n checkmagick\n\nFile to remove in /etc/udev/rules.d:\n 62-magick.rules\n\nRemove group:\n magick\n\nFolder to remove in /usr/share:\n magick-rotation\n\nFiles to remove in /home/username\n .magick-rotation.xml\n magick-rotation.desktop\n")
         dialog.list_packages(package_list,  self,  self.win)
 
     def run_uninstaller(self,  data=None):
