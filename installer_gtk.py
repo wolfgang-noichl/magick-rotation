@@ -36,23 +36,12 @@ class installer_dialog(gtk.MessageDialog):
         self.set_border_width(15)
         message = ""
 
-        if packman == "APT":
-            if len(packages) > 1:
-                message = "APT packages to be installed:\n"
-            for package in packages:
-                message += " " + str(package) + '\n'
-        elif packman == "YUM":
-            if len(packages) > 1:
-                message = "YUM packages to be installed:\n"
-            for package in packages:
-                message += " " + str(package) + '\n'
-        elif packman == "YaST":
-            if len(packages) > 1:
-                message = "YaST packages to be installed:\n"
-            for package in packages:
-                message += " " + str(package) + '\n'
+        if len(packages) > 1:
+            message = packman + " packages to be installed:\n"
+        for package in packages:
+            message += " " + str(package) + '\n'
         message += "\nOK to install the above?\n"
-        
+
         self.set_markup(message)
         engine.log.write(message)
         self.connect("close",  self.close)
