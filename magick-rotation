@@ -19,13 +19,10 @@ import pwd
 import platform
 from commands import getstatusoutput
 
-if os.path.exists(os.path.dirname(sys.argv[0]) + "/firstrun"):
-    sys.dont_write_bytecode = True
-else:
-    from gui_gtk import *
-    from listener import *
-    from debug import *
-    from hinge import *
+from gui_gtk import *
+from listener import *
+from debug import *
+from hinge import *
 
 global pynotify_support
 try:
@@ -182,54 +179,6 @@ Comment=Helps with automatic rotation
             wr.close()
 
 if __name__ == "__main__":
-    path = "."
-    if sys.argv:
-        path = os.path.dirname(sys.argv[0])
-        if not path:
-            path = "."
-
-    command = "stat /usr/bin/gksudo"
-    is_gksudo = getstatusoutput(command) [0]
-    if is_gksudo == 0:
-       sudo = "gksudo "
-       
-    command = "stat /usr/bin/gksu"
-    is_gksu = getstatusoutput(command) [0]
-    if is_gksu == 0:
-       sudo = "gksu "
-
-    command = "stat /usr/bin/kdesudo"
-    is_kdesudo = getstatusoutput(command)[0]
-    if is_kdesudo == 0:
-        sudo = "kdesudo -c "
-
-    # For Fedora
-    command = "stat /usr/bin/beesu"
-    is_beesu = getstatusoutput(command) [0]
-    if is_beesu == 0:
-        sudo = "beesu "
-
-    # For openSUSE
-    command = "stat /usr/bin/kdesu"
-    is_kdesu = getstatusoutput(command)[0]
-    if is_kdesu == 0:
-        sudo = "kdesu -c "
-
-    command = "stat " + path + "/firstrun"
-    run_install = getstatusoutput(command)[0]
-
-    wl = path + "/whitelist.py"
-    val = getstatusoutput(wl)[0]
-    
-    if run_install == 0: 
-        usr_for_group = pwd.getpwuid(os.getuid()).pw_name
-        # pass username as a command line argument
-        command = sudo + "'python " + path + "/installer_gtk.py " + \
-                  usr_for_group + "'"
-        success = getstatusoutput(command)[0]
-        start = autostart()
-        start.add_autostart()
-        sys.exit(success)
     magick = engine()
     magick.run()
 

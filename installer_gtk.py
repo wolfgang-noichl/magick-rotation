@@ -18,7 +18,7 @@ if os.path.exists("/usr/bin/yum"):
 # for openSUSE
 elif os.path.exists("/usr/bin/zypper"):
     packman = "YaST"
-# for Ubuntu and to tell non-supported Distros to manually install
+# for Ubuntu, Mint, and to tell non-supported Distros to manually install
 else:
     try:
         from apt_pm import *
@@ -48,20 +48,20 @@ class installer_dialog(gtk.MessageDialog):
         self.connect("response",  self.check_response, engine, win)
 
         self.show()
-        
+
     def no_installer(self,  engine,  win):
         self.add_buttons(gtk.STOCK_CLOSE,  gtk.RESPONSE_CLOSE)
         message = "There are no package managers that are compatible\n"
         message += "with this installer.  Please read INSTALLER.txt\n"
         message += "for manual installation instructions.\n"
-        
+
         self.set_markup(message)
         engine.log.write(message)
         self.connect("close",  self.close)
         self.connect("response",  self.check_response, engine, win)
 
         self.show()
-        
+
     def missing_packages(self, packages, engine,  win):
         self.add_buttons(gtk.STOCK_CLOSE,  gtk.RESPONSE_CLOSE)
         message = "The following packages are missing:\n"
@@ -374,7 +374,7 @@ class installer_engine:
         return success
 
     def remove_install_files(self):
-        install_filename = {"install_files":["apt_installprogress_gtk.py", "apt_pm.py", "check.c", "firstrun", "installer_gtk.py", "whitelist.py"]}
+        install_filename = {"install_files":["apt_installprogress_gtk.py", "apt_pm.py", "check.c", "installer_gtk.py", "MAGICK-INSTALL", "whitelist.py"]}
         self.log.write("Removing uneeded install files\n")
         for install_files, filename_list in install_filename.iteritems():
             for filename in filename_list:
@@ -396,8 +396,17 @@ class installer_engine:
                 return -1
             self.apt = apt_pm()
 
-            packages = self.apt.find_uninstalled(["libx11-dev", "libxrandr-dev"])
-        
+            # apt.cache is case sensitive, need to determine if in Linux Mint
+            find_distro = "cat /etc/issue"
+            distro_raw = getstatusoutput(find_distro)
+            distro_split = distro_raw[1].split(' ')  # index 1 has string containing Distro name
+#            distro = distro_split[0]  # yields Ubuntu
+            distro = distro_split[1]  # yields Mint, index 0 is Linux
+            if distro == "Mint":
+                packages = self.apt.find_uninstalled(["libX11-dev", "libxrandr-dev"])
+            else:
+                packages = self.apt.find_uninstalled(["libx11-dev", "libxrandr-dev"])
+
             if packages[1]:
                 dialog.missing_packages(packages[1],  self,  self.win)
                 self.remove_install_check()
@@ -406,7 +415,7 @@ class installer_engine:
                 # Ask the user if they want to install the package
                 # If they don't, then exit installer and do not 
                 # launch magick-rotation
-            
+
                 package_string = ""
                 package_list = []
                 self.packages_to_install = False
@@ -420,7 +429,7 @@ class installer_engine:
                     self.packages_to_install = True
 
                     packages = self.apt.list_packages()
-                
+
                     for package in packages:
                         package_list.append(package.name)
         elif packman == "YUM":
@@ -441,7 +450,7 @@ class installer_engine:
         package_list.append("\nMagick Rotation install changes.\n\nFile to install in /usr/bin:\n checkmagick")
         package_list.append("\nFolder to install in /usr/share:\n magick-rotation\n\nFile to install in /etc/udev/rules.d:\n 62-magick.rules\n\nAdd group:\n magick\n")
         dialog.list_packages(package_list,  self,  self.win)
-                
+
     def close_dialog(self,  dialog=None):
         self.win.add_text("Canceling installation.")
         dialog.close()

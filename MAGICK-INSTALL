@@ -5,8 +5,35 @@ import os
 import pwd
 from commands import getstatusoutput
 
-def uninstall(self):
+sys.dont_write_bytecode = True
+
+from gui_gtk import *
+
+def install(self):
     gtk.main()
+
+class autostart:
+    def __init__(self):
+        pass
+
+    def add_autostart(self):
+        autostart_desktop="""
+[Desktop Entry]
+Type=Application
+Name = Magick Rotation for tablet pc's
+Exec = %s
+Icon = redo
+Comment=Helps with automatic rotation
+"""
+        autostart_file_path = "~/.config/autostart/magick-rotation.desktop"
+
+        if os.path.exists("/usr/share/magick-rotation/magick-rotation"):
+            usr_share = "/usr/share/magick-rotation/magick-rotation"
+            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+            wr=open(os.path.expanduser(autostart_file_path), "w")
+            wr.write(autostart_desktop % usr_share)
+            wr.close()
 
 if __name__ == "__main__":
     path = "."
@@ -30,26 +57,32 @@ if __name__ == "__main__":
     if is_kdesudo == 0:
         sudo = "kdesudo -c "
 
-    # For Fedora
+    # for Fedora
     command = "stat /usr/bin/beesu"
     is_beesu = getstatusoutput(command) [0]
     if is_beesu == 0:
         sudo = "beesu "
 
-    # For openSUSE
+    # for openSUSE
     command = "stat /usr/bin/kdesu"
     is_kdesu = getstatusoutput(command)[0]
     if is_kdesu == 0:
         sudo = "kdesu -c "
 
+    wl = path + "/whitelist.py"
+    val = getstatusoutput(wl)[0]
+    
     usr_for_group = pwd.getpwuid(os.getuid()).pw_name
     # pass username as a command line argument
-    command = sudo + "'python " + path + "/uninstaller_gtk.py " + \
+    command = sudo + "'python " + path + "/installer_gtk.py " + \
               usr_for_group + "'"
     success = getstatusoutput(command)[0]
+    start = autostart()
+    start.add_autostart()
     sys.exit(success)
-    magick_uninstall = uninstall()
-    magick_uninstall.run()
+
+    magick_install = install()
+    magick_install.run()
 
 ##############################################################
 ##  This program is free software; you can redistribute it  ##

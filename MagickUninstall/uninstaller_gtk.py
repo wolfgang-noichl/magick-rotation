@@ -214,30 +214,32 @@ class uninstaller_engine:
                 self.log.write(str(success[1]))
         return success
 
-    def remove_pyc_files(self):
-        command = "rm /usr/share/magick-rotation/*.pyc"
-        self.log.write("\n")
-        self.log.write("Removing pyc files from /usr/share/magick-rotation\n")
-        self.log.write(command)
-        success = getstatusoutput(command)
-        self.log.write("\n")
-        self.log.write(str(success[0]))
-        self.log.write("\n")
-        self.log.write(str(success[1]))
-        self.log.write("\n")
-        return success
+    try:
+        def remove_pyc_files(self):
+            command = "rm /usr/share/magick-rotation/*.pyc"
+            self.log.write("\n")
+            self.log.write("Removing pyc files from /usr/share/magick-rotation\n")
+            self.log.write(command)
+            success = getstatusoutput(command)
+            self.log.write("\n")
+            self.log.write(str(success[0]))
+            self.log.write("\n")
+            self.log.write(str(success[1]))
+            self.log.write("\n")
+            return success
 
-    def remove_magick_folder(self):
-        command = "rmdir /usr/share/magick-rotation"
-        self.log.write("Removing folder magick-rotation from /usr/share\n")
-        self.log.write(command)
-        success = getstatusoutput(command)
-        self.log.write("\n")
-        self.log.write(str(success[0]))
-        self.log.write("\n")
-        self.log.write(str(success[1]))
-        self.log.write("\n")
-        return success
+    finally:
+        def remove_magick_folder(self):
+            command = "rmdir /usr/share/magick-rotation"
+            self.log.write("Removing folder magick-rotation from /usr/share\n")
+            self.log.write(command)
+            success = getstatusoutput(command)
+            self.log.write("\n")
+            self.log.write(str(success[0]))
+            self.log.write("\n")
+            self.log.write(str(success[1]))
+            self.log.write("\n")
+            return success
 
     def remove_xml_config(self):
         username = self.usr_name

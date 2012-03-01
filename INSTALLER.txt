@@ -1,5 +1,6 @@
 
-Magick Rotation 1.6						February 15, 2012
+Magick Rotation 1.6						March 1, 2012
+
 
 IF YOU ARE READING THIS the Magick Rotation Installer did not work on your system or you opted not to install all the files and instead want to run Magick Rotation out of the magick-rotation folder.
 
@@ -35,15 +36,15 @@ Verify that either checkmagick32 or checkmagick64 appeared in your magick-rotati
 UDEV RULES
 Now copy (cp) or move (mv) the 62-magick.rules file in the magick-rotation folder to where your distro wants custom udev rules added.  Use root/super user priviledges (since you are modifying a system file).
 Examples:
-For Ubuntu or openSUSE enter:
+For Ubuntu enter:
     sudo cp 62-magick.rules /etc/udev/rules.d/62-magick.rules
-For Fedora enter:
+For Fedora or openSUSE enter:
     su - -c "cp /home/yourusername/Desktop/magick-rotation/62-magick.rules /etc/udev/rules.d/62-magick.rules"
 Verify that 62-magick.rules is now present in /etc/udev/rules.d.
 
 Next you need to add a new group we'll call 'magick':
     sudo groupadd magick
-Now add your username to the new group:
+Now add your username to the new group.  This command works for Fedora and Ubuntu, e.g. for Ubuntu:
     sudo gpasswd -a <your username> magick
 For openSUSE to add your username use:
     su - -c "usermod -A magick <your username>"
@@ -59,9 +60,11 @@ Once you do that you are done.  Reboot to activate the new udev rules.
 
 
 RUNNING MAGICK ROTATION
-Be sure to remove or rename the file 'firstrun' in the magick-rotation folder.
+If using a pre-1.6 version be sure to remove or rename the file 'firstrun' in the magick-rotation folder.
+
 FROM THE FOLDER
 If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  Drag and drop the magick-rotation folder onto 'yourusername' in the left column of 'Places' (/home/yourusername).  If it asks if you want to replace the magick-rotation folder say "Yes to all".  To install open the folder and right click on 'magick-rotation' and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on 'magick-rotation' and choose 'Run'. The applet is installed.  Magick Rotation should now be working for you.
+
 FROM /USR/SHARE
 If you decide on the optional additional file installation below, once that is done, go to the 'magick-rotation' file in /usr/share/magick-rotation and double click on it.  Choose 'Run' and the applet is installed.  Magick Rotation should now be working for you.
 
@@ -71,7 +74,7 @@ If you wish to do this you've likely already installed checkmagick into /usr/bin
     sudo mkdir /usr/share/magick-rotation
 And a MagickIcons directory in that:
     sudo mkdir /usr/share/magick-rotation/MagickIcons
-While in the extracted magick-rotation folder copy or move the following files into the magick-rotation directory in /usr/share:  ChangeLog, config.py, debug.py, gui_gtk.py, hinge.py, listener.py, magick-rotation, oem_wmi.py, xrotate.py
+While in the extracted magick-rotation folder copy or move the following files into the magick-rotation directory in /usr/share:  ChangeLog, config.py, debug.py, gui_gtk.py, hinge.py, listener.py, magick-rotation, oem_wmi.py (if present), xrotate.py
 Example:
     sudo mv magick-rotation /usr/share/magick-rotation/magick-rotation
 NOTE:  make sure that the magick-rotation file is executable before moving it.
@@ -83,7 +86,7 @@ Example:
 
 FILES YOU MAY SAFELY DELETE - OPTIONAL
 These files are Installer related and so not needed.
-In folder magick-rotation:  apt_installprogress_gtk.py, apt_pm.py, check.c, firstrun, installer_gtk.py, whitelist.py
+In folder magick-rotation:  apt_installprogress_gtk.py, apt_pm.py, check.c, firstrun (if present), installer_gtk.py, MAGICK-INSTALL (if present), whitelist.py
 In folder magick-rotation/MagickIcons:  MagickSplash.png
 And of course you can delete any other files left in your original magick-rotation folder if you have installed them elsewhere.
 

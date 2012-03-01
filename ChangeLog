@@ -1,9 +1,10 @@
 
-Magick Rotation 1.5						October 9, 2011
+Magick Rotation 1.6						March 1, 2012
 
 
 ChangeLog:
 
+v. 1.6 (02-26-12) - Added MAGICK-INSTALL moving install code from magick-rotation to it and removed firstrun.  Added initial Fedora, openSUSE, and Mint Installer support.  Added MagickUninstall folder with MAGICK-UNINSTALL, uninstaller_gtk.py, and UnMagickSplash.png.  Consolidated oem_wmi.py into hinge.py and removed oem_wmi.py.
 v. 1.5 (10-09-11) - Compile command changed for new Oneiric toolchain (other Distro's going to it).  Installer installs all needed Magick Rotation files and deletes install files.  Added LVDS# bug fix by Jayhawk.  Udev rules updated and magick group added for security enhancement.
 v. 1.4 (05-15-11) - Added Coordinate Transformation Matrix to xrotate.py for evdev device rotation.  Added whitelist.py to enable the Magick Rotation icon in Ubuntu Natty's Unity system tray.  Firstrun install now adds magick-rotation to the autostart.
 v. 1.3 (01-28-11) - Added Dell XT & XT2, HP Compaq TC4200 & TC4400, Lenovo ThinkPads, and MagickExtras folder containing Rafi Rubin's modified dell-wmi & dkms.  Fixed disable/enable switch  ChangeLog moved from Magick-README.txt to separate ChangeLog file.
@@ -23,7 +24,7 @@ v. 0.2-5(09-26-09)- Ayuthia's fix for CellWriter hang <os.system(i + "&")> and a
 v. 0.2-4(08-23-09)- Changed autostart_file_path from tx2xxx_support to magick-rotation & config_file from tx2xxx.conf to magick-rotation.conf, changed pynotify.init from TX2xxx notification to magick-rotation notification, changed setup title to "Magick's TX2* support setup", added name Magick Rotation to About and prettied it up, got the last of the spelling I think
 v. 0.2-3(08-18-09)- Placed 'before' before 'after' in Advanced Settings, added "pretty" icons, more spelling corrections
 v. 0.2-2(08-16-09)- Changed state_hp_wmi_patched check to before the state_hp_wmi detection, changed icons to redo/undo, About, Sessions/Startup Applications, and spelling
-v. 0.2 (08-11-09) - fix some errors in lang, advanced close resize window to normal state, add before state change  commands, pyinotify now is not depend, disable/enable in menu now change depend of state, add about
+v. 0.2 (08-11-09) - fix some errors in lang, advanced close resize window to normal state, add before state change commands, pyinotify now is not depend, disable/enable in menu now change depend of state, add about  [by Red_Lion]
 v. 0.1 (08-09-09) - just write this code. Need some fix.  [by Red_Lion]
 
 
