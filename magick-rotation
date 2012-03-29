@@ -179,8 +179,31 @@ Comment=Helps with automatic rotation
             wr.close()
 
 if __name__ == "__main__":
-    magick = engine()
-    magick.run()
+    # Minimal install check:  start blocked unless checkmagick compiled and 62-magick.rules
+    # installed either by Installer or manually, see INSTALLER.txt.  Please ensure you have
+    # also created the magick group and added your username to it.
+    path = "."
+    if sys.argv:
+        path = os.path.dirname(sys.argv[0])
+        if not path:
+            path = "."
+
+    version = platform.machine()
+    if version == "x86_64":
+        checkmagick_version = "checkmagick64"
+    else:
+        checkmagick_version = "checkmagick32"
+
+    if os.path.exists("/dev/input/magick-rotation"):
+        if os.path.exists("/usr/bin/" + checkmagick_version):
+            magick = engine()
+            magick.run()
+        elif os.path.exists(path + "/" + checkmagick_version):
+            magick = engine()
+            magick.run()
+
+#    magick = engine()
+#    magick.run()
 
 ##############################################################
 ##  This program is free software; you can redistribute it  ##
