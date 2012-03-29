@@ -1,5 +1,5 @@
 
-Magick Rotation 1.5						October 9, 2011
+Magick Rotation 1.6						March 1, 2012
 
 
 NOTE: In the Advanced Setup command boxes do not use '&' after a program. For example adding '&' to Cairo Dock as in "cairo-dock -o &".  Adding the '&' will cause Magick Rotation to "hang".
@@ -16,13 +16,13 @@ NOTE:  Dell tablet pc's need to install a modified dell-wmi.  See the dell-wmi_R
 INSTALLATION
 If you haven't already, install CellWriter through Synaptic Package Manager.  CellWriter is Magick Rotation's default onscreen keyboard.  You can use another onscreen keyboard such as Onboard by changing the CellWriter lines in Advanced Setup.
 
-If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  To install open the extracted magick-rotation folder and right click on the 'magick-rotation' file and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on 'magick-rotation' and choose 'Run'.
+If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  To install open the extracted magick-rotation folder and right click on the MAGICK-INSTALL file (for pre-1.6 versions it's the 'magick-rotation' file) and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on 'magick-rotation' and choose 'Run'.
 
 The Installer will install the libraries needed to compile checkmagick and compile it.  Then it will install the Magick Rotation files to their various locations and delete the now unnecessary install files.  This will be detailed in the install_log which also shows which files were installed in what locations.  Reboot and the applet should be installed and working.  The version number is available if you click the About button.
 
-You may want to rename the magick-rotation folder you installed from to 'Magick_Rotation' so as to distinguish it from the magick-rotation folder installed in /etc/share.  You can safely delete the folder you installed from unless you have a Dell tablet PC in which case you may want to keep the MagickExtras folder.  In any case you probably also want to keep the install_log along with the README files.
+You may want to rename the magick-rotation folder you installed from to 'Magick_Rotation' so as to distinguish it from the magick-rotation folder installed in /etc/share.  It should contain INSTALLER.txt, install_log, Magick-README.txt, and the folders MagickExtras and MagickUninstall.  MagickUninstall lets you uninstall Magick Rotation using MAGICK-UNINSTALL similar to MAGICK-INSTALL.  MagickExtras has the modified dell-wmi and instructions for Dell tablet PCs.
 
-NOTE:  You can still run Magick Rotation from the magick-rotation folder without installing it or if the Installer fails.  Simply rename or remove the file firstrun.  You will then need to manually compile checkmagic and install the udev rules.  See the INSTALLER.txt file for instructions.
+NOTE:  You can still run Magick Rotation from the magick-rotation folder without installing it or if the Installer fails.  For pre-1.6 versions rename or remove the file firstrun.  You will then need to manually compile checkmagic and install the udev rules.  See the INSTALLER.txt file for instructions.
 
 
 SETUP - BEFORE ROTATING FOR THE FIRST TIME
@@ -72,7 +72,11 @@ to:  debug = 1
 
 
 INSTALLED FILES
-As mentioned before the install_log will show you the files and their locations.  In "System > Preferences > Sessions" or "Startup Applications" you'll see an entry called "Magick Rotation for HP tablet pc's". The associated file is in ".config > autostart" and is called "magick-rotation.desktop".  The configuration settings are in a file named 'magick-rotation.xml'.  To see it "Show Hidden Files" in 'View' in 'Places' (Nautilus).
+As mentioned before the install_log will show you the files and their locations.  In "System > Preferences > Sessions" or "Startup Applications" you'll see an entry called "Magick Rotation for HP tablet pc's". The associated file is in ".config > autostart" and is called "magick-rotation.desktop".  The configuration settings are in a file named 'magick-rotation.xml'.  To see it "Show Hidden Files" in 'View' in 'Places' (Nautilus) or Dophin.
+
+
+UNINSTALL MAGICK ROTATION
+Open the MagickUninstall folder.  Right click on the MAGICK-UNINSTALL file and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on MAGICK-UNINSTALL and choose 'Run'.  This will remove everything but the packages used to compile check.c (in case another application is now also using them) and magick-rotation from the system tray whitelist in Unity.
 
 
 ##############################################################
