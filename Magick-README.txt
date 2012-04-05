@@ -1,5 +1,5 @@
 
-Magick Rotation 1.6						March 1, 2012
+Magick Rotation 1.6						April 5, 2012
 
 
 NOTE: In the Advanced Setup command boxes do not use '&' after a program. For example adding '&' to Cairo Dock as in "cairo-dock -o &".  Adding the '&' will cause Magick Rotation to "hang".
@@ -20,7 +20,7 @@ If an earlier Magick Rotation is running shut it down by right clicking on it's 
 
 The Installer will install the libraries needed to compile checkmagick and compile it.  Then it will install the Magick Rotation files to their various locations and delete the now unnecessary install files.  This will be detailed in the install_log which also shows which files were installed in what locations.  Reboot and the applet should be installed and working.  The version number is available if you click the About button.
 
-You may want to rename the magick-rotation folder you installed from to 'Magick_Rotation' so as to distinguish it from the magick-rotation folder installed in /etc/share.  It should contain INSTALLER.txt, install_log, Magick-README.txt, and the folders MagickExtras and MagickUninstall.  MagickUninstall lets you uninstall Magick Rotation using MAGICK-UNINSTALL similar to MAGICK-INSTALL.  MagickExtras has the modified dell-wmi and instructions for Dell tablet PCs.
+You may want to rename the magick-rotation folder you installed from to 'Magick_Rotation' so as to distinguish it from the magick-rotation folder installed in /etc/share.  It should contain INSTALLER.txt, install_log, Magick-README.txt, and the folders MagickExtras and MagickUninstall.  MagickUninstall lets you uninstall Magick Rotation using MAGICK-UNINSTALL similar to MAGICK-INSTALL.  MagickExtras has the kernel drivers/modules needed by both the Dell and Fujitsu tablet PCs in order to work with Magick Rotation.  It includes the modified dell-wmi.ko dkms and the fujitsu-tablet.ko dkms along with instructions for both.
 
 NOTE:  You can still run Magick Rotation from the magick-rotation folder without installing it or if the Installer fails.  For pre-1.6 versions rename or remove the file firstrun.  You will then need to manually compile checkmagic and install the udev rules.  See the INSTALLER.txt file for instructions.
 

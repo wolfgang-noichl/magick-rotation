@@ -3,7 +3,8 @@
 # For tablet PC's with switches that transmit hinge state (laptop or tablet)
 # through an oem-wmi or oem-acpi, permitting a 'magick-rotation' symlink to be
 # created for them in 62-magick.rules.  Currently supported examples include
-# the hp-wmi, dell-wmi (modified version in MagickExtras), and lenovo-acpi.
+# the hp-wmi, dell-wmi (modified version in MagickExtras), fujitsu-tablet
+# (Fujitsu FUJ02BD, Fujitsu FUJ02BF), and lenovo-acpi.
 
 import struct
 import os.path

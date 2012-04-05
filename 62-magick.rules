@@ -12,5 +12,6 @@ KERNEL!="event[0-9]*", GOTO="magick-rotation"
 SUBSYSTEM=="input", ATTRS{name}=="HP WMI hotkeys", MODE="640", GROUP="magick", SYMLINK="input/magick-rotation"
 SUBSYSTEM=="input", ATTRS{name}=="Dell WMI hotkeys", MODE="640", GROUP="magick", SYMLINK="input/magick-rotation"
 SUBSYSTEM=="input", ATTRS{name}=="ThinkPad Extra Buttons", MODE="640", GROUP="magick", SYMLINK="input/magick-rotation"
+SUBSYSTEM=="input", ATTRS{name}=="Fujitsu FUJ02B[DF]", MODE="640", GROUP="magick", SYMLINK="input/magick-rotation"
 
 LABEL="magick-rotation"

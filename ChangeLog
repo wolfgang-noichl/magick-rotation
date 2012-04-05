@@ -1,10 +1,10 @@
 
-Magick Rotation 1.6						March 1, 2012
+Magick Rotation 1.6						April 5, 2012
 
 
 ChangeLog:
 
-v. 1.6 (02-26-12) - Added MAGICK-INSTALL moving install code from magick-rotation to it and removed firstrun.  Added initial Fedora, openSUSE, and Mint Installer support.  Added MagickUninstall folder with MAGICK-UNINSTALL, uninstaller_gtk.py, and UnMagickSplash.png.  Consolidated oem_wmi.py into hinge.py and removed oem_wmi.py.
+v. 1.6 (04-05-12) - Added Fujitsu tablet PC support.  Added MAGICK-INSTALL with install code from magick-rotation and removed firstrun.  Added initial Fedora, openSUSE, and Mint Installer support.  Added MagickUninstall folder with MAGICK-UNINSTALL, uninstaller_gtk.py, and UnMagickSplash.png.  Consolidated oem_wmi.py into hinge.py and removed oem_wmi.py.
 v. 1.5 (10-09-11) - Compile command changed for new Oneiric toolchain (other Distro's going to it).  Installer installs all needed Magick Rotation files and deletes install files.  Added LVDS# bug fix by Jayhawk.  Udev rules updated and magick group added for security enhancement.
 v. 1.4 (05-15-11) - Added Coordinate Transformation Matrix to xrotate.py for evdev device rotation.  Added whitelist.py to enable the Magick Rotation icon in Ubuntu Natty's Unity system tray.  Firstrun install now adds magick-rotation to the autostart.
 v. 1.3 (01-28-11) - Added Dell XT & XT2, HP Compaq TC4200 & TC4400, Lenovo ThinkPads, and MagickExtras folder containing Rafi Rubin's modified dell-wmi & dkms.  Fixed disable/enable switch  ChangeLog moved from Magick-README.txt to separate ChangeLog file.

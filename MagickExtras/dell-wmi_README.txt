@@ -1,5 +1,5 @@
 
-Magick Rotation 1.6						March 3, 2012
+Magick Rotation 1.6						April 5, 2012
 
 
 The default dell-wmi with the kernel does not report the hinge switch state which Magick Rotation needs in order to work.  What we can do is the use a version modified by Rafi Rubin along with dkms, or a subsequent modification for BIOS A09 or later.  Unfortunately the underlying dell-wmi.c is getting a bit long in the tooth and does not reflect the changes to the dell-wmi.c in newer kernels.  While the dell-wmi.ko versions included here still work, as far as we know, what's needed is for someone with kernel coding skills and a Dell tablet PC for testing to make the KE_SW and SW_TABLET_MODE modifications to a newer dell-wmi.c.  The legacy_keymap we are using needs to be updated to accomodate the sparse-keymap and new dell_bios_hotkey_table.
@@ -17,10 +17,13 @@ Then continue with the following:
     sudo dkms install -m dell-wmi -v 20101214-rafi
 
 When you restart, it should now report the swivel hinge state and Magick Rotation should now work.  You should be able to see the information through:
-    sudo xxd -g1 /dev/input/dell-wmi
+    sudo xxd -g1 /dev/input/magick-rotation
 
-To remove the dkms the command is:
+To remove the dkms install the command is:
     sudo dkms remove -m dell-wmi -v 20101214-rafi --all
+
+Then to remove the dkms folder:
+    sudo rm -r /usr/src/dell-wmi-20101214-rafi
 
 For those of you wondering why we are using dkms for this, dkms will recompile the modified dell-wmi.ko kernel module every time there is a kernel update.
 
@@ -51,4 +54,7 @@ When you restart, it should now report the swivel hinge state and Magick Rotatio
 
 To remove the dkms the command is:
     sudo dkms remove -m dell-wmi -v 20120302-A09 --all
+
+Then to remove the dkms folder:
+    sudo rm -r /usr/src/dell-wmi-20120302-A09
 
