@@ -1,9 +1,16 @@
 
-Magick Rotation 1.6						April 5, 2012
+Magick Rotation 1.6						April 27, 2012
 
 
 Robert Gerlach's kernel driver fujitsu-tablet.ko or "Fujitsu tablet pc extras driver" was accepted into the 3.3 kernel.  With this addition Fujitsu tablet PCs are now able to report the hinge switch state.  Magick Rotation can then read the reported laptop or tablet state through the magick-rotation symlink created for Fujitsu tablet PCs by the udev rule in 62-magick.rules.  In order to backport hinge switch support to older kernels the module is included as a dkms implementation in MagickExtras.
 
+FIRST check to see if you have the dkms framework installed.  If you have installed a proprietary driver such as a video or wifi driver it likely is.  Otherwise you will need to install it.  Examples:
+Ubuntu - in Software Center search 'dkms' or from the command line:
+    sudo apt-get install dkms
+Fedora - in Add/Remove Software search 'dkms' or from the command line:
+    su -c 'yum install dkms'
+openSUSE - in Install/Remove Software search 'dkms' or from the command line:
+    su -c 'zypper install dkms'
 
 Open a terminal and copy (as root) the fujitsu-tablet-20120404-gerlach folder to /usr/src.  Either use the path to the MagickExtras folder (assuming you extracted it onto your Desktop): 
     sudo cp -a /home/yourusername/Desktop/magick-rotation/MagickExtras/fujitsu-tablet-20120404-gerlach /usr/src/
