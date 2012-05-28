@@ -225,7 +225,7 @@ class installer_engine:
         return success
 
     def install_checkmagick(self):
-        command = "mv "  +  self.filepath + "/" + str(self.bit_ver) + " /usr/bin/"
+        command = "mv -f "  +  self.filepath + "/" + str(self.bit_ver) + " /usr/bin/"
         self.log.write("Moving checkmagick\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -237,7 +237,7 @@ class installer_engine:
         return success
 
     def install_udev_rules(self):
-        command = "mv "  +  self.filepath + "/" + "62-magick.rules /etc/udev/rules.d/"
+        command = "mv -f "  +  self.filepath + "/" + "62-magick.rules /etc/udev/rules.d/"
         self.log.write("Moving 62-magick.rules\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -265,7 +265,7 @@ class installer_engine:
         if packman == "YaST":
             command = "usermod -A magick " + str(username)
         else:
-            command = "gpasswd -a " + username + " magick"
+            command = "gpasswd -a " + str(username) + " magick"
         self.log.write("Add user to magick group\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -293,7 +293,7 @@ class installer_engine:
         return success
 
     def install_readme(self):
-        command = "cp " + self.filepath + "/" + "Magick-README.txt /usr/share/magick-rotation/"
+        command = "cp -f " + self.filepath + "/" + "Magick-README.txt /usr/share/magick-rotation/"
         self.log.write("Copying Magick-README\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -309,7 +309,7 @@ class installer_engine:
         self.log.write("Moving magick-rotation files\n")
         for magick_files, filename_list in magick_filename.iteritems():
             for filename in filename_list:
-                command = "mv " + self.filepath + "/" + filename + " /usr/share/magick-rotation/" + filename
+                command = "mv -f " + self.filepath + "/" + filename + " /usr/share/magick-rotation/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -339,7 +339,7 @@ class installer_engine:
         self.log.write("Moving MagickIcon files\n")
         for magick_icons, filename_list in icon_filename.iteritems():
             for filename in filename_list:
-                command = "mv " + self.filepath + "/MagickIcons/" + filename + " /usr/share/magick-rotation/MagickIcons/" + filename
+                command = "mv -f " + self.filepath + "/MagickIcons/" + filename + " /usr/share/magick-rotation/MagickIcons/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -349,7 +349,7 @@ class installer_engine:
         return success
 
     def remove_splashicon(self):
-        command = "rm " + self.filepath + "/MagickIcons/MagickSplash.png"
+        command = "rm -f " + self.filepath + "/MagickIcons/MagickSplash.png"
         self.log.write("\n")
         self.log.write("Removing MagickSplash.png\n")
         self.log.write(command)
@@ -378,7 +378,7 @@ class installer_engine:
         self.log.write("Removing uneeded install files\n")
         for install_files, filename_list in install_filename.iteritems():
             for filename in filename_list:
-                command = "rm " + self.filepath + "/" + filename
+                command = "rm -f " + self.filepath + "/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")

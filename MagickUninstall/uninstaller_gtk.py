@@ -120,7 +120,7 @@ class uninstaller_engine:
             version = "checkmagick64"
         else:
             version = "checkmagick32"
-        command = "rm /usr/bin/" + version
+        command = "rm -f /usr/bin/" + version
         self.log.write("\n\n")
         self.log.write("Removing checkmagick\n")
         self.log.write(command)
@@ -133,7 +133,7 @@ class uninstaller_engine:
         return success
 
     def remove_udev_rules(self):
-        command = "rm /etc/udev/rules.d/62-magick.rules"
+        command = "rm -f /etc/udev/rules.d/62-magick.rules"
         self.log.write("Removing 62-magick.rules\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -149,7 +149,7 @@ class uninstaller_engine:
         if os.path.exists("/usr/bin/zypper"):
             command = "usermod -R magick " + str(username)
         else:
-            command = "gpasswd -d " + username + " magick"
+            command = "gpasswd -d " + str(username) + " magick"
         self.log.write("Remove user in magick group\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -178,7 +178,7 @@ class uninstaller_engine:
         self.log.write("Removing MagickIcon files\n")
         for magick_icons, filename_list in icon_filename.iteritems():
             for filename in filename_list:
-                command = "rm /usr/share/magick-rotation/MagickIcons/" + filename
+                command = "rm -f /usr/share/magick-rotation/MagickIcons/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -205,7 +205,7 @@ class uninstaller_engine:
         self.log.write("Removing magick-rotation files\n")
         for magick_files, filename_list in magick_filename.iteritems():
             for filename in filename_list:
-                command = "rm /usr/share/magick-rotation/" + filename
+                command = "rm -f /usr/share/magick-rotation/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -214,36 +214,47 @@ class uninstaller_engine:
                 self.log.write(str(success[1]))
         return success
 
-    try:
-        def remove_pyc_files(self):
-            command = "rm /usr/share/magick-rotation/*.pyc"
-            self.log.write("\n")
-            self.log.write("Removing pyc files from /usr/share/magick-rotation\n")
-            self.log.write(command)
-            success = getstatusoutput(command)
-            self.log.write("\n")
-            self.log.write(str(success[0]))
-            self.log.write("\n")
-            self.log.write(str(success[1]))
-            self.log.write("\n")
-            return success
+    def remove_pyc_files(self):
+        command = "rm -f /usr/share/magick-rotation/*.pyc"
+        self.log.write("\n")
+        self.log.write("Removing pyc files from /usr/share/magick-rotation\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
 
-    finally:
-        def remove_magick_folder(self):
-            command = "rmdir /usr/share/magick-rotation"
-            self.log.write("Removing folder magick-rotation from /usr/share\n")
-            self.log.write(command)
-            success = getstatusoutput(command)
-            self.log.write("\n")
-            self.log.write(str(success[0]))
-            self.log.write("\n")
-            self.log.write(str(success[1]))
-            self.log.write("\n")
-            return success
+    def remove_gedit_files(self):
+        command = "rm -f /usr/share/magick-rotation/*~"
+        self.log.write("\n")
+        self.log.write("Removing gedit backup files from /usr/share/magick-rotation\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
+    def remove_magick_folder(self):
+        command = "rmdir /usr/share/magick-rotation"
+        self.log.write("Removing folder magick-rotation from /usr/share\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
 
     def remove_xml_config(self):
         username = self.usr_name
-        command = "rm /home/" + username + "/.magick-rotation.xml"
+        command = "rm -f /home/" + str(username) + "/.magick-rotation.xml"
         self.log.write("Removing file magick-rotation.xml from /home/username\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -256,7 +267,7 @@ class uninstaller_engine:
 
     def remove_autostart_config(self):
         username = self.usr_name
-        command = "rm /home/" + username + "/.config/autostart/magick-rotation.desktop"
+        command = "rm -f /home/" + str(username) + "/.config/autostart/magick-rotation.desktop"
         self.log.write("Removing file magick-rotation.desktop from /home/username/.config/autostart\n")
         self.log.write(command)
         success = getstatusoutput(command)
