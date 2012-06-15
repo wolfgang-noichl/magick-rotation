@@ -69,9 +69,11 @@ if __name__ == "__main__":
     if is_kdesu == 0:
         sudo = "kdesu -c "
 
-    wl = path + "/whitelist.py"
-    val = getstatusoutput(wl)[0]
-    
+    # use gsettings to add Magick icon to Unity tray whitelist
+    # or enable Magick extension in Gnome Shell
+    gset = path + "/gset_addkeyval.py"
+    val = getstatusoutput(gset)[0]
+
     usr_for_group = pwd.getpwuid(os.getuid()).pw_name
     # pass username as a command line argument
     command = sudo + "'python " + path + "/installer_gtk.py " + \

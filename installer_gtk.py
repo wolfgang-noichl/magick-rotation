@@ -6,7 +6,7 @@ import gobject
 import sys
 import thread
 import os.path
-from commands import getstatusoutput
+from commands import getstatusoutput, getoutput
 import platform
 import pango
 
@@ -26,6 +26,15 @@ else:
     except ImportError:
         apt_installed = False
     packman = "APT"
+
+# for Magick Rotation's Gnome Shell 3.2 extension (spec.s changed from 3.0) installation
+# determine if Gnome Shell is installed and version 3.2 or better
+if os.path.exists("/usr/bin/gnome-shell"):
+    gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.4.1
+    gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
+    gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
+    if gshell_subver >= 2:
+        gshell = True  # yes, 3.2 or better and installed
 
 class installer_dialog(gtk.MessageDialog):
     def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
@@ -225,7 +234,7 @@ class installer_engine:
         return success
 
     def install_checkmagick(self):
-        command = "mv -f "  +  self.filepath + "/" + str(self.bit_ver) + " /usr/bin/"
+        command = "mv "  +  self.filepath + "/" + str(self.bit_ver) + " /usr/bin/"
         self.log.write("Moving checkmagick\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -237,7 +246,7 @@ class installer_engine:
         return success
 
     def install_udev_rules(self):
-        command = "mv -f "  +  self.filepath + "/" + "62-magick.rules /etc/udev/rules.d/"
+        command = "mv "  +  self.filepath + "/" + "62-magick.rules /etc/udev/rules.d/"
         self.log.write("Moving 62-magick.rules\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -293,7 +302,7 @@ class installer_engine:
         return success
 
     def install_readme(self):
-        command = "cp -f " + self.filepath + "/" + "Magick-README.txt /usr/share/magick-rotation/"
+        command = "cp " + self.filepath + "/" + "Magick-README.txt /usr/share/magick-rotation/"
         self.log.write("Copying Magick-README\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -309,7 +318,7 @@ class installer_engine:
         self.log.write("Moving magick-rotation files\n")
         for magick_files, filename_list in magick_filename.iteritems():
             for filename in filename_list:
-                command = "mv -f " + self.filepath + "/" + filename + " /usr/share/magick-rotation/" + filename
+                command = "mv " + self.filepath + "/" + filename + " /usr/share/magick-rotation/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -339,7 +348,7 @@ class installer_engine:
         self.log.write("Moving MagickIcon files\n")
         for magick_icons, filename_list in icon_filename.iteritems():
             for filename in filename_list:
-                command = "mv -f " + self.filepath + "/MagickIcons/" + filename + " /usr/share/magick-rotation/MagickIcons/" + filename
+                command = "mv " + self.filepath + "/MagickIcons/" + filename + " /usr/share/magick-rotation/MagickIcons/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -348,9 +357,28 @@ class installer_engine:
                 self.log.write(str(success[1]))
         return success
 
+    # The Gnome Shell Message Tray auto-hides and obscures touch-on/off icons with its message
+    # number.  This installs an extension that moves the Magick icon to System Status Area.
+    if gshell == True:
+        def move_magickextension_folder(self):
+            username = self.usr_name
+            if os.path.exists("/home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"):
+                command = 'print "magick-rotation-extension folder already exists\n"'
+            else:
+                command = "mv " + self.filepath + "/magick-rotation-extension /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
+#                self.log.write("\n")
+                self.log.write("Move magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
+            self.log.write(command)
+            success = getstatusoutput(command)
+            self.log.write("\n")
+            self.log.write(str(success[0]))
+            self.log.write("\n")
+            self.log.write(str(success[1]))
+            self.log.write("\n")
+            return success
+
     def remove_splashicon(self):
-        command = "rm -f " + self.filepath + "/MagickIcons/MagickSplash.png"
-        self.log.write("\n")
+        command = "rm " + self.filepath + "/MagickIcons/MagickSplash.png"
         self.log.write("Removing MagickSplash.png\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -360,7 +388,7 @@ class installer_engine:
         self.log.write(str(success[1]))
         return success
 
-    def remove_magickicons(self):
+    def remove_magickicons_folder(self):
         command = "rmdir " + self.filepath + "/MagickIcons"
         self.log.write("\n")
         self.log.write("Removing MagickIcons folder\n")
@@ -373,12 +401,29 @@ class installer_engine:
         self.log.write("\n")
         return success
 
+    def remove_magickextension_folder(self):
+        if os.path.exists(self.filepath + "/magick-rotation-extension"):
+            command = "rm -rf " + self.filepath + "/magick-rotation-extension"
+            self.log.write("\n")
+            self.log.write("Removing magick-rotation-extension folder\n")
+        else:
+            command = ""
+            self.log.write("Magick extension folder already removed\n")
+        self.log.write(command)
+        success = getstatusoutput(command)
+        self.log.write("\n")
+        self.log.write(str(success[0]))
+        self.log.write("\n")
+        self.log.write(str(success[1]))
+        self.log.write("\n")
+        return success
+
     def remove_install_files(self):
-        install_filename = {"install_files":["apt_installprogress_gtk.py", "apt_pm.py", "check.c", "installer_gtk.py", "MAGICK-INSTALL", "whitelist.py"]}
+        install_filename = {"install_files":["apt_installprogress_gtk.py", "apt_pm.py", "check.c", "installer_gtk.py", "MAGICK-INSTALL", "gset_addkeyval.py"]}
         self.log.write("Removing uneeded install files\n")
         for install_files, filename_list in install_filename.iteritems():
             for filename in filename_list:
-                command = "rm -f " + self.filepath + "/" + filename
+                command = "rm " + self.filepath + "/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -412,9 +457,9 @@ class installer_engine:
                 self.remove_install_check()
                 return -1
             else:
-                # Ask the user if they want to install the package
+                # Ask the user if they want to install the package.
                 # If they don't, then exit installer and do not 
-                # launch magick-rotation
+                # launch magick-rotation.
 
                 package_string = ""
                 package_list = []
@@ -447,8 +492,12 @@ class installer_engine:
             for package in packages:
                 package_list.append(package)
 
+        # Ask the user if they want to install Magick Rotation files and folders.
         package_list.append("\nMagick Rotation install changes.\n\nFile to install in /usr/bin:\n checkmagick")
         package_list.append("\nFolder to install in /usr/share:\n magick-rotation\n\nFile to install in /etc/udev/rules.d:\n 62-magick.rules\n\nAdd group:\n magick\n")
+        # Ask the user if they want to install the Magick extension for Gnome Shell.
+        if gshell == True:
+            package_list.append("Shell extension to install:\n magick-rotation-extension\n")
         dialog.list_packages(package_list,  self,  self.win)
 
     def close_dialog(self,  dialog=None):
@@ -490,13 +539,18 @@ class installer_engine:
             success = self.create_magickicons_folder()
             self.win.add_text("Moving MagickIcons files\n")
             success = self.install_magick_icons()
-            self.win.add_text("Removing uneeded files\n")
+            if gshell == True:
+                self.win.add_text("Enabled Magick extension\n")
+                self.win.add_text("Moving Magick extension folder\n")
+                success = self.move_magickextension_folder()
+            self.win.add_text("Removing uneeded files and folders\n")
             success = self.remove_splashicon()
-            success = self.remove_magickicons()
+            success = self.remove_magickicons_folder()
+            success = self.remove_magickextension_folder()
             success = self.remove_install_files()
             self.win.add_bold_text("\nINSTALLATION COMPLETE")
-            self.win.add_text("\nA system restart is \nrequired to ensure that \n")
-            self.win.add_text("magick-rotation will work.\n")
+            self.win.add_text("\nA system restart is required to\n")
+            self.win.add_text("ensure Magick Rotation will work.\n")
 
     def run(self):
         gobject.threads_init()

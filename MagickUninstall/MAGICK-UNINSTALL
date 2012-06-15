@@ -42,6 +42,11 @@ if __name__ == "__main__":
     if is_kdesu == 0:
         sudo = "kdesu -c "
 
+    # use gsettings to remove Magick icon from Unity tray whitelist
+    # or disable Magick extension in Gnome Shell
+    gset = path + "/gset_rmkeyval.py"
+    val = getstatusoutput(gset)[0]
+
     usr_for_group = pwd.getpwuid(os.getuid()).pw_name
     # pass username as a command line argument
     command = sudo + "'python " + path + "/uninstaller_gtk.py " + \

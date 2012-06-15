@@ -6,9 +6,18 @@ import gobject
 import sys
 import thread
 import os.path
-from commands import getstatusoutput
+from commands import getstatusoutput, getoutput
 import platform
 import pango
+
+# for Magick Rotation's Gnome Shell 3.2 extension (spec.s changed from 3.0) removal
+# has to be Gnome Shell >= 3.2 for there to be an extension to remove
+if os.path.exists("/usr/bin/gnome-shell"):
+    gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.4.1
+    gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
+    gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
+    if gshell_subver >= 2:
+        gshell = True  # yes, 3.2 or better and installed
 
 class uninstaller_dialog(gtk.MessageDialog):
     def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
@@ -120,7 +129,7 @@ class uninstaller_engine:
             version = "checkmagick64"
         else:
             version = "checkmagick32"
-        command = "rm -f /usr/bin/" + version
+        command = "rm /usr/bin/" + version
         self.log.write("\n\n")
         self.log.write("Removing checkmagick\n")
         self.log.write(command)
@@ -133,7 +142,7 @@ class uninstaller_engine:
         return success
 
     def remove_udev_rules(self):
-        command = "rm -f /etc/udev/rules.d/62-magick.rules"
+        command = "rm /etc/udev/rules.d/62-magick.rules"
         self.log.write("Removing 62-magick.rules\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -178,7 +187,7 @@ class uninstaller_engine:
         self.log.write("Removing MagickIcon files\n")
         for magick_icons, filename_list in icon_filename.iteritems():
             for filename in filename_list:
-                command = "rm -f /usr/share/magick-rotation/MagickIcons/" + filename
+                command = "rm /usr/share/magick-rotation/MagickIcons/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -205,7 +214,7 @@ class uninstaller_engine:
         self.log.write("Removing magick-rotation files\n")
         for magick_files, filename_list in magick_filename.iteritems():
             for filename in filename_list:
-                command = "rm -f /usr/share/magick-rotation/" + filename
+                command = "rm /usr/share/magick-rotation/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
                 self.log.write("\n")
@@ -216,32 +225,15 @@ class uninstaller_engine:
 
     def remove_pyc_files(self):
         command = "rm -f /usr/share/magick-rotation/*.pyc"
-        self.log.write("\n")
-        self.log.write("Removing pyc files from /usr/share/magick-rotation\n")
-        self.log.write(command)
         success = getstatusoutput(command)
-        self.log.write("\n")
-        self.log.write(str(success[0]))
-        self.log.write("\n")
-        self.log.write(str(success[1]))
-        self.log.write("\n")
-        return success
 
-    def remove_gedit_files(self):
+    def remove_editor_files(self):
         command = "rm -f /usr/share/magick-rotation/*~"
-        self.log.write("\n")
-        self.log.write("Removing gedit backup files from /usr/share/magick-rotation\n")
-        self.log.write(command)
         success = getstatusoutput(command)
-        self.log.write("\n")
-        self.log.write(str(success[0]))
-        self.log.write("\n")
-        self.log.write(str(success[1]))
-        self.log.write("\n")
-        return success
 
     def remove_magick_folder(self):
         command = "rmdir /usr/share/magick-rotation"
+        self.log.write("\n")
         self.log.write("Removing folder magick-rotation from /usr/share\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -254,7 +246,7 @@ class uninstaller_engine:
 
     def remove_xml_config(self):
         username = self.usr_name
-        command = "rm -f /home/" + str(username) + "/.magick-rotation.xml"
+        command = "rm /home/" + str(username) + "/.magick-rotation.xml"
         self.log.write("Removing file magick-rotation.xml from /home/username\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -267,7 +259,7 @@ class uninstaller_engine:
 
     def remove_autostart_config(self):
         username = self.usr_name
-        command = "rm -f /home/" + str(username) + "/.config/autostart/magick-rotation.desktop"
+        command = "rm /home/" + str(username) + "/.config/autostart/magick-rotation.desktop"
         self.log.write("Removing file magick-rotation.desktop from /home/username/.config/autostart\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -278,10 +270,29 @@ class uninstaller_engine:
         self.log.write("\n")
         return success
 
+    if gshell == True:
+        def remove_magickextension_folder(self):
+            username = self.usr_name
+            command = "rm -rf /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
+#            self.log.write("\n")
+            self.log.write("Removing magick-rotation-extension folder in ~/.local/share/gnome-shell/extensions\n")
+            self.log.write(command)
+            success = getstatusoutput(command)
+            self.log.write("\n")
+            self.log.write(str(success[0]))
+            self.log.write("\n")
+            self.log.write(str(success[1]))
+            self.log.write("\n")
+            return success
+
     def execute_steps(self,  data=None):
         dialog = uninstaller_dialog(self.win,  0, gtk.MESSAGE_INFO,  gtk.BUTTONS_NONE,  None)
         package_list = []
+        # Ask the user if they want to uninstall Magick Rotation files and folders.
         package_list.append("\nFile to remove in /usr/bin:\n checkmagick\n\nFile to remove in /etc/udev/rules.d:\n 62-magick.rules\n\nRemove group:\n magick\n\nFolder to remove in /usr/share:\n magick-rotation\n\nFiles to remove in /home/username\n .magick-rotation.xml\n magick-rotation.desktop\n")
+        # Ask the user if they want to uninstall the Magick extension for Gnome Shell.
+        if gshell == True:
+            package_list.append("Shell extension to remove:\n magick-rotation-extension\n")
         dialog.list_packages(package_list,  self,  self.win)
 
     def run_uninstaller(self,  data=None):
@@ -299,17 +310,19 @@ class uninstaller_engine:
             success = self.remove_magickicons_folder()
             self.win.add_text("Removing magick-rotation files\n")
             success = self.remove_magick_files()
-            self.win.add_text("Removing *.pyc files\n")
-            success = self.remove_pyc_files()
             self.win.add_text("Removing magick-rotation folder\n")
             success = self.remove_magick_folder()
             self.win.add_text("Removing Magick .xml file\n")
             success = self.remove_xml_config()
             self.win.add_text("Removing Magick .desktop file\n")
             success = self.remove_autostart_config()
+            if gshell == True:
+                self.win.add_text("Disabled Magick extension\n")
+                self.win.add_text("Removing Magick extension folder\n")
+                success = self.remove_magickextension_folder()
             self.win.add_bold_text("\nUNINSTALL COMPLETE")
-            self.win.add_text("\nA system restart is required\nto ensure that magick-rotation\n")
-            self.win.add_text("is completely removed.\n")
+            self.win.add_text("\nA system restart is required to\n")
+            self.win.add_text("ensure Magick Rotation is removed.\n")
 
     def run(self):
         gobject.threads_init()
