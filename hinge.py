@@ -8,8 +8,7 @@
 
 import struct
 import os.path
-from commands import getoutput
-from commands import getstatusoutput
+from commands import getstatusoutput, getoutput
 
 from config import *
 
@@ -31,10 +30,10 @@ class hinge:
         while True:
             EV_SW = 5
             SW_TABLET_MODE = 1
-			# Originally was at 48, but found that if laptop is
-			# suspended, the data gets offset too much.  If it is
-			# at 8, it appears that it is able to find the value
-			# more consistently.
+                # Originally was at 48, but found that if laptop is
+                # suspended, the data gets offset too much.  If it is
+                # at 8, it appears that it is able to find the value
+                # more consistently.
             input = fd.read(8)
             ev_type = struct.unpack("H", input[0:2])[0]
             ev_code = struct.unpack("H", input[2:4])[0]
@@ -78,5 +77,9 @@ class hinge:
                             run_command = False
                     if run_command:
                         getoutput(command)
+
+if __name__ == "__main__":
+    h = hinge()
+    switch = h.get_switch()
 
 #vim :set expandtab :set tabstop=4 :set shiftwidth=4
