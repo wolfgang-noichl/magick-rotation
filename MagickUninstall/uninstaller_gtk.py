@@ -187,6 +187,7 @@ class uninstaller_engine:
         self.log.write("Removing MagickIcon files\n")
         for magick_icons, filename_list in icon_filename.iteritems():
             for filename in filename_list:
+                self.log.write("\n")
                 command = "rm /usr/share/magick-rotation/MagickIcons/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
@@ -210,10 +211,11 @@ class uninstaller_engine:
         return success
 
     def remove_magick_files(self):
-        magick_filename = {"magick_files":["ChangeLog", "config.py", "debug.py", "gui_gtk.py", "hinge.py", "listener.py", "Magick-README.txt", "magick-rotation", "oem_wmi.py", "xrotate.py"]}
+        magick_filename = {"magick_files":["ChangeLog", "config.py", "debug.py", "gui_gtk.py", "hinge.py", "listener.py", "Magick-README.txt", "magick-rotation", "xrotate.py"]}
         self.log.write("Removing magick-rotation files\n")
         for magick_files, filename_list in magick_filename.iteritems():
             for filename in filename_list:
+                self.log.write("\n")
                 command = "rm /usr/share/magick-rotation/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
@@ -223,16 +225,9 @@ class uninstaller_engine:
                 self.log.write(str(success[1]))
         return success
 
-    def remove_pyc_files(self):
-        command = "rm -f /usr/share/magick-rotation/*.pyc"
-        success = getstatusoutput(command)
-
-    def remove_editor_files(self):
-        command = "rm -f /usr/share/magick-rotation/*~"
-        success = getstatusoutput(command)
-
     def remove_magick_folder(self):
-        command = "rmdir /usr/share/magick-rotation"
+#        command = "rmdir /usr/share/magick-rotation"
+        command = "rm -rf /usr/share/magick-rotation"
         self.log.write("\n")
         self.log.write("Removing folder magick-rotation from /usr/share\n")
         self.log.write(command)
@@ -274,7 +269,6 @@ class uninstaller_engine:
         def remove_magickextension_folder(self):
             username = self.usr_name
             command = "rm -rf /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
-#            self.log.write("\n")
             self.log.write("Removing magick-rotation-extension folder in ~/.local/share/gnome-shell/extensions\n")
             self.log.write(command)
             success = getstatusoutput(command)

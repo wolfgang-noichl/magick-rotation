@@ -3,7 +3,7 @@
 import sys
 import os
 import pwd
-from commands import getstatusoutput
+from commands import getstatusoutput, getoutput
 
 sys.dont_write_bytecode = True
 
@@ -17,23 +17,35 @@ class autostart:
         pass
 
     def add_autostart(self):
+        # installing - so use /usr/share path in magick-rotation.desktop
         autostart_desktop="""
 [Desktop Entry]
 Type=Application
-Name = Magick Rotation for tablet pc's
-Exec = %s
-Icon = redo
-Comment=Helps with automatic rotation
+Name=Magick Rotation for tablet PC's
+Exec=/usr/share/magick-rotation/magick-rotation
+Comment=Tablet PC automatic rotation
+Icon=/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png
+Path=/usr/share/magick-rotation/
 """
-        autostart_file_path = "~/.config/autostart/magick-rotation.desktop"
+        autostart_dsktop_path = "~/.config/autostart/magick-rotation.desktop"
 
-        if os.path.exists("/usr/share/magick-rotation/magick-rotation"):
-            usr_share = "/usr/share/magick-rotation/magick-rotation"
-            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
-                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
-            wr=open(os.path.expanduser(autostart_file_path), "w")
-            wr.write(autostart_desktop % usr_share)
-            wr.close()
+        if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+            os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+
+        # for Gnome Shell 3.4 auto-start bug
+        if os.path.exists("/usr/bin/gnome-shell"):
+            gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.4.1
+            gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
+            gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
+
+        if gshell_subver >= 4:
+            wr = open(os.path.expanduser(autostart_dsktop_path), "w")
+            # append the Gnome Shell 3.4 bug work around
+            wr.write(autostart_desktop + "X-GNOME-Autostart-Delay=3")
+        else:
+            wr = open(os.path.expanduser(autostart_dsktop_path), "w")
+            wr.write(autostart_desktop)
+        wr.close()
 
 if __name__ == "__main__":
     path = "."

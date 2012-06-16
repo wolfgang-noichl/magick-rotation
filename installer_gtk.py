@@ -318,6 +318,7 @@ class installer_engine:
         self.log.write("Moving magick-rotation files\n")
         for magick_files, filename_list in magick_filename.iteritems():
             for filename in filename_list:
+                self.log.write("\n")
                 command = "mv " + self.filepath + "/" + filename + " /usr/share/magick-rotation/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
@@ -348,6 +349,7 @@ class installer_engine:
         self.log.write("Moving MagickIcon files\n")
         for magick_icons, filename_list in icon_filename.iteritems():
             for filename in filename_list:
+                self.log.write("\n")
                 command = "mv " + self.filepath + "/MagickIcons/" + filename + " /usr/share/magick-rotation/MagickIcons/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)
@@ -366,7 +368,6 @@ class installer_engine:
                 command = 'print "magick-rotation-extension folder already exists\n"'
             else:
                 command = "mv " + self.filepath + "/magick-rotation-extension /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
-#                self.log.write("\n")
                 self.log.write("Move magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
             self.log.write(command)
             success = getstatusoutput(command)
@@ -423,6 +424,7 @@ class installer_engine:
         self.log.write("Removing uneeded install files\n")
         for install_files, filename_list in install_filename.iteritems():
             for filename in filename_list:
+                self.log.write("\n")
                 command = "rm " + self.filepath + "/" + filename
                 self.log.write(command)
                 success = getstatusoutput(command)

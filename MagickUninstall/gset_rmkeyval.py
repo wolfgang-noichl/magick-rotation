@@ -11,7 +11,7 @@ results_wl = getstatusoutput(cmd)
 whitelist = []
 
 if not results_wl[0]:
-    whitelist = literal_eval(results[1])  # ignore whitelist empty case, highly unlikely
+    whitelist = literal_eval(results_wl[1])  # ignore whitelist empty case, highly unlikely
     if 'magick-rotation' not in whitelist:
         print "magick-rotation already removed from whitelist"
     else:

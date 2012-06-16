@@ -4,6 +4,7 @@ import sys
 import pickle
 from xml.dom import minidom
 import os.path
+from commands import getoutput
 
 class config:
     def __init__(self):
@@ -127,35 +128,70 @@ class config:
 
 
     def add_autostart(self, autostart):
+        # uninstalled - run from folder .desktop file
         autostart_desktop="""
 [Desktop Entry]
 Type=Application
-Name = Magick Rotation for tablet pc's
-Exec = %s
-Icon = redo
-Comment=Helps with automatic rotation
+Name=Magick Rotation for tablet PC's
+Exec=%s
+Comment=Tablet PC automatic rotation
+Icon=redo
 """
-        autostart_file_path = "~/.config/autostart/magick-rotation.desktop"
+        # installed - use /usr/share path in magick-rotation.desktop
+        autostart_desktop_inst="""
+[Desktop Entry]
+Type=Application
+Name=Magick Rotation for tablet PC's
+Exec=/usr/share/magick-rotation/magick-rotation
+Comment=Tablet PC automatic rotation
+Icon=/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png
+Path=/usr/share/magick-rotation/
+"""
+        # check if Magick Rotation installed by Installer
+        if os.path.exists("/usr/share/magick-rotation/magick-rotation"):
+            installed = True
+        else:
+            installed = False
+        # check if autostart is also installed
+        if os.path.exists("~/.config/autostart/magick-rotation.desktop"):
+            inst_autostart = True
+        else:
+            inst_autostart = False
+
+        # for Gnome Shell 3.4 auto-start bug
+        if os.path.exists("/usr/bin/gnome-shell"):
+            gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.4.1
+            gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
+            gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
 
         if autostart:
-            # Exec string (%s) dependent on where the magick-rotation script is located
-            if os.path.exists("/usr/share/magick-rotation/magick-rotation"):
-                usr_share = "/usr/share/magick-rotation/magick-rotation"
-                if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
-                    os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
-                wr=open(os.path.expanduser(autostart_file_path), "w")
-                wr.write(autostart_desktop % usr_share)
+            autostart_dsktop_path = "~/.config/autostart/magick-rotation.desktop"
+            if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
+                os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
+
+            if not installed:  # run from folder, wherever it is
+                folder_path = os.path.abspath(sys.argv[0])
+                if gshell_subver >= 4:
+                    wr = open(os.path.expanduser(autostart_dsktop_path), "w")
+                    # append the Gnome Shell 3.4 bug work around
+                    wr.write(autostart_desktop % folder_path + "X-GNOME-Autostart-Delay=3")
+                else:
+                    wr = open(os.path.expanduser(autostart_dsktop_path), "w")
+                    wr.write(autostart_desktop % folder_path)
                 wr.close()
             else:
-                astfl=os.path.abspath(sys.argv[0])
-                if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
-                    os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
-                wr=open(os.path.expanduser(autostart_file_path), "w")
-                wr.write(autostart_desktop % astfl)
-                wr.close()
+                if not inst_autostart:  # re-install removed Installer autostart
+                    if gshell_subver >= 4:
+                        wr=open(os.path.expanduser(autostart_dsktop_path), "w")
+                        # append the Gnome Shell 3.4 bug work around
+                        wr.write(autostart_desktop_inst + "X-GNOME-Autostart-Delay=3")
+                    else:
+                        wr=open(os.path.expanduser(autostart_dsktop_path), "w")
+                        wr.write(autostart_desktop_inst)
+                    wr.close()
         else:
-            if os.path.exists(os.path.expanduser(autostart_file_path)):
-                os.remove(os.path.expanduser(autostart_file_path))
+            if os.path.exists(os.path.expanduser(autostart_dsktop_path)):
+                os.remove(os.path.expanduser(autostart_dsktop_path))
 
 if __name__ == "__main__":
     c = config()
