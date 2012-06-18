@@ -27,14 +27,18 @@ else:
         apt_installed = False
     packman = "APT"
 
-# for Magick Rotation's Gnome Shell 3.2 extension (spec.s changed from 3.0) installation
+# for Magick Rotation's Gnome Shell 3.2 extension (spec.s changed after 3.0) installation
 # determine if Gnome Shell is installed and version 3.2 or better
 if os.path.exists("/usr/bin/gnome-shell"):
-    gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.4.1
-    gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
-    gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
+    gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.2.1
+    gshell_ver = gshell_str.split(' ')[2]            # yields 3.2.1
+    gshell_subver = int((gshell_ver.split('.'))[1])  # yields 2
     if gshell_subver >= 2:
-        gshell = True  # yes, 3.2 or better and installed
+        gshell = True  # Gnome shell installed and 3.2 or better
+    else:
+        gshell = False  # use for Gnome Shell 3.0
+else:
+    gshell = False  # Gnome Shell not installed
 
 class installer_dialog(gtk.MessageDialog):
     def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
@@ -361,7 +365,7 @@ class installer_engine:
 
     # The Gnome Shell Message Tray auto-hides and obscures touch-on/off icons with its message
     # number.  This installs an extension that moves the Magick icon to System Status Area.
-    if gshell == True:
+    if gshell == True:  # Gnome Shell installed and 3.2 or better
         def move_magickextension_folder(self):
             username = self.usr_name
             if os.path.exists("/home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"):
@@ -497,7 +501,7 @@ class installer_engine:
         # Ask the user if they want to install Magick Rotation files and folders.
         package_list.append("\nMagick Rotation install changes.\n\nFile to install in /usr/bin:\n checkmagick")
         package_list.append("\nFolder to install in /usr/share:\n magick-rotation\n\nFile to install in /etc/udev/rules.d:\n 62-magick.rules\n\nAdd group:\n magick\n")
-        # Ask the user if they want to install the Magick extension for Gnome Shell.
+        # Ask the user if they want to install the Magick extension for Gnome Shell 3.2 or better.
         if gshell == True:
             package_list.append("Shell extension to install:\n magick-rotation-extension\n")
         dialog.list_packages(package_list,  self,  self.win)
@@ -550,6 +554,7 @@ class installer_engine:
             success = self.remove_magickicons_folder()
             success = self.remove_magickextension_folder()
             success = self.remove_install_files()
+
             self.win.add_bold_text("\nINSTALLATION COMPLETE")
             self.win.add_text("\nA system restart is required to\n")
             self.win.add_text("ensure Magick Rotation will work.\n")

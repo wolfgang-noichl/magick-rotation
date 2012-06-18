@@ -10,14 +10,17 @@ from commands import getstatusoutput, getoutput
 import platform
 import pango
 
-# for Magick Rotation's Gnome Shell 3.2 extension (spec.s changed from 3.0) removal
-# has to be Gnome Shell >= 3.2 for there to be an extension to remove
+# for Magick Rotation's Gnome Shell >= 3.2 extension removal
 if os.path.exists("/usr/bin/gnome-shell"):
-    gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.4.1
-    gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
-    gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
+    gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.2.1
+    gshell_ver = gshell_str.split(' ')[2]            # yields 3.2.1
+    gshell_subver = int((gshell_ver.split('.'))[1])  # yields 2
     if gshell_subver >= 2:
-        gshell = True  # yes, 3.2 or better and installed
+        gshell = True  # Gnome shell installed and 3.2 or better
+    else:
+        gshell = False  # use for Gnome Shell 3.0
+else:
+    gshell = False  # Gnome Shell not installed
 
 class uninstaller_dialog(gtk.MessageDialog):
     def __init__(self,  parent=None, flags=0, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_NONE, message_format=None):
@@ -130,7 +133,6 @@ class uninstaller_engine:
         else:
             version = "checkmagick32"
         command = "rm /usr/bin/" + version
-        self.log.write("\n\n")
         self.log.write("Removing checkmagick\n")
         self.log.write(command)
         success = getstatusoutput(command)
@@ -226,7 +228,6 @@ class uninstaller_engine:
         return success
 
     def remove_magick_folder(self):
-#        command = "rmdir /usr/share/magick-rotation"
         command = "rm -rf /usr/share/magick-rotation"
         self.log.write("\n")
         self.log.write("Removing folder magick-rotation from /usr/share\n")
@@ -269,7 +270,8 @@ class uninstaller_engine:
         def remove_magickextension_folder(self):
             username = self.usr_name
             command = "rm -rf /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
-            self.log.write("Removing magick-rotation-extension folder in ~/.local/share/gnome-shell/extensions\n")
+            self.log.write("\n")
+            self.log.write("Removing magick-rotation-extension in ~/.local/share/gnome-shell/extensions\n")
             self.log.write(command)
             success = getstatusoutput(command)
             self.log.write("\n")
@@ -290,6 +292,10 @@ class uninstaller_engine:
         dialog.list_packages(package_list,  self,  self.win)
 
     def run_uninstaller(self,  data=None):
+            if gshell == True:
+                self.log.write("\n\nDisabled Magick extension\n")
+                self.win.add_text("Removing Magick extension folder\n")
+                success = self.remove_magickextension_folder()
             self.win.add_text("Removing checkmagick\n")
             success = self.remove_checkmagick()
             self.win.add_text("Removing udev rules\n")
@@ -310,13 +316,10 @@ class uninstaller_engine:
             success = self.remove_xml_config()
             self.win.add_text("Removing Magick .desktop file\n")
             success = self.remove_autostart_config()
-            if gshell == True:
-                self.win.add_text("Disabled Magick extension\n")
-                self.win.add_text("Removing Magick extension folder\n")
-                success = self.remove_magickextension_folder()
+
             self.win.add_bold_text("\nUNINSTALL COMPLETE")
             self.win.add_text("\nA system restart is required to\n")
-            self.win.add_text("ensure Magick Rotation is removed.\n")
+            self.win.add_text("ensure Magick Rotation removal.\n")
 
     def run(self):
         gobject.threads_init()
