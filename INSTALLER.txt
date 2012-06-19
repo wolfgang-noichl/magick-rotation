@@ -1,5 +1,5 @@
 
-Magick Rotation 1.6						March 1, 2012
+Magick Rotation 1.6						June 19, 2012
 
 
 IF YOU ARE READING THIS the Magick Rotation Installer did not work on your system or you opted not to install all the files and instead want to run Magick Rotation out of the magick-rotation folder.
@@ -56,7 +56,7 @@ or
     cat /etc/group | grep magick   
 Only your username should ever be in the group.
 
-Once you do that you are done.  Reboot to activate the new udev rules.
+Once you do that you are done with the minimum needed to run Magick Rotation from its folder, wherever you have choosen to place it in your username directory.  Reboot to activate the new udev rules.
 
 
 RUNNING MAGICK ROTATION
@@ -67,6 +67,16 @@ If an earlier Magick Rotation is running shut it down by right clicking on it's 
 
 FROM /USR/SHARE
 If you decide on the optional additional file installation below, once that is done, go to the 'magick-rotation' file in /usr/share/magick-rotation and double click on it.  Choose 'Run' and the applet is installed.  Magick Rotation should now be working for you.
+
+
+MAGICK ROTATION EXTENSION - OPTIONAL
+If you have GNOME Shell 3.2 or better you may choose to move Magick Rotation's tray icon from the Message Tray to the System Status Area.  To do that you need to install the magick-rotation-extension folder to "~/.local/gnome-shell/extensions/magick-rotation-extension" and enable it with gsettings.  Assuming you are in a terminal in the magick-rotation directory:
+    mv magick-rotation-extension ~/.local/gnome-shell/extensions/magick-rotation-extension
+Then find the list of extensions already installed with:
+    gsettings get org.gnome.shell enabled-extensions
+In the gsettings enable command add magick-rotation-extension to the list of currently installed extensions like so:
+    gsettings set org.gnome.shell enabled-extensions "['extension1', 'extension2', 'magick-rotation-extension']"
+If no other extensions are installed just use:  "['magick-rotation-extension']"
 
 
 FURTHER INSTALLATION - OPTIONAL
@@ -86,7 +96,7 @@ Example:
 
 FILES YOU MAY SAFELY DELETE - OPTIONAL
 These files are Installer related and so not needed.
-In folder magick-rotation:  apt_installprogress_gtk.py, apt_pm.py, check.c, firstrun (if present), installer_gtk.py, MAGICK-INSTALL (if present), whitelist.py
+In folder magick-rotation:  apt_installprogress_gtk.py, apt_pm.py, check.c, firstrun (if present), installer_gtk.py, MAGICK-INSTALL (if present), whitelist.py or gset_addkeyval.py.
 In folder magick-rotation/MagickIcons:  MagickSplash.png
 And of course you can delete any other files left in your original magick-rotation folder if you have installed them elsewhere.
 
