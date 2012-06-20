@@ -59,6 +59,20 @@ Only your username should ever be in the group.
 Once you do that you are done with the minimum needed to run Magick Rotation from its folder, wherever you have choosen to place it in your username directory.  Reboot to activate the new udev rules.
 
 
+UNITY TRAY WHITELIST
+Starting with  Ubuntu's Natty Narwhal (11.04) and the introduction of the Unity Desktop a whitelist for application icons in the System tray was added.  In order for Magick Rotation's icon to show you now need to add the key value 'magick-rotation' to the key systray-whitelist located at com.canonical.Unity.Panel.  Otherwise the Magick Rotation icon will not appear in the System tray.  The preferred way is to use gsettings from the command line.  First determine the list of applications whose icons are already whitelisted with:
+    gsettings get com.canonical.Unity.Panel systray-whitelist
+In the gsettings enable command add the magick-rotation-extension to the list of currently installed applications like so:
+    gsettings set com.canonical.Unity.Panel systray-whitelist "['app1', 'app2', 'app3', 'magick-rotation']"
+To remove Magick Rotation from the whitelist just delete the 'magick-rotation' key value from the list and run the gsettings set command again.  Then run the gsettings get command to verify it was removed.
+
+Another option would be to use the dconf-editor, if installed, by running in a terminal:
+    dconf-editor
+and manually adding the 'magick-rotation' key value to the list in the systray-whitelist key.
+
+NOTE:  In Precise (12.04) the key systray-whitelist appears at a new location in dconf-editor:  desktop.unity.panel.  However the old location is what gsettings uses.
+
+
 RUNNING MAGICK ROTATION
 If using a pre-1.6 version be sure to remove or rename the file 'firstrun' in the magick-rotation folder.
 
@@ -76,7 +90,11 @@ Then find the list of extensions already installed with:
     gsettings get org.gnome.shell enabled-extensions
 In the gsettings enable command add magick-rotation-extension to the list of currently installed extensions like so:
     gsettings set org.gnome.shell enabled-extensions "['extension1', 'extension2', 'magick-rotation-extension']"
-If no other extensions are installed just use:  "['magick-rotation-extension']"
+If no other extensions are installed just use:  "['magick-rotation-extension']".  To disable the extension repeat the gsettings set command without 'magick-rotation-extension' in it and verify it has been disabled by running the gsettings get command again.
+
+Another option to enable the extension would be to use the dconf-editor, if installed, by running in a terminal:
+    dconf-editor
+Then manually add the 'magick-rotation-extension' key value to the list in the enabled-extensions key.
 
 
 FURTHER INSTALLATION - OPTIONAL
