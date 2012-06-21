@@ -24,6 +24,9 @@ The Installer will install the libraries needed to compile checkmagick and compi
 
 The magick-rotation-1.6 folder should, after installation, contain INSTALLER.txt, install_log, Magick-README.txt, and the folders MagickExtras and MagickUninstall.  MagickUninstall lets you uninstall Magick Rotation using MAGICK-UNINSTALL similar to MAGICK-INSTALL.  MagickExtras has the kernel drivers/modules needed by both the Dell and Fujitsu tablet PCs in order to work with Magick Rotation.  It includes the modified dell-wmi.ko dkms and the fujitsu-tablet.ko dkms along with instructions for both.
 
+NOTE:  The Installer will no longer work in Kubuntu 12.04 (Precise Pangolin) because the python-gtk2 package is no longer installed by default.  So before running MAGICK-INSTALL run this command in a terminal to install it:
+    sudo apt-get install python-gtk2
+
 NOTE:  You can still run Magick Rotation from the magick-rotation folder without installing it or if the Installer fails.  For pre-1.6 versions rename or remove the file firstrun.  You will then need to manually compile checkmagic and install the udev rules.  If you have Gnome Shell 3.2 or better you may want to implement the extension.  See the INSTALLER.txt file for instructions.  Then double click on the 'magick-rotation' file and choose 'Run'.
 
 
