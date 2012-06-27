@@ -152,20 +152,26 @@ Path=/usr/share/magick-rotation/
             installed = True
         else:
             installed = False
+
+        autostart_dsktop_path = "~/.config/autostart/magick-rotation.desktop"
+
         # check if autostart is also installed
-        if os.path.exists("~/.config/autostart/magick-rotation.desktop"):
+        if os.path.exists(os.path.expanduser(autostart_dsktop_path)):
             inst_autostart = True
         else:
             inst_autostart = False
 
-        # for Gnome Shell 3.4 auto-start bug
+        # for Gnome Shell 3.4 autostart bug
         if os.path.exists("/usr/bin/gnome-shell"):
             gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.4.1
             gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
             gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
+        else:
+            gshell_subver = 2  # i.e. no Gnome Shell or version < 3.4
 
+        # based on the .magick-rotation.xml autostart entry and the above either
+        # write, leave alone, or remove the magick-rotation.desktop file
         if autostart:
-            autostart_dsktop_path = "~/.config/autostart/magick-rotation.desktop"
             if not os.path.isdir(os.path.expanduser('~')+"/.config/autostart/"):
                 os.mkdir(os.path.expanduser('~')+"/.config/autostart/")
 
