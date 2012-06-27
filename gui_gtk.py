@@ -50,10 +50,16 @@ class about_dlg(gtk.Dialog):
     def close_about(self, widget=None, data=None):
         self.destroy()
 
+## Advanced Setup Options ##
 class advanced_table(gtk.Table):
     def __init__(self):
         gtk.Table.__init__(self)
 
+        # place & warning over command entry boxes
+        ampersand_label = gtk.Label('''Do not use '&' in commands.''')
+        self.attach(ampersand_label, 1, 2, 2, 3)
+
+        # for shell commands before and after rotation to tablet and laptop mode
         before_tablet_label = gtk.Label("Run before switch to tablet: ")
         before_tablet_label.set_alignment(0, .5)
         self.before_tablet = gtk.Entry()
@@ -82,9 +88,6 @@ class advanced_table(gtk.Table):
         self.attach(after_normal_label, 0, 1, 6, 7)
         self.attach(self.after_normal, 1, 2, 6, 7)
 
-        ampersand_label = gtk.Label("""(Do no use '&' in above commands.) """)
-        self.attach(ampersand_label, 0, 1, 7, 8)
-
         # spacer
         spacer_label1 = gtk.Label("")
         self.attach(spacer_label1, 0, 1, 8, 9)
@@ -112,19 +115,26 @@ class advanced_table(gtk.Table):
         self.attach(waittime_label, 0, 1, 11, 12)
         self.attach(self.waittime_text, 1, 2, 11, 12)
 
+        # does user want Magick Rotation to autostart; moved from Setup
+        autostart_label=gtk.Label("Run Magick Rotation on start?")
+        self.autostart=gtk.CheckButton()
+        self.attach(autostart_label, 0, 1, 12, 13)
+        self.attach(self.autostart, 1, 2, 12, 13)
+
         # spacer
         spacer_label2 = gtk.Label("")
-        self.attach(spacer_label2, 0, 1, 12, 13)
+        self.attach(spacer_label2, 0, 1, 13, 14)
 
         # debug logging mode checkbox
         debug_log_label = gtk.Label("Debugging tool logging on?")
         self.debug_log_button = gtk.CheckButton()
-        self.attach(debug_log_label, 0, 1, 13, 14)
-        self.attach(self.debug_log_button, 1, 2, 13, 14)
+        self.attach(debug_log_label, 0, 1, 14, 15)
+        self.attach(self.debug_log_button, 1, 2, 14, 15)
 
         # log file name and location
-        log_label = gtk.Label("(log printed to:  ~/magick-log_date)")
-        self.attach(log_label, 0, 1, 14, 15)
+        self.log_label = gtk.Label('''<i><span size="9000">(log printed to:  ~/magick-log_date)</span></i>''')
+        self.log_label.set_use_markup(True)
+        self.attach(self.log_label, 0, 1, 15, 16)
 
     def set_before_tablet(self, data):
         self.before_tablet.set_text(data)
@@ -168,19 +178,24 @@ class advanced_table(gtk.Table):
     def get_waittime(self):
         return self.waittime_text.get_text()
 
+    def set_autostart(self, data):
+        self.autostart.set_active(data)
+
+    def get_autostart(self):
+        return self.autostart.get_active()
+
     def set_debug_log(self, data):
         self.debug_log_button.set_active(data)
 
     def get_debug_log(self):
         return self.debug_log_button.get_active()
 
+## Setup Options ##
 class main_table(gtk.Table):
     def __init__(self):
         gtk.Table.__init__(self)
 
-        self.autostart = gtk.CheckButton("Run on start?")
-        self.attach(self.autostart, 0, 1, 0, 1)
-
+        # select tablet mode orientation
         swivel_label = gtk.Label("Rotation state in tablet mode?")
         swivel_label.set_alignment(0, .5)
 
@@ -190,21 +205,27 @@ class main_table(gtk.Table):
         self.swivel_option.append_text("left")
         self.swivel_option.append_text("normal")
 
-        self.attach(swivel_label, 0, 1, 1, 2)
-        self.attach(self.swivel_option, 1, 2, 1, 2)
+        self.attach(swivel_label, 0, 1, 0, 1)
+        self.attach(self.swivel_option, 1, 2, 0, 1)
 
+        # spacer
+        self.spacer_label1 = gtk.Label("")
+        self.attach(self.spacer_label1, 0, 1, 1, 2)
+ 
+        # enable/disable left click of tray icon to toggle touch; enabled by default
         self.touch_toggle = gtk.CheckButton("Click tray icon to turn on/off touch?")
         self.attach(self.touch_toggle, 0, 1, 2, 3)
 
+        # spacer
+        self.spacer_label2 = gtk.Label("")
+        self.attach(self.spacer_label2, 0, 1, 3, 4)
+
         # Added for HP models Compaq TC4200 & 4400
         self.hingevalue_toggle = gtk.CheckButton("BIOS hinge switch values reversed?")
-        self.attach(self.hingevalue_toggle, 0, 1, 3, 4)
-
-    def set_autostart(self, data):
-        self.autostart.set_active(data)
-
-    def get_autostart(self):
-        return self.autostart.get_active()
+        self.attach(self.hingevalue_toggle, 0, 1, 4, 5)
+        self.hingevalue_label = gtk.Label('''<i><span size="9000">(Check if HP Compaq model TC4200 or TC4400.)</span></i>''')
+        self.hingevalue_label.set_use_markup(True)
+        self.attach(self.hingevalue_label, 0, 1, 5, 6)
 
     def set_touch_toggle(self, data):
         self.touch_toggle.set_active(data)
@@ -237,9 +258,11 @@ class magick_gui(gtk.Window):
         if not dir_name:
             dir_name = "."
         self.path = dir_name + "/"
-			
+
+	self.set_title("Magick Rotation Setup")  # default in title bar is 'magick-rotation'
+        self.set_position(gtk.WIN_POS_CENTER)  # positions Setup window in center of screen
         self.set_resizable(False)
-        self.set_border_width(5)
+        self.set_border_width(12)
 
         self.connect("delete-event", self.close_window)
 
@@ -285,7 +308,8 @@ class magick_gui(gtk.Window):
         cfg = config()
         data = cfg.load_data()
 
-        self.basic_table.set_autostart(data[0])
+#        self.basic_table.set_autostart(data[0])
+        self.adv_table.set_autostart(data[0])
         self.basic_table.set_swivel_option(data[1])
         self.adv_table.set_before_tablet(data[2])
         self.adv_table.set_after_tablet(data[3])
@@ -305,7 +329,8 @@ class magick_gui(gtk.Window):
 
     def save_data(self, widget=None):
         cfg = config()
-        cfg.write_data([self.basic_table.get_autostart(),\
+#        cfg.write_data([self.basic_table.get_autostart(),\
+        cfg.write_data([self.adv_table.get_autostart(), \
                         self.basic_table.get_swivel_option(), \
                         self.adv_table.get_before_tablet(), \
                         self.adv_table.get_after_tablet(), \
