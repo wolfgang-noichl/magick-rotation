@@ -1,63 +1,29 @@
 #!/usr/bin/env python
 
 import sys
-import pickle
-from xml.dom import minidom
 import os.path
+
+from xml.dom import minidom
 from commands import getoutput
 
 class config:
     def __init__(self):
         self.filename = "~/.magick-rotation.xml"
-        self.old_filename = "~/.magick-rotation.conf"
         self.option = {}
 
     def load_data(self):
-        #test to see if the xml file exists.  
-        #If it does, use it, otherwise, try to load the old.
+        # test to see if the xml file exists, if it does use it  
         config = os.path.expanduser(self.filename)
         if os.path.exists(config):
             return self.load_xml()
         else:
-            return self.load_old_data()
-
-    def load_old_data (self):
-        # Default values
-        autostart = True
-        rotate_mode = 'right'
-        run_tablet = "cellwriter --show-window"
-        run_normal = "cellwriter --hide-window"
-        run_tablet_before = ""
-        run_normal_before = ""
-        isnotify = True
-        notify_timeout = 3000
-        waittime = 0.25
-        debug_log = False
-        touch_toggle = True
-        hingevalue_toggle = False
-        version = "1.1"
-
-        config = os.path.expanduser(self.old_filename)
-        if os.path.exists(config):
-            conffd = open(config, "r")
-            pick = pickle.Unpickler(conffd)
-            try:
-                autostart, rotate_mode, run_tablet_before, run_tablet, \
-                run_normal_before, run_normal, isnotify, notify_timeout, \
-                waittime, debug_log = pick.load()
-            except:
-                print "Config file invalid, I will delete it and load defaults"
-                os.remove(config)
-
-        return [bool(autostart), rotate_mode, run_tablet_before, run_tablet, \
-                run_normal_before, run_normal, bool(isnotify), int(notify_timeout), \
-                float(waittime), bool(debug_log), bool(touch_toggle), \
-                bool(hingevalue_toggle), version]
+            print "Configuration file ~/.magick-rotation.xml not found."
 
     def load_xml(self):
         # Default values
-        self.option["autostart"] = True
         self.option["rotate_mode"] = 'right'
+        self.option["touch_toggle"] = True
+        self.option["hingevalue_toggle"] = False
         self.option["run_tablet"] = "cellwriter --show-window"
         self.option["run_normal"] = "cellwriter --hide-window"
         self.option["run_tablet_before"] = ""
@@ -65,9 +31,8 @@ class config:
         self.option["isnotify"] = True
         self.option["notify_timeout"] = 3000
         self.option["waittime"] = 0.25
+        self.option["autostart"] = True
         self.option["debug_log"] = False
-        self.option["touch_toggle"] = True
-        self.option["hingevalue_toggle"] = False
         self.option["version"] = "1.6"
 
         config = minidom.parse(os.path.expanduser(self.filename))
@@ -89,25 +54,25 @@ class config:
                             opt_val = True
                         self.option[name] = opt_val
 
-        return [self.option["autostart"], self.option["rotate_mode"], self.option["run_tablet_before"], \
-                self.option["run_tablet"], self.option["run_normal_before"], self.option["run_normal"], \
-                self.option["isnotify"], int(self.option["notify_timeout"]), float(self.option["waittime"]), \
-                self.option["debug_log"], self.option["touch_toggle"],  self.option["hingevalue_toggle"], \
+        return [self.option["rotate_mode"], self.option["touch_toggle"], self.option["hingevalue_toggle"], \
+                self.option["run_tablet_before"], self.option["run_tablet"], self.option["run_normal_before"], \
+                self.option["run_normal"], self.option["isnotify"], int(self.option["notify_timeout"]), \
+                float(self.option["waittime"]), self.option["autostart"], self.option["debug_log"], \
                 self.option["version"]]
 
     def write_data(self, data):
-        self.option["autostart"] = data[0]
-        self.option["rotate_mode"] = data[1]
-        self.option["run_tablet_before"] = data[2]
-        self.option["run_tablet"] = data[3]
-        self.option["run_normal_before"] = data[4]
-        self.option["run_normal"] = data[5]
-        self.option["isnotify"] = data[6]
-        self.option["notify_timeout"] = data[7]
-        self.option["waittime"] = data[8]
-        self.option["debug_log"] = data[9]
-        self.option["touch_toggle"] = data[10]
-        self.option["hingevalue_toggle"] = data[11]
+        self.option["rotate_mode"] = data[0]
+        self.option["touch_toggle"] = data[1]
+        self.option["hingevalue_toggle"] = data[2]
+        self.option["run_tablet_before"] = data[3]
+        self.option["run_tablet"] = data[4]
+        self.option["run_normal_before"] = data[5]
+        self.option["run_normal"] = data[6]
+        self.option["isnotify"] = data[7]
+        self.option["notify_timeout"] = data[8]
+        self.option["waittime"] = data[9]
+        self.option["autostart"] = data[10]
+        self.option["debug_log"] = data[11]
         self.option["version"] = data[12]
 
         # Convert back to xml format
@@ -123,9 +88,8 @@ class config:
         config = os.path.expanduser(self.filename)
         conf = open(config, "w")
         conf.write(write_str)
-        self.add_autostart(data[0])
+        self.add_autostart(data[10])
         print "Config written to", self.filename
-
 
     def add_autostart(self, autostart):
         # uninstalled - run from folder .desktop file

@@ -259,7 +259,7 @@ class magick_gui(gtk.Window):
             dir_name = "."
         self.path = dir_name + "/"
 
-	self.set_title("Magick Rotation Setup")  # default in title bar is 'magick-rotation'
+	self.set_title("Magick Rotation Setup")  # change default 'magick-rotation' in title bar
         self.set_position(gtk.WIN_POS_CENTER)  # positions Setup window in center of screen
         self.set_resizable(False)
         self.set_border_width(12)
@@ -308,19 +308,18 @@ class magick_gui(gtk.Window):
         cfg = config()
         data = cfg.load_data()
 
-#        self.basic_table.set_autostart(data[0])
-        self.adv_table.set_autostart(data[0])
-        self.basic_table.set_swivel_option(data[1])
-        self.adv_table.set_before_tablet(data[2])
-        self.adv_table.set_after_tablet(data[3])
-        self.adv_table.set_before_normal(data[4])
-        self.adv_table.set_after_normal(data[5])
-        self.adv_table.set_isnotify_button(data[6])
-        self.adv_table.set_isnotify_timeout(data[7])
-        self.adv_table.set_waittime(data[8])
-        self.adv_table.set_debug_log(data[9])
-        self.basic_table.set_touch_toggle(data[10])
-        self.basic_table.set_hingevalue_toggle(data[11])
+        self.basic_table.set_swivel_option(data[0])
+        self.basic_table.set_touch_toggle(data[1])
+        self.basic_table.set_hingevalue_toggle(data[2])
+        self.adv_table.set_before_tablet(data[3])
+        self.adv_table.set_after_tablet(data[4])
+        self.adv_table.set_before_normal(data[5])
+        self.adv_table.set_after_normal(data[6])
+        self.adv_table.set_isnotify_button(data[7])
+        self.adv_table.set_isnotify_timeout(data[8])
+        self.adv_table.set_waittime(data[9])
+        self.adv_table.set_autostart(data[10])
+        self.adv_table.set_debug_log(data[11])
         self.version = data[12]
 
     def show_about(self, widget=None):
@@ -329,9 +328,9 @@ class magick_gui(gtk.Window):
 
     def save_data(self, widget=None):
         cfg = config()
-#        cfg.write_data([self.basic_table.get_autostart(),\
-        cfg.write_data([self.adv_table.get_autostart(), \
-                        self.basic_table.get_swivel_option(), \
+        cfg.write_data([self.basic_table.get_swivel_option(), \
+                        self.basic_table.get_touch_toggle(), \
+                        self.basic_table.get_hingevalue_toggle(), \
                         self.adv_table.get_before_tablet(), \
                         self.adv_table.get_after_tablet(), \
                         self.adv_table.get_before_normal(), \
@@ -339,9 +338,8 @@ class magick_gui(gtk.Window):
                         self.adv_table.get_isnotify_button(), \
                         self.adv_table.get_isnotify_timeout(), \
                         self.adv_table.get_waittime(), \
+                        self.adv_table.get_autostart(), \
                         self.adv_table.get_debug_log(), \
-                        self.basic_table.get_touch_toggle(), \
-                        self.basic_table.get_hingevalue_toggle(), \
                         self.version])
 
     def close_window(self, widget=None, data=None):
