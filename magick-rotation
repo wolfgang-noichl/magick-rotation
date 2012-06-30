@@ -170,6 +170,12 @@ if __name__ == "__main__":
         elif os.path.exists(path + "/" + checkmagick_version):
             magick = engine()
             magick.run()
+        else:
+            print "Please compile checkmagick."
+            print "See INSTALLER.txt in the unpacked magick-rotation folder."
+    else:
+        print "Please install 62-magick.rules in /etc/udev/xorg.d."
+        print "See INSTALLER.txt in the unpacked magick-rotation folder."
 
 #    magick = engine()
 #    magick.run()
