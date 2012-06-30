@@ -2,7 +2,6 @@
 
 import sys
 import os.path
-
 from xml.dom import minidom
 from commands import getoutput
 
@@ -10,14 +9,6 @@ class config:
     def __init__(self):
         self.filename = "~/.magick-rotation.xml"
         self.option = {}
-
-    def load_data(self):
-        # test to see if the xml file exists, if it does use it  
-        config = os.path.expanduser(self.filename)
-        if os.path.exists(config):
-            return self.load_xml()
-        else:
-            print "Configuration file ~/.magick-rotation.xml not found."
 
     def load_xml(self):
         # Default values
@@ -33,26 +24,30 @@ class config:
         self.option["waittime"] = 0.25
         self.option["autostart"] = True
         self.option["debug_log"] = False
-        self.option["version"] = "1.6"
+        self.option["version"] = "1.6.1"
 
-        config = minidom.parse(os.path.expanduser(self.filename))
+        if os.path.exists(os.path.expanduser(self.filename)):
+            config = minidom.parse(os.path.expanduser(self.filename))
 
-        for node in config.getElementsByTagName("option"):
-            # Get the name of the option attribute
-            name = str(node.getAttribute("name"))
-            # Read through the value that is a child node of option
-            values = node.getElementsByTagName("value")
-            for node2 in values:
-                # Each child node in the value is a text that contains the 
-                # option value
-                for node3 in node2.childNodes:
-                    if node3.nodeType == minidom.Node.TEXT_NODE:
-                        opt_val = str(node3.data).strip('"')
-                        if opt_val == "False":
-                            opt_val = False
-                        elif opt_val == "True":
-                            opt_val = True
-                        self.option[name] = opt_val
+            for node in config.getElementsByTagName("option"):
+                # Get the name of the option attribute
+                name = str(node.getAttribute("name"))
+                # Read through the value that is a child node of option
+                values = node.getElementsByTagName("value")
+                for node2 in values:
+                    # Each child node in the value is a text that contains the 
+                    # option value
+                    for node3 in node2.childNodes:
+                        if node3.nodeType == minidom.Node.TEXT_NODE:
+                            opt_val = str(node3.data).strip('"')
+                            if opt_val == "False":
+                                opt_val = False
+                            elif opt_val == "True":
+                                opt_val = True
+                            self.option[name] = opt_val
+        else:
+            print "Configuration file ~/.magick-rotation.xml not found."
+            print "Will load the defaults instead."
 
         return [self.option["rotate_mode"], self.option["touch_toggle"], self.option["hingevalue_toggle"], \
                 self.option["run_tablet_before"], self.option["run_tablet"], self.option["run_normal_before"], \
@@ -165,4 +160,4 @@ Path=/usr/share/magick-rotation/
 
 if __name__ == "__main__":
     c = config()
-    c.write_data(c.load_data())
+    c.write_data(c.load_xml())

@@ -9,7 +9,7 @@ import os.path
 from config import *
 from listener import *
 
-prog_ver="1.6"
+prog_ver="1.6.1"
 
 # supports threads in pygtk
 gobject.threads_init()
@@ -227,6 +227,14 @@ class main_table(gtk.Table):
         self.hingevalue_label.set_use_markup(True)
         self.attach(self.hingevalue_label, 0, 1, 5, 6)
 
+    def set_swivel_option(self, data):
+        option_table = ["right", "inverted", "left", "normal"]
+        self.swivel_option.set_active(option_table.index(data))
+
+    def get_swivel_option(self):
+        option_table = ["right", "inverted", "left", "normal"]
+        return option_table[self.swivel_option.get_active()]
+
     def set_touch_toggle(self, data):
         self.touch_toggle.set_active(data)
 
@@ -238,14 +246,6 @@ class main_table(gtk.Table):
 
     def get_hingevalue_toggle(self):
         return self.hingevalue_toggle.get_active()
-
-    def set_swivel_option(self, data):
-        option_table = ["right", "inverted", "left", "normal"]
-        self.swivel_option.set_active(option_table.index(data))
-
-    def get_swivel_option(self):
-        option_table = ["right", "inverted", "left", "normal"]
-        return option_table[self.swivel_option.get_active()]
 
 class btn_box(gtk.HBox):
     def __init__(self):
@@ -259,7 +259,7 @@ class magick_gui(gtk.Window):
             dir_name = "."
         self.path = dir_name + "/"
 
-	self.set_title("Magick Rotation Setup")  # change default 'magick-rotation' in title bar
+	self.set_title("Magick Rotation Setup")  # title bar default is 'magick-rotation'
         self.set_position(gtk.WIN_POS_CENTER)  # positions Setup window in center of screen
         self.set_resizable(False)
         self.set_border_width(12)
@@ -297,17 +297,16 @@ class magick_gui(gtk.Window):
         box.pack_start(adv_expander)
         box.pack_start(button_box)
 
-        self.load_data()
+        self.load_xml()
  
         self.add(box)
 
     def get_path(self):
         return self.path
 
-    def load_data(self):
+    def load_xml(self):
         cfg = config()
-        data = cfg.load_data()
-
+        data = cfg.load_xml()
         self.basic_table.set_swivel_option(data[0])
         self.basic_table.set_touch_toggle(data[1])
         self.basic_table.set_hingevalue_toggle(data[2])
