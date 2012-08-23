@@ -10,8 +10,6 @@
 ##                    Contributor: Favux                    ##
 ##############################################################
 
-prog_ver="1.6.1"
-
 import thread
 import sys
 import os
@@ -31,6 +29,8 @@ try:
 except:
     print "Please install pynotify.  It is not required but it makes the experience better."
     pynotify_support = False
+
+prog_ver="1.6.2"
 
 class engine:
     def __init__(self):
@@ -174,7 +174,7 @@ if __name__ == "__main__":
             print "Please compile checkmagick."
             print "See INSTALLER.txt in the unpacked magick-rotation folder."
     else:
-        print "Please install 62-magick.rules in /etc/udev/xorg.d."
+        print "Please install 62-magick.rules in /etc/udev/rules.d."
         print "See INSTALLER.txt in the unpacked magick-rotation folder."
 
 #    magick = engine()

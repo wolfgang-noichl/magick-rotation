@@ -24,7 +24,7 @@ class config:
         self.option["waittime"] = 0.25
         self.option["autostart"] = True
         self.option["debug_log"] = False
-        self.option["version"] = "1.6.1"
+        self.option["version"] = "1.6.2"
 
         if os.path.exists(os.path.expanduser(self.filename)):
             config = minidom.parse(os.path.expanduser(self.filename))
@@ -126,7 +126,7 @@ Path=/usr/share/magick-rotation/
             gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
             gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
         else:
-            gshell_subver = 2  # i.e. no Gnome Shell or version < 3.4
+            gshell_subver = 2  # i.e. no Gnome Shell (same result as version < 3.4)
 
         # based on the .magick-rotation.xml autostart entry and the above either
         # write, leave alone, or remove the magick-rotation.desktop file

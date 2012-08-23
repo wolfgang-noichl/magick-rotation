@@ -9,8 +9,6 @@ import os.path
 from config import *
 from listener import *
 
-prog_ver="1.6.1"
-
 # supports threads in pygtk
 gobject.threads_init()
 
@@ -20,6 +18,8 @@ try:
 except:
     print "Please install pynotify.  It is not required but it makes the experience better."
     pynotify_support = False
+
+prog_ver="1.6.2"
 
 class about_dlg(gtk.Dialog):
     def __init__(self, name, version):

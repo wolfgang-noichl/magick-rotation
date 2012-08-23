@@ -10,14 +10,14 @@ class debug:
 
     def debug(self, data):
         debug_log = self.win.adv_table.get_debug_log()
-        log_file = "~/magick-log"
+        curtime = datetime.datetime.today()
+        filedatestamp = curtime.strftime("%m-%d-%Y")
+        log_file = "~/magick-log_" + filedatestamp
 
         if self.debug_on:
             print data
 
         if debug_log:
-            curtime = datetime.datetime.today()
-            timestamp = curtime.strftime("%Y-%m-%d %H:%M:%S")
-            filedatestamp = curtime.strftime("%Y-%m-%d")
-            value = "echo \'" + timestamp + ": " + data + "\' >> " + log_file +  "_" + filedatestamp
+            timestamp = curtime.strftime("%H:%M:%S")
+            value = "echo \'" + timestamp + ": " + data + "\' >> " + log_file
             os.system(value)

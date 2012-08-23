@@ -9,6 +9,7 @@ import os.path
 from commands import getstatusoutput, getoutput
 import platform
 import pango
+import datetime
 
 sys.dont_write_bytecode = True
 
@@ -183,7 +184,9 @@ class installer_engine:
         self.usr_name = usr_name
         self.win = installer_window(path)
         self.filepath = path
-        logfile = self.filepath + "/install_log"
+        curtime = datetime.datetime.today()
+        datetimestamp = curtime.strftime("%m-%d-%Y_%H:%M")
+        logfile = self.filepath + "/install-log_" + datetimestamp
         self.log = open(logfile,  "w")
 
     if packman == "YUM":
