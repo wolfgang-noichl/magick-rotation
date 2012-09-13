@@ -5,31 +5,24 @@ from commands import getstatusoutput, getoutput
 
 debug = 0
 
-class driver:
-    def __init__(self, device):
-        self.device = device
-#        self.get_property(None)
-
-    def get_property(self, prop):
-        for property in self.device[2]:
-            prop_data = property.split("\t")
-            prop_name = prop_data[1].split(":")[0].split(" (")[0]
-            prop_value = prop_data[2]
-            if prop_name == prop:
-                return prop_value
-        if debug:
-            print prop, "property not found"
-        return None
-
+## get current USB device information ##
 class devices:
     def __init__(self):
-        device_list = getoutput("xinput --list").split("\n")
+        # list usb devices with 'xinput list'
+#        device_list = getoutput("xinput --list").split("\n")
+        # Sort 1:  keep Virtual core pointer (pen, touch) devices and discard Virtual core
+        # keyboard devices
+        pointer_devices = getoutput("xinput --list").split("Virtual core keyboard")[0]
+        device_list = pointer_devices.split("\n")
+        # get ID number associated with each pointer device from the device strings
         id_list = []
         for device in device_list:
             if "id=" in device:
                 id_list.append(device.split("id=")[1].split()[0])
 
+        # populate devices with tuple items:  device name, ID number, device properties
         self.devices = []
+        # run 'xinput list-props' with id_list ID numbers
         for id_val in id_list:
             command = "xinput list-props " + id_val
             prop_list = getoutput(command).split("\n")
@@ -37,7 +30,27 @@ class devices:
             id_num = id_val
             device_props = []
             for index in range(1, len(prop_list)):
-                device_props.append(prop_list[index])
+                # add property list to devices device_props tupple value
+#                device_props.append(prop_list[index])
+                # Sort 2 (optional, improves readability): only interested in certain properties
+                # any pointer device - Device Enabled, Coordinate Transformation Matrix
+                # wacom devices - Wacom Rotation, Wacom Tool Type
+                # evdev devices - Evdev Axis Inversion, Evdev Axes Swap, Evdev Axis Calibration
+                if "Device Enabled" in prop_list[index]:
+                    device_props.append(prop_list[index])
+                elif "Coordinate Transformation Matrix" in prop_list[index]:
+                    device_props.append(prop_list[index])
+                elif "Wacom Rotation" in prop_list[index]:
+                    device_props.append(prop_list[index])
+                elif "Wacom Tool Type" in prop_list[index]:
+                    device_props.append(prop_list[index])
+                elif "Evdev Axis Inversion" in prop_list[index]:
+                    device_props.append(prop_list[index])
+                elif "Evdev Axes Swap" in prop_list[index]:
+                    device_props.append(prop_list[index])
+                elif "Evdev Axis Calibration" in prop_list[index]:
+                    device_props.append(prop_list[index])
+            # add to devices the tupple for each device
             self.devices.append([device_name, id_num, device_props])
 
     def num_devices(self):
@@ -84,6 +97,7 @@ class devices:
                     return 1
         return 0
 
+    # check if touch device is on the evdev driver
     def is_evdev_touch(self, id_val):
         idx = self.get_id_num(id_val)
         if self.is_evdev(id_val):
@@ -100,6 +114,23 @@ class devices:
                 if prop_data.startswith("Wacom"):
                     return 1
         return 0
+
+# for class wacom, class evdev
+class driver:
+    def __init__(self, device):
+        self.device = device
+#        self.get_property(None)
+
+    def get_property(self, prop):
+        for property in self.device[2]:
+            prop_data = property.split("\t")
+            prop_name = prop_data[1].split(":")[0].split(" (")[0]
+            prop_value = prop_data[2]
+            if prop_name == prop:
+                return prop_value
+        if debug:
+            print prop, "property not found"
+        return None
 
 class wacom:
     def __init__(self, device, id_val):
@@ -126,12 +157,14 @@ class wacom:
 #            switch = str(0)
             switch = "off"
 
+        # the command string to toggle touch
 #        val_string = 'xinput set-prop ' + str(self.id_val) + ' "Device Enabled" ' + switch
-        # use xsetwacom for touch toggle to accommodate serial tablet pc's
+        # use xsetwacom for touch toggle to accommodate serial tablet PC's
         val_string = 'xsetwacom set "' + str(self.id_val) + '" Touch ' + switch
         if debug:
             print val_string
 
+        # the system call to toggle touch
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
@@ -216,6 +249,10 @@ class evdev:
         self.dev = driver(device)
         self.id_val = id_val
 
+        # Needed for Axis Inversion and Axes Swap if Axis Calibration prop unavailable.
+        # Would need to change if not a HP TX2z, Dell XT, or XT2 screen.  HP and Dell screens
+        # are all 1280x800, but there might be a difference between their N-Trig digitizer
+        # calibration values.
         self.top_x = 0
         self.top_y = 0
         self.bottom_x = 9600
@@ -247,166 +284,92 @@ class evdev:
         return rotate_order[new_rotated_val]
 
     def rotate_ctm(self, direction):
+        # get CTM property from class devices device_props tuple item
         cur_ctm = self.dev.get_property("Coordinate Transformation Matrix").split(", ") 
-        # Do not run the function if the property does not exist
+        # Do not run the method if the property does not exist
         if not cur_ctm:
+        # to disable CTM comment out above line and uncomment line below
+#        if cur_ctm:
             return None
 
-        cosine = {"normal":1, "right":0, "inverted":-1, "left":0}
-        sine   = {"normal":0, "right":-1, "inverted":0, "left":1}
+        # Coordinate Transformation Matrix equation #
+        # used to translate the currently assigned pixel coordinate vector X,Y
+        # of your tablet PC's input tool to a new pixel coordinate vector X',Y'
 
-        normal_ctm = [1.0000, 0.0000, 0.0000, \
-                      0.0000, 1.0000, 0.0000, \
-                      0.0000, 0.0000, 1.0000]
-        ctm = [1.0000, 0.0000, 0.0000, \
-               0.0000, 1.0000, 0.0000, \
-               0.0000, 0.0000, 1.0000]
+        # [ x' ]   [ cosA*ctm[0] -sinA*ctm[1]  ctm[2] ]   [ x ]
+        # [ y' ] = [ sinA*ctm[3]  cosA*ctm[4]  ctm[5] ] * [ y ]
+        # [ 1  ]   [      ctm[6]       ctm[7]  ctm[8] ]   [ w ]
 
-        if debug:
-            print "normal: ",
-            print ctm
-        ctm[0] = float(normal_ctm[0]) * float(cosine[direction]) - float(normal_ctm[3]) * float(sine[direction])
-        ctm[1] = float(normal_ctm[1]) * float(cosine[direction]) - float(normal_ctm[4]) * float(sine[direction])
-        ctm[2] = float(0.0)
-        ctm[3] = float(normal_ctm[0]) * float(sine[direction])   + float(normal_ctm[3]) * float(cosine[direction])
-        ctm[4] = float(normal_ctm[1]) * float(sine[direction])   + float(normal_ctm[4]) * float(cosine[direction])
-        ctm[5] = float(0.0)
-#        ctm[2] = float(cur_ctm[2]) * float(cosine[direction]) - float(cur_ctm[5]) * float(sine[direction])
-#        ctm[5] = float(cur_ctm[2]) * float(sine[direction])   + float(cur_ctm[5]) * float(cosine[direction])
+        # directional CTM matrices for tablet PC screen #
+        normal_ctm   = [1.000000, 0.000000, 0.000000, \
+                        0.000000, 1.000000, 0.000000, \
+                        0.000000, 0.000000, 1.000000]
 
-        if (ctm[0] < 0 or ctm[1] < 0):
-            ctm[2] = 1
-        
-        if (ctm[3] < 0 or ctm[4] < 0):
-            ctm[5] = 1
-        
+        left_ctm     = [0.000000, -1.000000, 1.000000, \
+                        1.000000, 0.000000, 0.000000, \
+                        0.000000, 0.000000, 1.000000]
+
+        inverted_ctm = [-1.000000, 0.000000, 1.000000, \
+                        0.000000, -1.000000, 1.000000, \
+                        0.000000, 0.000000, 1.000000]
+
+        right_ctm    = [0.000000, 1.000000, 0.000000, \
+                        -1.000000, 0.000000, 1.000000, \
+                        0.000000, 0.000000, 1.000000]
+
+        # call class monitor for monitor information
         mon = monitor()
+
+        # get tablet PC info from class monitor method get_monitor
         tablet = mon.get_monitor()
 
         if not tablet:
             return None
 
-        x_offset = 0
-        y_offset = 0
-
-# This is for testing only.  It is used to adjust the tablet offset to
-# simulate another monitor
-#        tablet.x_offset = 1280
-#        tablet.y_offset = 0
-
-        max_x = 0
-        sum_x = 0
-        max_y = 0
-        sum_y = 0
+        # establish requested rotation direction
         cur_dir = tablet.direction
-        
-        if (cur_dir == 'normal' or
-            cur_dir == 'inverted'):
-            screen_x = tablet.x
-            screen_y = tablet.y
-            screen_x_offset = tablet.x_offset
-            screen_y_offset = tablet.y_offset
+
+        # select directional CTM for requested rotation direction
+        ctm = []
+        if (cur_dir == 'normal'):
+            ctm = normal_ctm
+        elif (cur_dir == 'left'):
+            ctm = left_ctm
+        elif (cur_dir == 'inverted'):
+            ctm = inverted_ctm
+        elif (cur_dir == 'right'):
+            ctm = right_ctm
         else:
-            screen_x = tablet.y
-            screen_y = tablet.x
-            screen_x_offset = tablet.x_offset
-            screen_y_offset = tablet.y_offset
-
-        mon_list = mon.monitor_list
-        tablet_list = ["LVDS", "DFP"]
-
-        for index in range(mon.count):
-            for mon_type in tablet_list:
-                if mon_list[index].name.startswith(mon_type):
-                    sum_x += float(mon_list[index].x)
-                    sum_y += float(mon_list[index].y)
-                    if float(mon_list[index].x) > float(max_x):
-                        max_x = float(mon_list[index].x)
-                    if float(mon_list[index].y) > float(max_y):
-                        max_y = float(mon_list[index].y)
-                    break
-
-#        cur_dir = tablet.direction
-
-        if (direction == 'normal' or
-            direction == 'inverted'):
-            top_x = float(screen_x)
-            top_y = float(screen_y)
-            sum_x += float(screen_x)
-            sum_y += float(screen_y)
-            if max_x < float(screen_x):
-                max_x = float(screen_x)
-            if max_y < float(screen_y):
-                max_y = float(screen_y)
-            if direction == 'inverted':
-                x_offset = 1
-                y_offset = 1
-        if (direction == 'left' or
-            direction == 'right'):
-            top_x = float(screen_y)
-            top_y = float(screen_x)
-            sum_x += float(screen_x)
-            sum_y += float(screen_y)
-            if max_x < float(screen_y):
-                max_x = float(screen_y)
-            if max_y < float(screen_x):
-                max_y = float(screen_x)
-            if direction == 'left':
-                x_offset = 1
-                screen_x_offset = float(screen_x_offset) + float(screen_y)
-                screen_y_offset = float(screen_y_offset)
-            else:
-                y_offset = 1
-                screen_x_offset = float(screen_x_offset)
-                screen_y_offset = float(screen_y_offset) + float(screen_x)
+            print "Unable to select directional CTM."
 
         if debug:
-            print cur_dir
-            print "tablet x: ", tablet.x
-            print "screen x: ", screen_x
-            print "tablet y: ", tablet.y
-            print "screen y: ", screen_y
-            print "top x: ", top_x
-            print "max x: ", max_x
-            print "sum x: ", sum_x
-            print "top y: ", top_y
-            print "max y: ", max_y
-            print "sum y: ", sum_y
-            print "tablet x offset: ", tablet.x_offset
-            print "tablet y offset: ", tablet.y_offset
-            print "screen x offset: ", screen_x_offset
-            print "screen y offset: ", screen_y_offset
+            print "directional CTM selected -> %s:" % direction, ctm
+            print "tablet.x:", tablet.x
+            print "tablet.y:", tablet.y
 
-        if float(tablet.x_offset) > 0.0:
-            ctm[0] = float(ctm[0]) * float(top_x) / float(sum_x)
-            ctm[1] = float(ctm[1]) * float(top_x) / float(sum_x)
-            ctm[2] = float(screen_x_offset) / float(sum_x)
-        else:
-            ctm[0] = float(ctm[0]) * float(top_x) / float(max_x)
-            ctm[1] = float(ctm[1]) * float(top_x) / float(max_x)
+        # TODO: add connected monitor support feature for evdev and Wacom X drivers
+        # Partially implemented connected monitor scaling calculation code removed in Magick
+        # Rotation 1.6.2.
+        # 1. The monitor screen is disabled when 'xrandr -o direction' applied.  So a xrandr
+        # command to re-enable the connected monitor is needed, e.g.:
+        #  "xrandr --output VGA-1 --auto --mode 1920x1080 --right-of LVDS-1 --rotate normal".
+        # Add it to class screen after the xrandr screen orientation command otherwise monitor
+        # scaling values are not available plus the monitor is black.
+        # 2. A connected monitor feature should also support Wacom input tools.  The xsetwacom
+        # MapToOutput parameter is available with X Server 1.8 and xf86-input-wacom-0.10.9
+        # (Natty 11.04 or later).  NVIDIA binary requires at least xf86-input-wacom-0.11.99.1
+        # (Precise 12.04).
 
-        if float(tablet.y_offset) > 0.0:
-            ctm[3] = float(ctm[3]) * float(top_y) / float(sum_y)
-            ctm[4] = float(ctm[4]) * float(top_y) / float(sum_y)
-            ctm[5] = float(screen_y_offset) / float(sum_y)
-        else:
-            ctm[3] = float(ctm[3]) * float(top_y) / float(max_y)
-            ctm[4] = float(ctm[4]) * float(top_y) / float(max_y)
-
-        if debug:
-            print "%s: " % direction,
-            print ctm
-
+        # the tablet PC xinput CTM command string
         val_string = "xinput set-prop " + str(self.id_val) + " 'Coordinate Transformation Matrix' " + str(ctm[0]) + " " + str(ctm[1]) + " " + str(ctm[2]) + " " + str(ctm[3]) + " " + str(ctm[4]) + " " + str(ctm[5]) + " " + str(ctm[6]) + " " + str(ctm[7]) + " " + str(ctm[8])
-        print val_string
 
+        print "val_string:", val_string
+
+        # the system call for xinput CTM rotation
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
                 print result
-        
-        print "%s: " % direction,
-        print ctm
 
         return 1
 
@@ -558,6 +521,7 @@ class evdev:
             print calib_top_y, "    ", new_top_y
             print calib_bottom_y, "    ", new_bottom_y
 
+## change screen orientation ##
 class screen:
     name = ""
     x = 0
@@ -591,16 +555,20 @@ class screen:
         else:
             new_dir = self.get_next_rotation()
 
+        # the xrandr screen orientation command string
         val_string = "xrandr -o " + new_dir
         if debug:
             print " Rotating screen"
             print val_string
+
+        # the system call to change screen orientation
         result =  getstatusoutput(val_string)[1]
         screen.direction = new_dir
         if debug:
             if result:
                 print result
             print
+
         return new_dir
 
 class monitor:
@@ -608,12 +576,16 @@ class monitor:
     count = 0
 
     def __init__(self):
+        # find connnected monitors in xrandr output
         cmd = "xrandr -q --verbose 2>/dev/null|grep connected|grep -v disconnected"
-        monitor_data = getoutput(cmd)
-        monitor_data = monitor_data.split("\n")
+        connected_monitor_data = getoutput(cmd)
+        monitor_data = connected_monitor_data.split("\n")
         monitor_count = len(monitor_data)
+        print "class monitor monitor_count:", monitor_count
 
-        #grab the resolution information
+# current connected resolution marked with an asterix in xrandr, so: xrandr | grep '*'
+
+        # extract the monitor name, resolution, offsets, and direction
         for index in range(monitor_count):
             resolution  = monitor_data[index].split("connected ")[1].split(" (")[0]
             if resolution.startswith("("):
@@ -640,13 +612,21 @@ class monitor:
 #                monitor.monitor_list.append([mon.name, mon.x, mon.y, mon.x_offset, mon.y_offset, mon.direction])
                 monitor.count += 1
 
+# monitor_types = ["CRT", "DVI", "VGA"]
+# less common monitor types: "DP1", "S-video", "TMDS", "TV"
+# monitor_types = ["CRT", "DP1", "DVI", "S-video", "TMDS", "TV", "VGA"]
+
+    # determine which monitor is the tablet PC screen
     def get_monitor(self):
-        tablet_list = ["LVDS", "DFP"]
+#        tablet_list = ["LVDS", "DFP"]
+        # nVidia proprietary driver xrandr output uses 'default' for monitor name(s)
+        # whether or not a second monitor is connected.  So xrotate.py will not work as
+        # a stand alone script for nVidia proprietary driver unless "default" is added.
+        tablet_list = ["LVDS", "DFP", "default"]
         for mon in monitor.monitor_list:
             for check in tablet_list:
                 if mon.name.startswith(check):
                     return mon
-
         return None
 
 class rotate:
@@ -802,6 +782,7 @@ class rotate:
 class touch:
     def __init__(self):
         self.dev = devices()
+
     def toggle_touch(self, toggle):
         toggle = int(toggle)
         dev_list = self.dev.get_id_list()
