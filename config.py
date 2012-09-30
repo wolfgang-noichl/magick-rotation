@@ -100,6 +100,7 @@ Icon=redo
         autostart_desktop_inst="""
 [Desktop Entry]
 Type=Application
+Categories=System;Utility;
 Name=Magick Rotation for tablet PC's
 Exec=/usr/share/magick-rotation/magick-rotation
 Comment=Tablet PC automatic rotation

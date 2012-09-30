@@ -2,14 +2,21 @@
 
 import apt
 import sys
-from apt_installprogress_gtk import *
 import thread
 import gobject
-
 from apt.progress import InstallProgress
 
-class TextInstallProgress(InstallProgress):
+# tried try/except for LMDE, running into a threading bug in 2.7.3rc?
+#try:
+#    from apt.progress import InstallProgress  # ImportError: cannot import name InstallProgress
+#except ImportError:
+#    from apt.progress.base import InstallProgress  # Fatal Python error: PyEval_RestoreThread: NULL tstate
+#    from apt.progress.old import InstallProgress  # Fatal Python error: PyEval_RestoreThread: NULL tstate
+#    from apt.progress.gtk2 import InstallProgress  # ImportError: cannot import name InstallProgress
 
+from apt_installprogress_gtk import *
+
+class TextInstallProgress(InstallProgress):
     def __init__(self):
         apt.progress.InstallProgress.__init__(self)
         self.last = 0.0

@@ -13,12 +13,33 @@ import datetime
 
 sys.dont_write_bytecode = True
 
+# Determine Distro #
+find_distro = "cat /etc/issue"
+# another option is 'cat /etc/*release'; outputs for 'cat /etc/issue':
+#   Ubuntu 12.04.1 LTS \n \l
+#   Linux Mint 12 Lisa \n \l
+#   Linux Mint Debian Edition \n \l
+#   Debian GNU/Linux 4.0 \n \l
+#   Fedora release 16 (Verne)
+#   Kernel \r on an \m (\l)
+#   Red Hat Enterprise Linux AS release 3 (Taroon)
+#   Kernel \r on an \m
+#   CentOS release 5.4 (Final)
+#   Kernel \r on an \m
+#   Welcome to openSUSE Linux 12.1 "Asparagus" - Kernel \r (\l).
+distro_raw = getstatusoutput(find_distro)
+distro_split = distro_raw[1].split(' ')  # index 1 has string containing Distro name
+
+# Determine Distro Package Manager #
 # for Fedora
 if os.path.exists("/usr/bin/yum"):
     packman = "YUM"
 # for openSUSE
 elif os.path.exists("/usr/bin/zypper"):
     packman = "YaST"
+# for Debian and LMDE
+elif distro_split[0] == "Debian" or distro_split[2] == "Debian":
+    packman = "APT_DEB"
 # for Ubuntu, Mint, and to tell non-supported Distros to manually install
 else:
     try:
@@ -28,8 +49,9 @@ else:
         apt_installed = False
     packman = "APT"
 
-# for Magick Rotation's Gnome Shell 3.2 extension (spec.s changed after 3.0) installation
-# determine if Gnome Shell is installed and version 3.2 or better
+# Determine if Gnome Shell installed and version #
+# install Magick Rotation's extension if Gnome Shell is installed and version 3.2
+# (extension spec.s changed after 3.0) or better
 if os.path.exists("/usr/bin/gnome-shell"):
     gshell_str = getoutput("gnome-shell --version")  # e.g. string:  GNOME Shell 3.2.1
     gshell_ver = gshell_str.split(' ')[2]            # yields 3.2.1
@@ -209,6 +231,20 @@ class installer_engine:
             for zypper_packages, package_list in packages.iteritems():
                 for package in package_list:
                     command = "zypper --non-interactive install " + package
+                    self.log.write(command)
+                    success = getstatusoutput(command)
+                    self.log.write("\n")
+                    self.log.write(str(success[0]))
+                    self.log.write("\n")
+                    self.log.write(str(success[1]))
+            return success
+
+    if packman == "APT_DEB":
+        def install_aptd_packages(self):
+            packages = {"aptd_packages":["gcc", "libx11-dev", "libxrandr-dev"]}
+            for aptd_packages, package_list in packages.iteritems():
+                for package in package_list:
+                    command = "apt-get -y install " + package
                     self.log.write(command)
                     success = getstatusoutput(command)
                     self.log.write("\n")
@@ -450,16 +486,14 @@ class installer_engine:
                 return -1
             self.apt = apt_pm()
 
-            # apt.cache is case sensitive, need to determine if in Linux Mint
-            find_distro = "cat /etc/issue"
-            distro_raw = getstatusoutput(find_distro)
-            distro_split = distro_raw[1].split(' ')  # index 1 has string containing Distro name
-#            distro = distro_split[0]  # yields Ubuntu
-            distro = distro_split[1]  # yields Mint, index 0 is Linux
-            if distro == "Mint":
+            # determine if in Linux Mint - python apt module apt.cache is case sensitive 
+            # exclude LMDE, it and Debian use libx11-dev along with Ubuntu
+            if distro_split[1] == "Mint" and not distro_split[2] == "Debian":
                 packages = self.apt.find_uninstalled(["libX11-dev", "libxrandr-dev"])
             else:
                 packages = self.apt.find_uninstalled(["libx11-dev", "libxrandr-dev"])
+            # TODO:  make apt_pm.py and apt_installprogress_gtk.py compatible with LMDE
+            # and Debian APT flavor.
 
             if packages[1]:
                 dialog.missing_packages(packages[1],  self,  self.win)
@@ -487,6 +521,8 @@ class installer_engine:
                     for package in packages:
                         package_list.append(package.name)
         elif packman == "YUM":
+            # TODO:  add YUM to apt_pm.py and apt_installprogress_gtk.py?  YUM is written
+            # in Python like APT.  YUM API seems to indicate this may be possible.
             package_string = ""
             package_list = []
             self.packages_to_install = False
@@ -498,6 +534,13 @@ class installer_engine:
             package_list = []
             self.packages_to_install = False
             packages = ["gcc", "xorg-x11-libX11-devel", "xorg-x11-devel"]
+            for package in packages:
+                package_list.append(package)
+        elif packman == "APT_DEB":
+            package_string = ""
+            package_list = []
+            self.packages_to_install = False
+            packages = ["gcc", "libx11-dev", "libxrandr-dev"]
             for package in packages:
                 package_list.append(package)
 
@@ -529,6 +572,9 @@ class installer_engine:
             if packman == "YaST":
                 self.log.write("\n\nInstalling YaST packages\n")
                 success = self.install_zypper_packages()
+            if packman == "APT_DEB":
+                self.log.write("\n\nInstalling APT_DEB packages\n")
+                success = self.install_aptd_packages()
             self.win.add_text("Compiling check.c\n")
             success = self.compile_checkmagick()
             self.win.add_text("Installing checkmagick\n")

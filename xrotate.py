@@ -347,7 +347,7 @@ class evdev:
             print "tablet.x:", tablet.x
             print "tablet.y:", tablet.y
 
-        # TODO: add connected monitor support feature for evdev and Wacom X drivers
+        # TODO: add connected monitor support feature for evdev and Wacom X drivers?
         # Partially implemented connected monitor scaling calculation code removed in Magick
         # Rotation 1.6.2.
         # 1. The monitor screen is disabled when 'xrandr -o direction' applied.  So a xrandr
@@ -359,6 +359,8 @@ class evdev:
         # MapToOutput parameter is available with X Server 1.8 and xf86-input-wacom-0.10.9
         # (Natty 11.04 or later).  NVIDIA binary requires at least xf86-input-wacom-0.11.99.1
         # (Precise 12.04).
+        # 3. Does this belong in Magick?  Would need display options in Advanced Settings.
+        # FAQ for xrandr commands or Disper might be better choice.
 
         # the tablet PC xinput CTM command string
         val_string = "xinput set-prop " + str(self.id_val) + " 'Coordinate Transformation Matrix' " + str(ctm[0]) + " " + str(ctm[1]) + " " + str(ctm[2]) + " " + str(ctm[3]) + " " + str(ctm[4]) + " " + str(ctm[5]) + " " + str(ctm[6]) + " " + str(ctm[7]) + " " + str(ctm[8])
