@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 # For tablet PC's with switches that transmit hinge state (laptop or tablet)
 # through an oem-wmi or oem-acpi, permitting a 'magick-rotation' symlink to be

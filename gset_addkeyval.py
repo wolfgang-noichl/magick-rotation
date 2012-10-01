@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 from commands import getstatusoutput, getoutput
 from sys import exit

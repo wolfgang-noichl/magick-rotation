@@ -1,9 +1,10 @@
 
-Magick Rotation 1.6.1						June 29, 2012
+Magick Rotation 1.6.2						September 30, 2012
 
 
 ChangeLog:
 
+v. 1.6.2(09-30-12)- Fixed xrotate.py evdev CTM rotation calibration bug, added sorts, and removed connected monitor code.  Specified Python 2 for Distributions that have moved to Python 3.  Added LMDE to INSTALLER.  Added datetime stamp to all logs.  Added Categories to autostart .desktop file.
 v. 1.6.1(06-29-12)- Fixed autostart toggle in config.py.  Moved autostart check box from Setup to Advanced Setup and other gui enhancements in gui_gtk.py.  Removed the def's load_data and load_old_data (legacy ~/.magick-rotation.conf code) from config.py.  Re-indexed options and renamed instances of load_data to load_xml in config.py and gui_gtk.py.  Removed autostart class from magick-rotation.
 v. 1.6 (06-19-12) - Added Fujitsu tablet PC support.  Added MAGICK-INSTALL with install code from magick-rotation and removed firstrun.  Added initial Fedora, openSUSE, and Mint Installer support.  Added MagickUninstall folder with gset_rmkeyval.py, MAGICK-UNINSTALL, uninstaller_gtk.py, and  UnMagickSplash.png.  Added Gnome Shell 3.2 extension folder and 3.4 autostart work around.  Replaced whitelist with gset_addkeyval.py.  Consolidated oem_wmi.py into hinge.py.
 v. 1.5 (10-09-11) - Compile command changed for new Oneiric toolchain (other Distro's going to it).  Installer installs all needed Magick Rotation files and deletes install files.  Added LVDS# bug fix by Jayhawk.  Udev rules updated and magick group added for security enhancement.
