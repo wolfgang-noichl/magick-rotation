@@ -1,5 +1,5 @@
 
-Magick Rotation 1.6						June 19, 2012
+Magick Rotation 1.6.2						October 2, 2012
 
 
 NOTE: In the Advanced Setup command boxes do not use '&' after a program. For example adding '&' to Cairo Dock as in "cairo-dock -o &".  Adding the '&' will cause Magick Rotation to "hang".
@@ -10,9 +10,11 @@ NOTE: If the stylus and other input tools have right and left orientation revers
 PRELIMINARIES
 First make sure the infrastructure is in place.  If your video driver needs to be configured for rotation ensure that's done.
 
-Enter "lsmod" (without the quotes) in a terminal.  You should see one of the folowing:  'hp_wmi' or 'dell_wmi' or 'fujitsu_tablet' or 'thinkpad_acpi'. If the appropriate kernel module for you is not present you'll need to add it to the 'modules' file in "/etc/modules" at the bottom of the list without quotes.
+Magick Rotation requires Python 2 to run.  Some of the Distros are now switching to Python 3 with their new releases.  You may need to install Python 2 from the Distro's official repositories.  Additionally beginning with Magick Rotation 1.6.2 you'll need to ensure a 'python2' symlink is present.  See the "Accommodating the changeover to Python 3" FAQ:  https://answers.launchpad.net/magick-rotation/+faq/2108
 
-NOTE:  Dell tablet PC's need to install a modified dell-wmi.ko while Fujitsu tablet PC's need to install a fujitsuo-tablet.ko.  See the dell-wmi_README.txt or the fujitsu-tablet_README.txt in the MagickExtras folder.  Or also the "How do I get my Dell XT or XT2 to work with Magick Rotation?" FAQ.  The 3.4 or 3.5 kernel should come with a working fujitsu-table.ko making installing one unnecessary.
+Enter "lsmod" (without the quotes) in a terminal.  You should see one of the following:  'hp_wmi' or 'dell_wmi' or 'fujitsu_tablet' or 'thinkpad_acpi'. If the appropriate kernel module for you is not present you'll need to add it to the 'modules' file in "/etc/modules" at the bottom of the list without quotes.  In the case of a Fujitsu tablet PC if your kernel predates 3.4 you'll need to install fujitsu-tablet.ko from the MagickExtras folder.
+
+NOTE:  Dell tablet PC's need to install a modified dell-wmi.ko while Fujitsu tablet PC's may need to install a fujitsu-tablet.ko.  See the dell-wmi_README.txt or the fujitsu-tablet_README.txt in the MagickExtras folder.  Or also the "How do I get my Dell XT or XT2 to work with Magick Rotation?" FAQ:  https://answers.launchpad.net/magick-rotation/+faq/1447  The 3.4 or 3.5 kernel should come with a working fujitsu-table.ko making installing one unnecessary.
 
 
 INSTALLATION

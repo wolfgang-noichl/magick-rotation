@@ -1,5 +1,5 @@
 
-Magick Rotation 1.6						June 19, 2012
+Magick Rotation 1.6.2						October 2, 2012
 
 
 IF YOU ARE READING THIS the Magick Rotation Installer did not work on your system or you opted not to install all the files and instead want to run Magick Rotation out of the magick-rotation folder.
@@ -14,8 +14,10 @@ You can then either run Magick Rotation out of the magick-rotation folder as is 
 COMPILE CHECKMAGICK
 First ensure you have gcc installed (the GNU C compiler) and the needed libraries.  Unfortunately the libraries will have slightly different names in different distros.  A little detective work is needed using the distro's package manager or google.
 Examples:
-For Ubuntu you could check with Synaptic Package Manager or the Software Center or use the command line by opening a terminal and entering:
+For Debian, LMDE, and Ubuntu you could check with Synaptic Package Manager (or the Software Center in Ubuntu) or use the command line by opening a terminal and entering:
     sudo apt-get install gcc libx11-dev libxrandr-dev
+For Linux Mint the command would be:
+    sudo apt-get install gcc libX11-dev libxrandr-dev
 For Fedora look in Add/Remove Software.  Using Find you'll discover the libraries' slightly different names, or you could use 'yum search libx11-dev' say.  In which case you'd discover the library in Fedora is called 'libX11-devel'.  So if you want to install in a terminal instead of using Add/Remove Software:
     su - -c "yum install gcc libX11-devel libXrandr-devel"
 For OpenSUSE, go into YaST->Software Management and install gcc xorg-x11-libX11-devel xorg-x11-devel.  If you want to use the terminal:
