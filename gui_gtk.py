@@ -19,7 +19,25 @@ except:
     print "Please install pynotify.  It is not required but it makes the experience better."
     pynotify_support = False
 
-prog_ver="1.6.2"
+# to support App Indicator for Ubuntu Raring (13.04) Unity and later
+from commands import getstatusoutput
+find_distro = "cat /etc/issue"
+distro_raw = getstatusoutput(find_distro)
+distro_split = distro_raw[1].split(' ')
+distro = distro_split[0]
+release = distro_split[1]
+major_version = (release.split('.'))[0]
+if distro == "Ubuntu":
+    if int(major_version) >= 13:
+        try:
+            import appindicator # should only be available in Unity (and KDE?)
+            have_appindicator = True
+        except:
+            have_appindicator = False
+    else:
+        have_appindicator = False
+
+prog_ver="1.7"
 
 class about_dlg(gtk.Dialog):
     def __init__(self, name, version):
@@ -345,67 +363,151 @@ class magick_gui(gtk.Window):
         self.hide()
         return True
 
-class tray_gui(gtk.StatusIcon):
-    def __init__(self, engine):
-        gtk.StatusIcon.__init__(self)
-        self.set_tooltip("Loading...")
-        self.path = os.path.dirname(sys.argv[0]) + "/MagickIcons/"
-        self.set_from_file(self.path + "magick-rotation-enabled.png")
-        self.set_visible(True)
-        self.menu = tray_menu_gui(engine)
-        self.connect('popup-menu', self.menu.popup_menu, self.menu)
-        self.connect('activate', self.update_touch_status)
-        self.engine = engine
+## Adds Magick Rotation App Indicator to Ubuntu Unity's System Tray. ##
+# System Tray icons not conforming to the App Indicator spec. deprecated starting with Raring 13.04.
+if have_appindicator:
+    class ind_gui(gtk.Menu):
+        def __init__(self, engine):
+            gtk.Menu.__init__(self)
+            # App Indicator spec. does not support tool tips
+            self.menu = tray_menu_gui(engine)
+            self.connect('popup-menu', self.menu.popup_menu, self.menu)
+            self.menu.show_all() # otherwise menus not visible
+            self.engine = engine
 
-    def update_poll_status(self, polling):
-        touch_on = self.engine.get_touch_status()
-        if not polling:
-            if touch_on:
-            	self.set_from_file(self.path + "magick-rotation-disabled.png")
-            else:
-                self.set_from_file(self.path + "magick-rotation-disabled-touchoff.png")
-        else:
-            if touch_on:
-            	self.set_from_file(self.path + "magick-rotation-enabled.png")
-            else:
-                self.set_from_file(self.path + "magick-rotation-enabled-touchoff.png")
+            # create App Indicator object, make icon visible in tray, attach menus
+            self.ind = appindicator.Indicator ("Magick_Rotation",
+                                "/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png",
+                                appindicator.CATEGORY_APPLICATION_STATUS)
+            self.ind.set_status(appindicator.STATUS_ACTIVE) # equivalent to gtk.StatusIcon's set_visible(True)
+            self.ind.set_menu(self.menu)
 
-    def update_touch_status(self, data=None):
-        if self.engine.win.basic_table.get_touch_toggle():
-            self.engine.toggle_touch()
+# TODO: Need to verify the following for certain. Apparently complete path string required to access
+# Magick icon using indicator object's icon parameter.  Originally could only use theme icons!  So
+# can only use Magick installed, not from folder, with Unity Raring and later.
+
+        def update_poll_status(self, polling):
+#            print "print polling:", polling # printing when clicking on Enabled menu item
+            if not polling:
+                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled.png")
+            else:
+                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png")
+
+# App Indicator API doesn't support gtk.StatusIcon's set_from_file attribute.
+#                self.set_from_file(self.path + "magick-rotation-disabled.png")
+# Able to use App Indicator API supported set_icon to change icons.  But using set_attention_icon, also supported, doesn't seem to work.
+#     API e.g.:  self.ind.set_icon("distributor-logo") # not deprecated for set_icon_full in Raring at least
+#     API e.g.:  self.ind.set_attention_icon("new-messages-red")
+
+# TODO?: Is it necessary to switch touch state icons also?  Doesn't check in front of Check Menu Item
+# in popup convey the same information?  Code simpler without.  But might be nice.
+
+        # need to detect touch toggling also, similar to update_touch_status, to use all 4 icons
+#        def update_poll_status(self, polling):
+#            print "polling:", polling # printing when clicking on Enabled menu item
+#            touch_on = self.engine.get_touch_status()
+#            print "touch_on:", touch_on # printing when clicking on Enabled menu item
+#            if polling == True and touch_on == True:
+#                print "polling and touch on = magick-rotation-enabled.png" # printing
+#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png")
+#            elif polling == False and touch_on == True:
+#                print "not polling and touch on = magick-rotation-disabled.png" # printing
+#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled.png")
+#            elif polling == True and touch_on == False:
+#                print "polling and touch off = magick-rotation-enabled-touchoff.png" # not printing
+#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png")
+#            else:
+#                print "not polling and touch off = magick-rotation-disabled-touchoff.png" # printing
+#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled-touchoff.png")
+
+# Right and left click are identical on an Application Indicator by design.  Can't left click Magick
+# icon to toggle touch on and off and use right click to access Setup.  Changing touch toggle to a
+# MenuItem in class tray_menu_gui only reasonable alternative.
+
+        print "Magick is using an App Indicator."
+
+## Adds Magick Rotation icon to System Tray. ##
+else:
+    class tray_gui(gtk.StatusIcon):
+        def __init__(self, engine):
+            gtk.StatusIcon.__init__(self)
+            self.set_tooltip("Loading...")
+            self.path = os.path.dirname(sys.argv[0]) + "/MagickIcons/"
+            self.set_from_file(self.path + "magick-rotation-enabled.png")
+            self.set_visible(True)
+            self.menu = tray_menu_gui(engine)
+            self.connect('popup-menu', self.menu.popup_menu, self.menu)
+            self.connect('activate', self.update_touch_status)
+            self.engine = engine
+
+        def update_poll_status(self, polling):
             touch_on = self.engine.get_touch_status()
-            if touch_on:
-                if self.menu.option_enable.get_active():
-                    self.set_from_file(self.path + "magick-rotation-enabled.png")
-                else:
+            if not polling:
+                if touch_on:
                     self.set_from_file(self.path + "magick-rotation-disabled.png")
-            else:
-                if self.menu.option_enable.get_active():
-                    self.set_from_file(self.path + "magick-rotation-enabled-touchoff.png")
                 else:
                     self.set_from_file(self.path + "magick-rotation-disabled-touchoff.png")
+            else:
+                if touch_on:
+                    self.set_from_file(self.path + "magick-rotation-enabled.png")
+                else:
+                    self.set_from_file(self.path + "magick-rotation-enabled-touchoff.png")
+
+        def update_touch_status(self, data=None):
+            if self.engine.win.basic_table.get_touch_toggle():
+                self.engine.toggle_touch()
+                touch_on = self.engine.get_touch_status()
+                if touch_on:
+                    if self.menu.option_enable.get_active():
+                        self.set_from_file(self.path + "magick-rotation-enabled.png")
+                    else:
+                        self.set_from_file(self.path + "magick-rotation-disabled.png")
+                else:
+                    if self.menu.option_enable.get_active():
+                        self.set_from_file(self.path + "magick-rotation-enabled-touchoff.png")
+                    else:
+                        self.set_from_file(self.path + "magick-rotation-disabled-touchoff.png")
+
+        print "Magick is using a gtk.StatusIcon."
 
 class tray_menu_gui(gtk.Menu):
     def __init__(self, engine):
         gtk.Menu.__init__(self)
+
+        # Toggles touch when using App Indicator
+        if have_appindicator:
+            self.option_touch = gtk.CheckMenuItem("Touch")
+            self.option_touch.set_active(True)
+            self.option_touch.connect("activate", engine.toggle_touch, self.option_touch)
+
+        # Rotates screen - submitted by gco, see magick-rotation module
+        option_rotate = gtk.MenuItem("Rotate")
+        option_rotate.connect("activate", engine.force_rotate)
+
+        # Calls the configuration window
+        option_setup = gtk.MenuItem("Setup")
+        option_setup.connect("activate", engine.display_config_window)
 
         # Start the polling
         self.option_enable = gtk.CheckMenuItem("Enable")
         self.option_enable.set_active(True)
         self.option_enable.connect("activate", engine.toggle_rotate, self.option_enable)
 
-        # Calls the configuration window
-        option_setup = gtk.MenuItem("Setup")
-        option_setup.connect("activate", engine.display_config_window)
-
         # Stops the application
         option_exit = gtk.MenuItem("Quit")
         option_exit.connect("activate", engine.quit)
 
-        self.append(self.option_enable)
+        # Add tray menu items in order
+        if have_appindicator: # adds 'Touch' when using App Indicator
+            self.append(self.option_touch)
+        self.append(option_rotate)
+        self.append(gtk.MenuItem(None)) # adds dividing line; tip by gco
         self.append(option_setup)
+        self.append(self.option_enable)
+        self.append(gtk.MenuItem(None))
         self.append(option_exit)
 
+    # With App Indicator right or left click opens the popup menu
     def popup_menu(self, menu, button, time, data = None):
         # button 3 is right click
         if button == 3:

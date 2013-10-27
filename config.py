@@ -24,7 +24,7 @@ class config:
         self.option["waittime"] = 0.25
         self.option["autostart"] = True
         self.option["debug_log"] = False
-        self.option["version"] = "1.6.2"
+        self.option["version"] = "1.7"
 
         if os.path.exists(os.path.expanduser(self.filename)):
             config = minidom.parse(os.path.expanduser(self.filename))

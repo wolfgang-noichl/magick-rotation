@@ -30,11 +30,35 @@ except:
     print "Please install pynotify.  It is not required but it makes the experience better."
     pynotify_support = False
 
-prog_ver="1.6.2"
+# to support App Indicator for Ubuntu Raring (13.04) Unity and later
+find_distro = "cat /etc/issue"
+distro_raw = getstatusoutput(find_distro)
+distro_split = distro_raw[1].split(' ')
+distro = distro_split[0]
+# TODO: Determine whether it would be better to use Unity version (unity --version) given
+# that they are now upgrading kernel and X Server versions in Precise 12.04.2 and on.
+# Is the Unity version also being upgraded?  Does that matter?  Or is it deliberate code
+# removal necessitating an App Indicator in 13.04 (12.04.3?) and later?
+release = distro_split[1]
+major_version = (release.split('.'))[0]
+if distro == "Ubuntu":
+    if int(major_version) >= 13:
+        try:
+            import appindicator # should only be available in Unity (and KDE?)
+            have_appindicator = True
+        except:
+            have_appindicator = False
+    else:
+        have_appindicator = False
+
+prog_ver="1.7"
 
 class engine:
     def __init__(self):
-        self.tray = tray_gui(self)
+        if have_appindicator:
+            self.tray = ind_gui(self) # for Ubuntu Unity 13.04 and later
+        else:
+            self.tray = tray_gui(self)
         self.win = magick_gui()
         debug_on = False
         if len(sys.argv) > 1:
@@ -77,7 +101,8 @@ class engine:
         self.notifier.toggle_polling()
         self.tray.update_poll_status(self.notifier.get_polling_status())
 
-    def toggle_touch(self):
+#    def toggle_touch(self): # gtk.StatusIcon left click
+    def toggle_touch(self, option=None, data=None): # adds toggle_touch for gui_gtk.py popup menu
         isnotify = self.win.adv_table.get_isnotify_button()
         self.touch_toggle =  not self.touch_toggle
         device = touch()
@@ -134,6 +159,13 @@ class engine:
             self.tray.set_tooltip("Tablet mode")
             if ((isnotify) & (pynotify_support)): 
                 self.notify_tablet.show()
+
+    # force_rotate and popup menu item code submitted by gco
+    # http://ubuntuforums.org/showthread.php?t=996830&page=62&p=12466672#post12466672
+    # modified a bit to drop decorator
+    def force_rotate(self, direction):
+        device = rotate()
+        device.rotate(None)
 
     def quit(self, widget=None):
         version = platform.machine()
