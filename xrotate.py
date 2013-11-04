@@ -326,23 +326,25 @@ class evdev:
         if not tablet:
             return None
 
-        # establish requested rotation direction
+        # select directional CTM for requested rotation direction - broken, use 'direction' instead
         cur_dir = tablet.direction
 
         # select directional CTM for requested rotation direction
         ctm = []
-        if (cur_dir == 'normal'):
+        if (direction == 'normal'):
             ctm = normal_ctm
-        elif (cur_dir == 'left'):
+        elif (direction == 'left'):
             ctm = left_ctm
-        elif (cur_dir == 'inverted'):
+        elif (direction == 'inverted'):
             ctm = inverted_ctm
-        elif (cur_dir == 'right'):
+        elif (direction == 'right'):
             ctm = right_ctm
         else:
             print "Unable to select directional CTM."
 
         if debug:
+#            print "current direction:", cur_dir
+            print "requested direction:", direction
             print "directional CTM selected -> %s:" % direction, ctm
             print "tablet.x:", tablet.x
             print "tablet.y:", tablet.y

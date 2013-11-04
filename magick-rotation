@@ -47,6 +47,8 @@ if distro == "Ubuntu":
             import appindicator # should only be available in Unity (and KDE?)
             have_appindicator = True
         except:
+            print '''If you are using Unity but don't see the App Indicator icon in the
+System Tray install the 'python-appindicator' package.'''
             have_appindicator = False
     else:
         have_appindicator = False

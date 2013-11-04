@@ -4,7 +4,10 @@ import apt
 import sys
 import thread
 import gobject
-from apt.progress import InstallProgress
+#from apt.progress import InstallProgress
+# for Ubuntu Saucy (13.10), appears backwards compatible;
+# if this line is a problem comment it out
+from apt.progress.base import InstallProgress
 
 # tried try/except for LMDE, running into a threading bug in 2.7.3rc?
 #try:
