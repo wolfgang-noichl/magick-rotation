@@ -3,6 +3,7 @@
 from commands import getstatusoutput, getoutput
 from sys import exit
 from ast import literal_eval
+import os
 
 # Add Magick Rotation to Ubuntu Unity's system tray whitelist
 cmd = "gsettings get com.canonical.Unity.Panel systray-whitelist"
@@ -33,6 +34,11 @@ if not results_ex[0]:
     gshell_ver = gshell_str.split(' ')[2]            # yields 3.4.1
     gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
     if gshell_subver >= 2:  # yes, 3.2 or better
+        # create the 'extensions' directory if it does not already exist
+        if not os.path.isdir(os.path.expanduser('~')+"/.local/share/gnome-shell/extensions"):
+            os.mkdir(os.path.expanduser('~')+"/.local/share/gnome-shell/extensions")
+        else:
+            print "extensions folder already exists"
         if results_ex[1] == "@as []":  # no extension enabled, len(results_ex) = 6
             command = '''gsettings set org.gnome.shell enabled-extensions "['magick-rotation-extension']"'''
             results = getstatusoutput(command)
@@ -40,7 +46,7 @@ if not results_ex[0]:
             enabled_extensions = literal_eval(results_ex[1])
             if 'magick-rotation-extension' in enabled_extensions:
                 print "magick-rotation-extension already enabled"
-            else:
+            else:  # add 'magick-rotation-extension' to extension(s) in list
                 command = 'gsettings set org.gnome.shell enabled-extensions "['
                 for index in range(len(enabled_extensions)):
                     command += "'" + enabled_extensions[index] + "', "

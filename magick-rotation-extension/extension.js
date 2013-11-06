@@ -1,6 +1,6 @@
 /*
  * This extension adds the interactive Magick Rotation Icon
- * to the GNOME 3 Shell's System Status Area.
+ * to the GNOME 3.2 Shell's System Status Area.
  */
 
 const StatusIconDispatcher = imports.ui.statusIconDispatcher;

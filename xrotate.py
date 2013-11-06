@@ -326,7 +326,7 @@ class evdev:
         if not tablet:
             return None
 
-        # select directional CTM for requested rotation direction - broken, use 'direction' instead
+        # establish requested rotation direction - broken, use 'direction' instead
         cur_dir = tablet.direction
 
         # select directional CTM for requested rotation direction

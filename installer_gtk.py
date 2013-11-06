@@ -409,9 +409,20 @@ class installer_engine:
             username = self.usr_name
             if os.path.exists("/home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"):
                 command = 'print "magick-rotation-extension folder already exists\n"'
-            else:
+            elif gshell_subver >= 6:  # use 3.6 and later extension
+                # rename 3.6_extension.js to extension.js
+                getoutput("mv " + self.filepath + "/magick-rotation-extension/3.6_extension.js " + self.filepath + "/magick-rotation-extension/extension.js")
+                # rename 3.6_metadata.json to metadata.json
+                getoutput("mv " + self.filepath + "/magick-rotation-extension/3.6_metadata.json " + self.filepath + "/magick-rotation-extension/metadata.json")
                 command = "mv " + self.filepath + "/magick-rotation-extension /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
-                self.log.write("Move magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
+                self.log.write("Move 3.6 magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
+            else:  # use 3.2 and 3.4 extension
+                # remove 3.6_extension.js
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.6_extension.js")
+                # remove 3.6_metadata.json
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.6_metadata.json")
+                command = "mv " + self.filepath + "/magick-rotation-extension /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
+                self.log.write("Move 3.2 magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
             self.log.write(command)
             success = getstatusoutput(command)
             self.log.write("\n")
@@ -421,6 +432,7 @@ class installer_engine:
             self.log.write("\n")
             return success
 
+    # Clean up
     def remove_splashicon(self):
         command = "rm " + self.filepath + "/MagickIcons/MagickSplash.png"
         self.log.write("Removing MagickSplash.png\n")

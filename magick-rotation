@@ -1,14 +1,14 @@
 #!/usr/bin/python2
 
-##############################################################
-##                                                          ##
-##         Dell, Fujitsu, HP, and Lenovo tablet PC's        ##
-##                automatic rotation support                ##
-##                                                          ##
-##   Created by Barynin Konstantin ( red_lion@inbox.ru )    ##
-##                 Co-author: Buran Ayuthia                 ##
-##                    Contributor: Favux                    ##
-##############################################################
+###############################################################
+##                                                           ##
+##   Dell, Fujitsu, HP, and Lenovo convertible tablet PC's   ##
+##                 automatic rotation support                ##
+##                                                           ##
+##    Created by Barynin Konstantin ( red_lion@inbox.ru )    ##
+##                  Co-author: Buran Ayuthia                 ##
+##                     Contributor: Favux                    ##
+###############################################################
 
 import thread
 import sys
@@ -33,16 +33,11 @@ except:
 # to support App Indicator for Ubuntu Raring (13.04) Unity and later
 find_distro = "cat /etc/issue"
 distro_raw = getstatusoutput(find_distro)
-distro_split = distro_raw[1].split(' ')
-distro = distro_split[0]
-# TODO: Determine whether it would be better to use Unity version (unity --version) given
-# that they are now upgrading kernel and X Server versions in Precise 12.04.2 and on.
-# Is the Unity version also being upgraded?  Does that matter?  Or is it deliberate code
-# removal necessitating an App Indicator in 13.04 (12.04.3?) and later?
-release = distro_split[1]
-major_version = (release.split('.'))[0]
+distro = (distro_raw[1].split(' '))[0]
 if distro == "Ubuntu":
-    if int(major_version) >= 13:
+    major_version = (distro_raw[1].split(' '))[1]
+    in_unity = getstatusoutput("echo $XDG_CURRENT_DESKTOP")
+    if float(major_version) >= 13.04 and in_unity[1] == "Unity":
         try:
             import appindicator # should only be available in Unity (and KDE?)
             have_appindicator = True
@@ -52,6 +47,14 @@ System Tray install the 'python-appindicator' package.'''
             have_appindicator = False
     else:
         have_appindicator = False
+
+# Alternatives to "echo $XDG_CURRENT_DESKTOP":
+#     echo $DESKTOP_SESSION - returns 'ubuntu' when running Unity
+#     ps aux | grep unity
+# TODO: Better to use Unity version (unity --version) now that they are upgrading kernel
+# and X Server versions in Precise 12.04.2 and up?  Is the Unity version being upgraded?
+# Does that matter?  Or is it deliberate code removal necessitating an App Indicator in
+# 13.04 (12.04.3?) and later?
 
 prog_ver="1.7"
 

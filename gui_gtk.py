@@ -5,6 +5,7 @@ import pygtk
 import gobject
 import sys
 import os.path
+from commands import getstatusoutput
 
 from config import *
 from listener import *
@@ -20,15 +21,13 @@ except:
     pynotify_support = False
 
 # to support App Indicator for Ubuntu Raring (13.04) Unity and later
-from commands import getstatusoutput
 find_distro = "cat /etc/issue"
 distro_raw = getstatusoutput(find_distro)
-distro_split = distro_raw[1].split(' ')
-distro = distro_split[0]
-release = distro_split[1]
-major_version = (release.split('.'))[0]
+distro = (distro_raw[1].split(' '))[0]
 if distro == "Ubuntu":
-    if int(major_version) >= 13:
+    major_version = (distro_raw[1].split(' '))[1]
+    in_unity = getstatusoutput("echo $XDG_CURRENT_DESKTOP")
+    if float(major_version) >= 13.04 and in_unity[1] == "Unity":
         try:
             import appindicator # should only be available in Unity (and KDE?)
             have_appindicator = True
@@ -52,7 +51,7 @@ class about_dlg(gtk.Dialog):
         self.connect('delete_event', self.close_about)
         about_title=gtk.Label("""<b><span size="22000">Magick Rotation  </span></b>""")
         about_title.set_use_markup(True)
-        about_label=gtk.Label("""\nThis program supports Dell, Fujitsu, HP, and Lenovo\ntablet PC's.\n\nVersion """ + version + """\n\nAuthors:  Jayhawk & Red_Lion\n\nContributor:  Favux""")
+        about_label=gtk.Label("""\nThis program supports Dell, Fujitsu, HP, and Lenovo\nconvertible tablet PC's.\n\nVersion """ + version + """\n\nAuthors:  Jayhawk & Red_Lion\n\nContributor:  Favux""")
         about_label.set_justify(gtk.JUSTIFY_CENTER)
         image = gtk.Image()
         image.set_from_file(image_filename)
