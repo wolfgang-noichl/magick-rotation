@@ -25,9 +25,10 @@ find_distro = "cat /etc/issue"
 distro_raw = getstatusoutput(find_distro)
 distro = (distro_raw[1].split(' '))[0]
 if distro == "Ubuntu":
-    major_version = (distro_raw[1].split(' '))[1]
-    in_unity = getstatusoutput("echo $XDG_CURRENT_DESKTOP")
-    if float(major_version) >= 13.04 and in_unity[1] == "Unity":
+    version = (distro_raw[1].split(' '))[1]
+    major_version = (version).split('.')[0] + "." + (version).split('.')[1]
+    in_unity = getstatusoutput("echo $XDG_CURRENT_DESKTOP")[1]
+    if float(major_version) >= 13.04 and in_unity == "Unity":
         try:
             import appindicator # should only be available in Unity (and KDE?)
             have_appindicator = True
