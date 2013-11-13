@@ -409,18 +409,36 @@ class installer_engine:
             username = self.usr_name
             if os.path.exists("/home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"):
                 command = 'print "magick-rotation-extension folder already exists\n"'
-            elif gshell_subver >= 6:  # use 3.6 and later extension
+            elif gshell_subver == 6:  # use 3.6 extension
                 # rename 3.6_extension.js to extension.js
                 getoutput("mv " + self.filepath + "/magick-rotation-extension/3.6_extension.js " + self.filepath + "/magick-rotation-extension/extension.js")
                 # rename 3.6_metadata.json to metadata.json
                 getoutput("mv " + self.filepath + "/magick-rotation-extension/3.6_metadata.json " + self.filepath + "/magick-rotation-extension/metadata.json")
+                # remove 3.8_extension.js & 3.8_metadata.json
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.8_extension.js")
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.8_metadata.json")
+                # install 3.6 magick-rotation-extension
                 command = "mv " + self.filepath + "/magick-rotation-extension /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
                 self.log.write("Move 3.6 magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
-            else:  # use 3.2 and 3.4 extension
-                # remove 3.6_extension.js
+            elif gshell_subver >= 8:  # use 3.8 and later extension
+                # rename 3.8_extension.js to extension.js
+                getoutput("mv " + self.filepath + "/magick-rotation-extension/3.8_extension.js " + self.filepath + "/magick-rotation-extension/extension.js")
+                # rename 3.8_metadata.json to metadata.json
+                getoutput("mv " + self.filepath + "/magick-rotation-extension/3.8_metadata.json " + self.filepath + "/magick-rotation-extension/metadata.json")
+                # remove 3.6_extension.js & 3.6_metadata.json
                 getoutput("rm " + self.filepath + "/magick-rotation-extension/3.6_extension.js")
-                # remove 3.6_metadata.json
                 getoutput("rm " + self.filepath + "/magick-rotation-extension/3.6_metadata.json")
+                # install 3.8 magick-rotation-extension
+                command = "mv " + self.filepath + "/magick-rotation-extension /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
+                self.log.write("Move 3.8 magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
+            else:  # use 3.2 and 3.4 extension
+                # remove 3.6_extension.js & 3.6_metadata.json
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.6_extension.js")
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.6_metadata.json")
+                # remove 3.8_extension.js & 3.8_metadata.json
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.8_extension.js")
+                getoutput("rm " + self.filepath + "/magick-rotation-extension/3.8_metadata.json")
+                # install magick-rotation-extension
                 command = "mv " + self.filepath + "/magick-rotation-extension /home/" + str(username) + "/.local/share/gnome-shell/extensions/magick-rotation-extension"
                 self.log.write("Move 3.2 magick-rotation-extension folder to ~/.local/share/gnome-shell/extensions\n")
             self.log.write(command)

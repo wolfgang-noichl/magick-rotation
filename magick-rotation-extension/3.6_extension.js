@@ -1,30 +1,32 @@
-/*
- * This extension adds the interactive Magick Rotation Icon
+/* This extension adds the interactive Magick Rotation Icon
  * to the GNOME 3.6 Shell's System Status Area.
  *
- * Code from EvilStatusIconForever fork for Gnome 3.6 by mathematicalcoffee
+ * Code from mathematicalcoffee's Gnome 3.6 fork of EvilStatusIconForever by Brian Hsu
  * https://github.com/mathematicalcoffee/EvilStatusIconForever
- * Original EvilStatusIconForever for Gnome 3.2 by Brian Hsu
- * https://github.com/brianhsu/EvilStatusIconForever
  */
 
+const Clutter = imports.gi.Clutter;
 const Shell = imports.gi.Shell;
+
 const PanelMenu = imports.ui.panelMenu;
 const Panel = imports.ui.panel;
 const Main = imports.ui.main;
 const STANDARD_TRAY_ICON_IMPLEMENTATIONS = imports.ui.notificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS;
-let trayManager, addedID;
+
+let trayManager, addedID, fullScreenChangedId;
 let statusArea;
+let trayIcon = {};
 
-var notification = ['magick-rotation']
+var notification = ['magick-rotation'];
 
-/*
- * Hide built-in status icon.
- *
- * Note: in 3.6 the top-level actor for a status button in
- * _rightBox.get_children() doesn't have a ._delegate; its first child does.
- * So instead we just remove from the status area directly.
- */
+function LOG(message) {
+    //log(message);
+}
+
+// Hide built-in status icon.
+  // Note: in 3.6 the top-level actor for a status button in
+  // _rightBox.get_children() doesn't have a ._delegate; its first child
+  // does. So instead we just remove from the status area directly.
 function hideStatusIcon(name)
 {
     if (statusArea[name]) {
@@ -32,9 +34,7 @@ function hideStatusIcon(name)
     }
 }
 
-/*
- * Show built-in status icon again.
- */
+// Show built-in status icon again.
 function showStatusIcon(name)
 {
     if (statusArea[name]) {
@@ -42,10 +42,8 @@ function showStatusIcon(name)
     }
 }
 
-/*
- * Callback when a tray icon is added to the tray manager.
- * We make a panel button for the top panel for it.
- */
+// Callback when a tray icon is added to the tray manager.
+// We make a panel button for the top panel for it.
 function _onTrayIconAdded(o, icon) {
     let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
     if (notification.indexOf(wmClass) === -1) {
@@ -54,28 +52,70 @@ function _onTrayIconAdded(o, icon) {
     }
 
     icon.height = Panel.PANEL_ICON_SIZE;
+    icon.width = Panel.PANEL_ICON_SIZE;
     let buttonBox = new PanelMenu.Button();
     let box = buttonBox.actor;
     box.add_actor(icon);
 
     Main.panel._addToPanelBox(wmClass, buttonBox, 0, Main.panel._rightBox);
+    trayIcon[wmClass] = icon;
 }
 
-/*
- * STANDARD_TRAY_ICON_IMPLEMENTATIONS is necessary for 3.6
- * to stop the message tray also making an icon for it.
- */
-function removeFromTopBar(wmClass)
+// STANDARD_TRAY_ICON_IMPLEMENTATIONS is necessary for 3.6
+// to stop the message tray also making an icon for it.
+function removeFromStatusTray(wmClass)
 {
     delete STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass];
+    if (trayIcon[wmClass]) {
+        trayIcon[wmClass].unparent();
+    }
     if (statusArea[wmClass]) {
         statusArea[wmClass].destroy();
     }
 }
 
-function addToTopBar(wmClass)
+function addToStatusTray(wmClass)
 {
     STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] = wmClass;
+}
+
+function _moveTrayIconToStatusTray() {
+    LOG('Add ' + notification + " to top bar");
+    addToStatusTray(notification);
+
+    let i;
+
+    // convert Magick's message tray only gtk.StatusIcon to status tray icon.
+    for (i = 0; i < Main.notificationDaemon._sources.length; ++i) {
+        let source = Main.notificationDaemon._sources[i],
+            icon = source.trayIcon;
+        if (icon) {
+            let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
+            if (notification.indexOf(wmClass) > -1) {
+                // NOTE: if I use icon.unparent() it segfaults, but if I use
+                // parent.remove_actor(icon) it's fine.
+                // Weird!
+                icon.get_parent().remove_actor(icon);
+                source.destroy();
+
+                // add back to the tray
+                _onTrayIconAdded(trayManager, icon);
+            }
+        }
+    }
+}
+
+function _moveTrayIconToMessageTray() {
+    removeFromStatusTray(notification);
+    let icon = trayIcon[notification];
+    if (icon) {
+        LOG('Remove ' + notification + " from top bar");
+        // add back to message tray
+        Main.notificationDaemon._onTrayIconAdded(Main.notificationDaemon, icon);
+        delete trayIcon[notification];
+    }
+
+    trayIcon = {};
 }
 
 function init() {
@@ -86,20 +126,33 @@ function enable() {
     trayManager = Main.notificationDaemon._trayManager;
     addedID = trayManager.connect('tray-icon-added', _onTrayIconAdded);
 
-    for (var i = 0; i < notification.length; i++) {
-        global.log('Add ' + notification[i] + " to top bar");
-        addToTopBar(notification[i]);
-    }
+    _moveTrayIconToStatusTray();
+    // StatusIcon = notification = 'magick-rotation'
+    LOG('Remove ' + notification + " from top bar");
+    hideStatusIcon(notification);
 
+    // NOTE: this fix (for icons turning into white squares) from TopIcons:
+    // https://extensions.gnome.org/extension/495/topicons/
+      // TrayIcons do not survive leaving the stage (they end up as
+      // whitesquares), so work around this by temporarily move them back
+      // to the message tray while we are in fullscreen.
+    fullScreenChangedId = Main.layoutManager.connect(
+        'primary-fullscreen-changed', function (o, state) {
+            if (state) {
+                _moveTrayIconToMessageTray();
+            } else {
+                _moveTrayIconToStatusTray();
+            }
+        });
 }
 
 function disable() {
     trayManager.disconnect(addedID);
     addedID = 0;
 
-    for (var i = 0; i < notification.length; i++) {
-        global.log('Remove ' + notification[i] + " from top bar");
-        removeFromTopBar(notification[i]);
-    }
+    _moveTrayIconToMessageTray();
+    LOG('Restore ' + notification + " to top bar");
+    showStatusIcon(notification);
 
+    Main.layoutManager.disconnect(fullScreenChangedId);
 }
