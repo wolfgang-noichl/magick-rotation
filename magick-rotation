@@ -118,6 +118,8 @@ class engine:
                 self.touch_on.show()
             else:
                 self.touch_off.show()
+        if have_appindicator:  # adds touch icons to class ind_gui's update_poll_status
+            self.tray.update_poll_status(self.notifier.get_polling_status())
 
     def get_touch_status(self):
         return self.touch_toggle

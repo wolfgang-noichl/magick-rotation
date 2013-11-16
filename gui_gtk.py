@@ -386,39 +386,25 @@ if have_appindicator:
 # Magick icon using indicator object's icon parameter.  Originally could only use theme icons!  So
 # can only use Magick installed, not from folder, with Unity Raring and later.
 
-        def update_poll_status(self, polling):
-#            print "print polling:", polling # printing when clicking on Enabled menu item
-            if not polling:
-                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled.png")
-            else:
-                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png")
-
 # App Indicator API doesn't support gtk.StatusIcon's set_from_file attribute.
 #                self.set_from_file(self.path + "magick-rotation-disabled.png")
-# Able to use App Indicator API supported set_icon to change icons.  But using set_attention_icon, also supported, doesn't seem to work.
+# Able to use App Indicator API supported set_icon to change icons.  But using set_attention_icon, also supported,
+# doesn't seem to work.
 #     API e.g.:  self.ind.set_icon("distributor-logo") # not deprecated for set_icon_full in Raring at least
 #     API e.g.:  self.ind.set_attention_icon("new-messages-red")
 
-# TODO?: Is it necessary to switch touch state icons also?  Doesn't check in front of Check Menu Item
-# in popup convey the same information?  Code simpler without.  But might be nice.
-
-        # need to detect touch toggling also, similar to update_touch_status, to use all 4 icons
-#        def update_poll_status(self, polling):
-#            print "polling:", polling # printing when clicking on Enabled menu item
-#            touch_on = self.engine.get_touch_status()
-#            print "touch_on:", touch_on # printing when clicking on Enabled menu item
-#            if polling == True and touch_on == True:
-#                print "polling and touch on = magick-rotation-enabled.png" # printing
-#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png")
-#            elif polling == False and touch_on == True:
-#                print "not polling and touch on = magick-rotation-disabled.png" # printing
-#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled.png")
-#            elif polling == True and touch_on == False:
-#                print "polling and touch off = magick-rotation-enabled-touchoff.png" # not printing
-#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png")
-#            else:
-#                print "not polling and touch off = magick-rotation-disabled-touchoff.png" # printing
-#                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled-touchoff.png")
+        # added update_poll_status to toggle_touch in magick-rotation to detect when touch toggled
+        # in pop-up menu, consolidates update_touch_status here
+        def update_poll_status(self, polling):
+            touch_on = self.engine.get_touch_status()
+            if polling == True and touch_on == True:
+                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled.png")
+            elif polling == False and touch_on == True:
+                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled.png")
+            elif polling == True and touch_on == False:
+                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-enabled-touchoff.png")
+            else:
+                self.ind.set_icon("/usr/share/magick-rotation/MagickIcons/magick-rotation-disabled-touchoff.png")
 
 # Right and left click are identical on an Application Indicator by design.  Can't left click Magick
 # icon to toggle touch on and off and use right click to access Setup.  Changing touch toggle to a
