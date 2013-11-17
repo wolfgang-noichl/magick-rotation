@@ -19,6 +19,9 @@ let trayIcon = [];
 let trayAddedId = 0;
 let trayRemovedId = 0;
 
+// window manager class of Magick's icon is 'magick-rotation'
+var wmClassIcon = ['magick-rotation'];
+
 // new for Gnome 3.8
 const IndicatorStatusIcon = new Lang.Class({
     Name: 'IndicatorStatusIcon',
@@ -44,44 +47,48 @@ const IndicatorStatusIcon = new Lang.Class({
 // We make a top panel Menu Button for it.
 function onTrayIconAdded(o, icon) {
     let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
-    global.log('onTrayIconAdded: ' + wmClass);
-    if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
-        return;
+    if (wmClass == wmClassIcon) {
+        global.log('onTrayIconAdded: ' + wmClass);
+        if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
+            return;
 
-    icon.height = Panel.PANEL_ICON_SIZE;
-    icon.width = Panel.PANEL_ICON_SIZE;
+        icon.height = Panel.PANEL_ICON_SIZE;
+        icon.width = Panel.PANEL_ICON_SIZE;
 
-    let indicatorStatusIcon = new IndicatorStatusIcon(icon)
+        let indicatorStatusIcon = new IndicatorStatusIcon(icon)
 
-    icon.reactive = true;
-    icon._clicked = icon.connect('button-release-event', function(actor, event) {
-        icon.click(event);
-    });
+        icon.reactive = true;
+        icon._clicked = icon.connect('button-release-event', function(actor, event) {
+            icon.click(event);
+        });
 
-    if (trayIcon[wmClass] != undefined) {
-        let oldIndicator = trayIcon[wmClass];
-        trayIcon[wmClass] = null;
-        oldIndicator.destroy();
+        if (trayIcon[wmClass] != undefined) {
+            let oldIndicator = trayIcon[wmClass];
+            trayIcon[wmClass] = null;
+            oldIndicator.destroy();
+        }
+
+        trayIcon[wmClass] = indicatorStatusIcon;
+        Main.panel.addToStatusArea('tray-' + wmClass, indicatorStatusIcon);
     }
-
-    trayIcon[wmClass] = indicatorStatusIcon;
-    Main.panel.addToStatusArea('tray-' + wmClass, indicatorStatusIcon);
 }
 
 function onTrayIconRemoved(o, icon) {
     let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
-    let oldIndicator = null;
+    if (wmClass == wmClassIcon) {
+        let oldIndicator = null;
 
-    global.log('onTrayIconRemoved: ' + wmClass);
+        global.log('onTrayIconRemoved: ' + wmClass);
 
-    if (trayIcon[wmClass] !== undefined) {
-        oldIndicator = trayIcon[wmClass];
-        trayIcon[wmClass] = null;
-        oldIndicator.destroy();
-        return;
+        if (trayIcon[wmClass] !== undefined) {
+            oldIndicator = trayIcon[wmClass];
+            trayIcon[wmClass] = null;
+            oldIndicator.destroy();
+            return;
+        }
+
+        global.log("onTrayIconRemoved: indicator not found!");
     }
-
-    global.log("onTrayIconRemoved: indicator not found!");
 }
 
 function moveTrayIconToStatusTray() {
@@ -97,10 +104,16 @@ function moveTrayIconToStatusTray() {
         let source = Main.notificationDaemon._sources[i];
         if (!source.trayIcon)
             continue;
-        let parent = source.trayIcon.get_parent();
-        parent.remove_actor(source.trayIcon);
-        onTrayIconAdded(this, source.trayIcon);
-        toDestroy.push(source);
+        let icon = source.trayIcon;
+        if (icon) {
+            let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
+            if (wmClass == wmClassIcon) {
+                let parent = source.trayIcon.get_parent();
+                parent.remove_actor(source.trayIcon);
+                onTrayIconAdded(this, source.trayIcon);
+                toDestroy.push(source);
+            } 
+        }
     }
 
     for (let i = 0; i < toDestroy.length; i++) {

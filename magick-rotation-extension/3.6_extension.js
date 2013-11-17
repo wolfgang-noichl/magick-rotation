@@ -17,7 +17,8 @@ let trayManager, addedID, fullScreenChangedId;
 let statusArea;
 let trayIcon = {};
 
-var notification = ['magick-rotation'];
+// window manager class of Magick's icon is 'magick-rotation'
+var wmClassIcon = ['magick-rotation'];
 
 function LOG(message) {
     //log(message);
@@ -45,8 +46,7 @@ function showStatusIcon(name)
 // Callback when a tray icon is added to the tray manager.
 // We make a panel button for the top panel for it.
 function _onTrayIconAdded(o, icon) {
-    let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
-    if (notification.indexOf(wmClass) === -1) {
+    if (wmClassIcon.indexOf(wmClass) === -1) {
         // skip it
         return;
     }
@@ -80,8 +80,8 @@ function addToStatusTray(wmClass)
 }
 
 function _moveTrayIconToStatusTray() {
-    LOG('Add ' + notification + " to top bar");
-    addToStatusTray(notification);
+    LOG('Add ' + wmClassIcon + " to top bar");
+    addToStatusTray(wmClassIcon);
 
     let i;
 
@@ -91,7 +91,7 @@ function _moveTrayIconToStatusTray() {
             icon = source.trayIcon;
         if (icon) {
             let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
-            if (notification.indexOf(wmClass) > -1) {
+            if (wmClassIcon.indexOf(wmClass) > -1) {
                 // NOTE: if I use icon.unparent() it segfaults, but if I use
                 // parent.remove_actor(icon) it's fine.
                 // Weird!
@@ -106,13 +106,13 @@ function _moveTrayIconToStatusTray() {
 }
 
 function _moveTrayIconToMessageTray() {
-    removeFromStatusTray(notification);
-    let icon = trayIcon[notification];
+    removeFromStatusTray(wmClassIcon);
+    let icon = trayIcon[wmClassIcon];
     if (icon) {
-        LOG('Remove ' + notification + " from top bar");
+        LOG('Remove ' + wmClassIcon + " from top bar");
         // add back to message tray
         Main.notificationDaemon._onTrayIconAdded(Main.notificationDaemon, icon);
-        delete trayIcon[notification];
+        delete trayIcon[wmClassIcon];
     }
 
     trayIcon = {};
@@ -127,9 +127,9 @@ function enable() {
     addedID = trayManager.connect('tray-icon-added', _onTrayIconAdded);
 
     _moveTrayIconToStatusTray();
-    // StatusIcon = notification = 'magick-rotation'
-    LOG('Remove ' + notification + " from top bar");
-    hideStatusIcon(notification);
+    // StatusIcon = wmClassIcon = 'magick-rotation'
+    LOG('Remove ' + wmClassIcon + " from top bar");
+    hideStatusIcon(wmClassIcon);
 
     // NOTE: this fix (for icons turning into white squares) from TopIcons:
     // https://extensions.gnome.org/extension/495/topicons/
@@ -151,8 +151,8 @@ function disable() {
     addedID = 0;
 
     _moveTrayIconToMessageTray();
-    LOG('Restore ' + notification + " to top bar");
-    showStatusIcon(notification);
+    LOG('Restore ' + wmClassIcon + " to top bar");
+    showStatusIcon(wmClassIcon);
 
     Main.layoutManager.disconnect(fullScreenChangedId);
 }

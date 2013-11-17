@@ -5,12 +5,15 @@
 
 const StatusIconDispatcher = imports.ui.statusIconDispatcher;
 
+// window manager class of Magick's icon is 'magick-rotation'
+var wmClassIcon = ['magick-rotation'];
+
 function enable() {
-    StatusIconDispatcher.STANDARD_TRAY_ICON_IMPLEMENTATIONS['magick-rotation'] = 'magick-rotation';
+    StatusIconDispatcher.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClassIcon] = wmClassIcon;
 }
 
 function disable() {
-    StatusIconDispatcher.STANDARD_TRAY_ICON_IMPLEMENTATIONS['magick-rotation'] = '';
+    StatusIconDispatcher.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClassIcon] = '';
 }
 
 function init(metadata) {
