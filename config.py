@@ -140,7 +140,7 @@ Path=/usr/share/magick-rotation/
                 if gshell_subver >= 4:
                     wr = open(os.path.expanduser(autostart_dsktop_path), "w")
                     # append the Gnome Shell 3.4 bug work around
-                    wr.write(autostart_desktop % folder_path + "X-GNOME-Autostart-Delay=3")
+                    wr.write(autostart_desktop % folder_path + "X-GNOME-Autostart-Delay=1")
                 else:
                     wr = open(os.path.expanduser(autostart_dsktop_path), "w")
                     wr.write(autostart_desktop % folder_path)
@@ -150,7 +150,7 @@ Path=/usr/share/magick-rotation/
                     if gshell_subver >= 4:
                         wr=open(os.path.expanduser(autostart_dsktop_path), "w")
                         # append the Gnome Shell 3.4 bug work around
-                        wr.write(autostart_desktop_inst + "X-GNOME-Autostart-Delay=3")
+                        wr.write(autostart_desktop_inst + "X-GNOME-Autostart-Delay=1")
                     else:
                         wr=open(os.path.expanduser(autostart_dsktop_path), "w")
                         wr.write(autostart_desktop_inst)

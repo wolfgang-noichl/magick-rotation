@@ -384,7 +384,11 @@ if have_appindicator:
 
 # TODO: Need to verify the following for certain. Apparently complete path string required to access
 # Magick icon using indicator object's icon parameter.  Originally could only use theme icons!  So
-# can only use Magick installed, not from folder, with Unity Raring and later.
+# can only use Magick installed, not from folder, with Unity Raring and later.  Additionally:
+#     self.path = os.path.abspath(sys.argv[0]) + "/MagickIcons/"
+#     self.ind.set_icon(self.path + "magick-rotation-enabled.png")
+# doesn't work to set the icons either.  So the app indicator .set_icon also can only handle a string.
+# This is weird unexpected behavior.
 
 # App Indicator API doesn't support gtk.StatusIcon's set_from_file attribute.
 #                self.set_from_file(self.path + "magick-rotation-disabled.png")
@@ -486,11 +490,17 @@ class tray_menu_gui(gtk.Menu):
         # Add tray menu items in order
         if have_appindicator: # adds 'Touch' when using App Indicator
             self.append(self.option_touch)
+            self.append(gtk.SeparatorMenuItem())
+        if "gnome-shell" in str(getstatusoutput("ps ax | grep -v grep | grep gnome-shell")):
+            # so Rotate isn't obscured by some versions of gnome-shell's top panel
+#            self.append(gtk.MenuItem(""))  # maybe a bit much
+            self.append(gtk.SeparatorMenuItem())
         self.append(option_rotate)
-        self.append(gtk.MenuItem(None)) # adds dividing line; tip by gco
+        self.append(gtk.SeparatorMenuItem())  # adds dividing line
         self.append(option_setup)
+        self.append(gtk.SeparatorMenuItem())
         self.append(self.option_enable)
-        self.append(gtk.MenuItem(None))
+        self.append(gtk.SeparatorMenuItem())
         self.append(option_exit)
 
     # With App Indicator right or left click opens the popup menu

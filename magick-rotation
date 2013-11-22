@@ -113,11 +113,24 @@ class engine:
         self.touch_toggle =  not self.touch_toggle
         device = touch()
         device.toggle_touch(self.touch_toggle)
-        if ((isnotify) & (pynotify_support)): 
-            if self.touch_toggle:
-                self.touch_on.show()
-            else:
-                self.touch_off.show()
+#        if ((isnotify) & (pynotify_support)): 
+#            if self.touch_toggle:
+#                self.touch_on.show()
+#            else:
+#                self.touch_off.show()
+        # Magick extension won't load icon to status tray during startup due to glib/GDBus error
+        # "UnknownMethod: No such interface `org.freedesktop.Notifications'" with touch status
+        # notification.  Post startup icon loads by restarting gnome-shell (alt+F2, enter 'r')
+        # and touch notification works fine.  This may be Ubuntu specific because they deprecated
+        # Gnome's notification-daemon for Notify OSD.  Disable touch notification in Ubuntu
+        # gnome-shell until startup issue resolved.
+        info = pynotify.get_server_info()
+        if not (distro == "Ubuntu") and ("gnome-shell" in str(info)):
+            if ((isnotify) & (pynotify_support)): 
+                if self.touch_toggle:
+                    self.touch_on.show()
+                else:
+                    self.touch_off.show()
         if have_appindicator:  # adds touch icons to class ind_gui's update_poll_status
             self.tray.update_poll_status(self.notifier.get_polling_status())
 
