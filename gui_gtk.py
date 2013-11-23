@@ -36,6 +36,8 @@ if distro == "Ubuntu":
             have_appindicator = False
     else:
         have_appindicator = False
+else:
+    have_appindicator = False
 
 prog_ver="1.7"
 

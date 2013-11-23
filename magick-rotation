@@ -48,6 +48,8 @@ System Tray install the 'python-appindicator' package.'''
             have_appindicator = False
     else:
         have_appindicator = False
+else:
+    have_appindicator = False
 
 # Alternatives to "echo $XDG_CURRENT_DESKTOP":
 #     echo $DESKTOP_SESSION - returns 'ubuntu' when running Unity
