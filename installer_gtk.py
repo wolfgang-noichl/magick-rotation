@@ -216,7 +216,7 @@ class installer_engine:
             packages = {"yum_packages":["gcc", "libX11-devel", "libXrandr-devel"]}
             for yum_packages, package_list in packages.iteritems():
                 for package in package_list:
-                    command = "yum install " + package
+                    command = "yum -y install " + package
                     self.log.write(command)
                     success = getstatusoutput(command)
                     self.log.write("\n")

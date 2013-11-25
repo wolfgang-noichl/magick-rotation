@@ -46,6 +46,7 @@ function showStatusIcon(name)
 // Callback when a tray icon is added to the tray manager.
 // We make a panel button for the top panel for it.
 function _onTrayIconAdded(o, icon) {
+    let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : '';
     if (wmClassIcon.indexOf(wmClass) === -1) {
         // skip it
         return;
