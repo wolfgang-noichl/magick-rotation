@@ -1,10 +1,10 @@
 
-Magick Rotation 1.6.2						October 2, 2012
+Magick Rotation 1.7						November 30, 2013
 
 
 NOTE: In the Advanced Setup command boxes do not use '&' after a program. For example adding '&' to Cairo Dock as in "cairo-dock -o &".  Adding the '&' will cause Magick Rotation to "hang".
 
-NOTE: If the stylus and other input tools have right and left orientation reversed when in a portrait tablet mode (cw or ccw), you likely have a known bug in xf86-input-wacom.  The bug caused cw and ccw to be reversed for xsetwacom in versions 0.10.9 through 0.11.0.  It is suggested you update xf86-input-wacom to a later version.  Cloning its git repository to update is described in the FAQ.
+NOTE (obsolete?): If the stylus and other input tools have right and left orientation reversed when in a portrait tablet mode (cw or ccw), you likely have a known bug in xf86-input-wacom.  The bug caused cw and ccw to be reversed for xsetwacom in versions 0.10.9 through 0.11.0.  It is suggested you update xf86-input-wacom to a later version.  Cloning its git repository to update is described in FAQ #1603.
 
 
 PRELIMINARIES
@@ -18,22 +18,30 @@ NOTE:  Dell tablet PC's need to install a modified dell-wmi.ko while Fujitsu tab
 
 
 INSTALLATION
-If you haven't already, install CellWriter through Synaptic Package Manager.  CellWriter is Magick Rotation's default onscreen keyboard.  You can use another onscreen keyboard such as Onboard by changing the CellWriter lines in Advanced Setup.
+If you haven't already, install CellWriter through your Software Installer such as Synaptic Package Manager.  CellWriter is Magick Rotation's default onscreen keyboard.  You can use another onscreen keyboard such as Onboard by changing the CellWriter lines in Advanced Setup.
 
-If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  To install open the extracted magick-rotation folder and double click on the  MAGICK-INSTALL file and choose 'Run'.  If instead it opens up in your text editor right click on MAGICK-INSTALL (for pre-1.6 versions it's the 'magick-rotation' file) and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close.
+In order for the Installer to work in Fedora the 'beesu' packaged needs to be installed.  Either with Add/Remove Software or from the command line with:
+    su - -c "yum install beesu"
+In Kubuntu Precise 12.04 the python-gtk2 package is not installed by default.  It is required so install it with the Software Center, Muon, or:  
+    sudo apt-get install python-gtk2
+Starting in Ubuntu Saucy 13.10 the 'gksu' package needs to be installed and if you are using the Unity Desktop in Saucy the 'python-appindicator' package.  The Installer should pop up the Software Center so you can install them if required before it runs.
+
+If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  To install open the extracted magick-rotation folder and double click on the  MAGICK-INSTALL file and choose 'Run'.  If instead it opens up in your text editor right click on MAGICK-INSTALL (for pre-1.6 versions it's the 'magick-rotation' file) and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close.  If the executable flag isn't the problem it is likely an issue with the latest Gnome version of Nautilus.  Open Nautilus and click on Files in the top bar and choose Preferences.  In the Behavior tab under 'Executable Text Files' change the new default of 'View executable text files when they are opened' back to the old default of 'Ask each time'.
 
 The Installer will install the libraries needed to compile checkmagick and compile it.  Then it will install the Magick Rotation files to their various locations and delete the now unnecessary install files.  This will be detailed in the install_log which shows which files were installed in what locations.  Reboot and the applet should be installed and working, signified by the green Magick Rotation icon that should appear.  The version number is available if you click the About button.
 
+If the install doesn't work check the install_log and see if there is an explanation.  If there isn't an install_log, only a partial one, or you don't understand it using a terminal you can change directories into the magick-rotation folder and run MAGICK-INSTALL from the command line with:
+    ./MAGICK-INSTALL
+The output may tell you the problem.  For example Fedora might see an audit conflict between packages when trying to install say gcc.  You can clear that by running:
+    su - -c "yum update audit"
+
 The magick-rotation-1.6 folder should, after installation, contain INSTALLER.txt, install_log, Magick-README.txt, and the folders MagickExtras and MagickUninstall.  MagickUninstall lets you uninstall Magick Rotation using MAGICK-UNINSTALL similar to MAGICK-INSTALL.  MagickExtras has the kernel drivers/modules needed by both the Dell and Fujitsu tablet PCs in order to work with Magick Rotation.  It includes the modified dell-wmi.ko dkms and the fujitsu-tablet.ko dkms along with instructions for both.
 
-NOTE:  The Installer and magick-rotation itself will no longer work in Kubuntu 12.04 (Precise Pangolin) because the python-gtk2 package is no longer installed by default.  So before running MAGICK-INSTALL (or magick-rotation) run this command in a terminal to install it:
-    sudo apt-get install python-gtk2
-
-NOTE:  You can still run Magick Rotation from the magick-rotation folder without installing it or if the Installer fails.  For pre-1.6 versions rename or remove the file firstrun.  You will then need to manually compile checkmagic and install the udev rules.  If you have Gnome Shell 3.2 or better you may want to implement the extension.  See the INSTALLER.txt file for instructions.  Then double click on the 'magick-rotation' file and choose 'Run'.
+NOTE:  You can still run Magick Rotation from the magick-rotation folder without installing it or if the Installer fails.  This is no longer true for Ubuntu Raring 13.04 and later with the Unity Desktop due to the peculiarities of how the App. Indicator API handles icons.  For pre-1.6 versions rename or remove the file firstrun.  You will then need to manually compile checkmagic and install the udev rules.  If you have Gnome Shell 3.2 or better you may want to implement the extension.  See the INSTALLER.txt file for instructions.  Then double click on the 'magick-rotation' file and choose 'Run'.
 
 
 SETUP - BEFORE ROTATING FOR THE FIRST TIME
-Right click on the Magick Rotation icon (green arrow), located in the notification area in the top panel (right side), and choose 'Setup'.  Choose if you want Magick to "Run on start?" (you do) and which direction to rotate to.  Remember to 'Save' the direction if you changed it.  Then go into "Advanced Setup" and make any other changes you want (commands to run before and after rotation, etc.) and then click on 'Save'. You are ready to rotate.
+Right click on the Magick Rotation icon (green arrow), located in the notification area in the top panel (right side), and choose 'Setup'.  Choose which direction to rotate to.  Remember to 'Save' the direction if you changed it.  Then go into "Advanced Setup" and make any other changes you want such as commands to run before and after rotation, etc.  The check box option  "Run on start?" (you do) was moved to Advanced Setup a while ago.  (If you uncheck it to start Magick again you'll need to run it from /usr/share/magick-rotation with './magick-rotation' or the folder by double-clicking on magick-rotation.)  Then after any changes click on 'Save'. You are ready to rotate.
 
 NOTE:  HP Compaq TC4200 & TC4400's.  Your hinge switch values are reversed from other models.  Check the "BIOS hinge switch values reversed?" check box in Setup and then click on Save before first rotation.
 
@@ -72,14 +80,15 @@ Looking at either output should help pin the problem down for you. And you have 
 
 
 XROTATE.PY
-You can use this python script to rotate without Magick Rotation as a stand alone rotation script.  Right click on 'xrotate.py' and select 'Properties'. Then click on the 'Permissions' tab. Check "Allow executing file as a program" and close.  You can now place it in a launcher.  The command for use is:  ./xrotate.py  That will rotate the tablet counterclockwise in 90 degree steps.  To specify direction use either normal | left | right | inverted  as in:  ./xrotate.py right
+You can use this python script to rotate without Magick Rotation as a stand alone rotation script.  Right click on 'xrotate.py' and select 'Properties'. Then click on the 'Permissions' tab. Check "Allow executing file as a program" and close.  You can now place it in a launcher.  The command for use is:  ./xrotate.py  That will rotate the tablet counterclockwise in 90 degree steps.  To specify direction use either normal | left | right | inverted  as in:
+    ./xrotate.py right
 
 To turn debugging on in xrotate.py change at about line #6:  debug = 0
 to:  debug = 1
 
 
 INSTALLED FILES
-As mentioned before the install_log will show you the files and their locations.  In "System > Preferences > Sessions" or "Startup Applications" you'll see an entry called "Magick Rotation for HP tablet PC's". The associated file is in "~/.config/autostart" and is called "magick-rotation.desktop".  The configuration settings are in a .xml file at "~/.magick-rotation.xml".  To see it "Show Hidden Files" in 'View' in 'Places' (Nautilus or Dophin).  The Gnome Shell 3.2 or better extension folder will be at "~/.local/gnome-shell/extensions/magick-rotation-extension".
+As mentioned before the install_log will show you the files and their locations.  In "System > Preferences > Sessions" or "Startup Applications" you'll see an entry called "Magick Rotation for tablet PC's". The associated file is in "~/.config/autostart" and is called "magick-rotation.desktop".  The configuration settings are in a .xml file at "~/.magick-rotation.xml".  To see it "Show Hidden Files" in 'View' in 'Places' (Nautilus or Dophin).  The Gnome Shell 3.2 or better extension folder will be at "~/.local/gnome-shell/extensions/magick-rotation-extension".
 
 
 UNINSTALL MAGICK ROTATION

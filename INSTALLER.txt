@@ -1,5 +1,5 @@
 
-Magick Rotation 1.6.2						October 2, 2012
+Magick Rotation 1.7						November 30, 2013
 
 
 IF YOU ARE READING THIS the Magick Rotation Installer did not work on your system or you opted not to install all the files and instead want to run Magick Rotation out of the magick-rotation folder.
@@ -61,7 +61,7 @@ Only your username should ever be in the group.
 Once you do that you are done with the minimum needed to run Magick Rotation from its folder, wherever you have choosen to place it in your username directory.  Reboot to activate the new udev rules.
 
 
-UNITY TRAY WHITELIST
+UNITY TRAY WHITELIST - deprecated in Raring 13.04 and later Unity Desktop in favor of requiring an Application Indicator
 Starting with  Ubuntu's Natty Narwhal (11.04) and the introduction of the Unity Desktop a whitelist for application icons in the System tray was added.  In order for Magick Rotation's icon to show you now need to add the key value 'magick-rotation' to the key systray-whitelist located at com.canonical.Unity.Panel.  Otherwise the Magick Rotation icon will not appear in the System tray.  The preferred way is to use gsettings from the command line.  First determine the list of applications whose icons are already whitelisted with:
     gsettings get com.canonical.Unity.Panel systray-whitelist
 In the gsettings enable command add the magick-rotation-extension to the list of currently installed applications like so:
@@ -79,14 +79,18 @@ RUNNING MAGICK ROTATION
 If using a pre-1.6 version be sure to remove or rename the file 'firstrun' in the magick-rotation folder.
 
 FROM THE FOLDER
-If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  Drag and drop the magick-rotation folder onto 'yourusername' in the left column of 'Places' (/home/yourusername).  If it asks if you want to replace the magick-rotation folder say "Yes to all".  To install open the folder and right click on 'magick-rotation' and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on 'magick-rotation' and choose 'Run'. The applet is installed.  Magick Rotation should now be working for you.
+If an earlier Magick Rotation is running shut it down by right clicking on it's green rotating arrow icon and clicking on 'Quit'.  Drag and drop the magick-rotation folder onto 'yourusername' in the left column of 'Places' (/home/yourusername).  If it asks if you want to replace the magick-rotation folder say "Yes to all".  To install open the folder and right click on 'magick-rotation' and select 'Properties'. Then click on the 'Permissions' tab. Verify "Allow executing file as a program" is checked, if not check it, and close. Now double click on 'magick-rotation' and choose 'Run'. The applet is installed.  Magick Rotation should now be working for you.  If the executable flag isn't the problem it is likely an issue with the latest Gnome version of Nautilus.  Open Nautilus and click on Files in the top bar and choose Preferences.  In the Behavior tab under 'Executable Text Files' change the new default of 'View executable text files when they are opened' back to the old default of 'Ask each time'.
+
+NOTE:  In Ubuntu Raring 13.04 and later with the Unity Desktop you can no longer run Magick Rotation from the folder due to the peculiarities of how the App. Indicator API handles icons.  You would need to disable the code that changes the icons to reflect if Magick is disabled or touch is off in gui_gtk.py's class ind_gui().  Or else keep the folder in one location (say /home/username/bin) and change the icon paths in the code to the complete new path to the folder's icons.
 
 FROM /USR/SHARE
 If you decide on the optional additional file installation below, once that is done, go to the 'magick-rotation' file in /usr/share/magick-rotation and double click on it.  Choose 'Run' and the applet is installed.  Magick Rotation should now be working for you.
 
 
-MAGICK ROTATION EXTENSION - OPTIONAL
-If you have GNOME Shell 3.2 or better you may choose to move Magick Rotation's tray icon from the Message Tray to the System Status Area.  To do that you need to install the magick-rotation-extension folder to "~/.local/gnome-shell/extensions/magick-rotation-extension" and enable it with gsettings.  Assuming you are in a terminal in the magick-rotation directory:
+MAGICK ROTATION EXTENSION
+This was an optional step with GNOME Shell 3.2 or 3.4, but now with 3.6 and higher Magick Rotation's tray icon touch toggle feature doesn't work correctly in the Message tray.  You will want to move it to the System Status Area or Status tray.  To do that you need to install the magick-rotation-extension folder to "~/.local/gnome-shell/extensions/magick-rotation-extension" and enable it with gsettings.  First determine your version of the gnome-shell:
+    gnome-shell --version
+Then pick the corresponding .js and .json file for that version.  The extension.js and metadata.json are for 3.2 and 3.4.  For 3.6 use the ones preceeded by 3.6_ and similarly for 3.8 (and higher) use 3.8_.  Hopefully the 3.8_ will work with version 3.10.  Delete or remove the uneeded .js and .json files and if the ones you select are preceeded by a number and underscore remove them so you are left with just extension.js and metadata.json.  Assuming you are in a terminal in the magick-rotation directory:
     mv magick-rotation-extension ~/.local/gnome-shell/extensions/magick-rotation-extension
 Then find the list of extensions already installed with:
     gsettings get org.gnome.shell enabled-extensions
@@ -97,6 +101,8 @@ If no other extensions are installed just use:  "['magick-rotation-extension']".
 Another option to enable the extension would be to use the dconf-editor, if installed, by running in a terminal:
     dconf-editor
 Then manually add the 'magick-rotation-extension' key value to the list in the enabled-extensions key.
+
+If the extension doesn't work it is possible you may need to add your gnome-shell version to the metadata.json.  Although 3.2 or 3.6 etc. seems sufficient some folks claim they need the 3rd digit, e.g. 3.6.2.  A few have even claimed they required a fourth digit if it was present.  It should be obvious in metadata.json how to add your version number.
 
 
 FURTHER INSTALLATION - OPTIONAL
