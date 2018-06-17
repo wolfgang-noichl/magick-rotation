@@ -13,12 +13,7 @@ from listener import *
 # supports threads in pygtk
 gobject.threads_init()
 
-try:
-    import pynotify
-    pynotify_support = True
-except:
-    print "Please install pynotify.  It is not required but it makes the experience better."
-    pynotify_support = False
+import notify2
 
 # to support App Indicator for Ubuntu Raring (13.04) Unity and later
 find_distro = "cat /etc/issue"
@@ -112,11 +107,7 @@ class advanced_table(gtk.Table):
         spacer_label1 = gtk.Label("")
         self.attach(spacer_label1, 0, 1, 8, 9)
 
-        # notify about switch
-        if pynotify_support:
-            isnotify_label=gtk.Label("Allow notification?")
-        else:
-            isnotify_label=gtk.Label("Allow notification? (pynotify not found)")
+        isnotify_label=gtk.Label("Allow notification?")
 
         self.isnotify_button=gtk.CheckButton()
 

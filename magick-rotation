@@ -22,13 +22,7 @@ from listener import *
 from debug import *
 from hinge import *
 
-global pynotify_support
-try:
-    import pynotify
-    pynotify_support = True
-except:
-    print "Please install pynotify.  It is not required but it makes the experience better."
-    pynotify_support = False
+import notify2
 
 # to support App Indicator for Ubuntu Raring (13.04) Unity and later
 find_distro = "cat /etc/issue"
@@ -78,19 +72,18 @@ class engine:
         self.switch = h.get_switch()
 
         # notify init
-        if pynotify_support:
-            notify_timeout = int(self.win.adv_table.get_isnotify_timeout())
-            pynotify.init('magick-rotation notification')
-            self.notify_tablet = pynotify.Notification("Tablet state", "Rotate to tablet")
-            self.notify_tablet.set_timeout(notify_timeout)
-            self.notify_normal = pynotify.Notification("Tablet state", "Rotate to normal")
-            self.notify_normal.set_timeout(notify_timeout)
-            self.touch_on = pynotify.Notification("Touch status", "On")
-            self.touch_on.set_timeout(notify_timeout)
-            self.touch_off = pynotify.Notification("Touch status", "Off")
-            self.touch_off.set_timeout(notify_timeout)
-            self.notify_error = pynotify.Notification("Tablet state", "Error get hp_wmi data")
-            self.notify_error.set_timeout(notify_timeout)
+        notify_timeout = int(self.win.adv_table.get_isnotify_timeout())
+        notify2.init('magick-rotation notification')
+        self.notify_tablet = notify2.Notification("Tablet state", "Rotate to tablet")
+        self.notify_tablet.set_timeout(notify_timeout)
+        self.notify_normal = notify2.Notification("Tablet state", "Rotate to normal")
+        self.notify_normal.set_timeout(notify_timeout)
+        self.touch_on = notify2.Notification("Touch status", "On")
+        self.touch_on.set_timeout(notify_timeout)
+        self.touch_off = notify2.Notification("Touch status", "Off")
+        self.touch_off.set_timeout(notify_timeout)
+        self.notify_error = notify2.Notification("Tablet state", "Error get hp_wmi data")
+        self.notify_error.set_timeout(notify_timeout)
 
         # Turn on touch
         self.touch_toggle = 0
@@ -115,7 +108,7 @@ class engine:
         self.touch_toggle =  not self.touch_toggle
         device = touch()
         device.toggle_touch(self.touch_toggle)
-#        if ((isnotify) & (pynotify_support)): 
+#        if ((isnotify) & (notify2_support)): 
 #            if self.touch_toggle:
 #                self.touch_on.show()
 #            else:
@@ -126,9 +119,9 @@ class engine:
         # and touch notification works fine.  This may be Ubuntu specific because they deprecated
         # Gnome's notification-daemon for Notify OSD.  Disable touch notification in Ubuntu
         # gnome-shell until startup issue resolved.
-        info = pynotify.get_server_info()
+        info = notify2.get_server_info()
         if not (distro == "Ubuntu") and ("gnome-shell" in str(info)):
-            if ((isnotify) & (pynotify_support)): 
+            if isnotify: 
                 if self.touch_toggle:
                     self.touch_on.show()
                 else:
@@ -175,12 +168,12 @@ class engine:
         if (direction == 0):
             self.debug.debug("Change to normal state")
             self.tray.set_tooltip("Normal mode")
-            if ((isnotify) & (pynotify_support)): 
+            if isnotify: 
                 self.notify_normal.show()
         else:
             self.debug.debug("Change to Tablet mode")
             self.tray.set_tooltip("Tablet mode")
-            if ((isnotify) & (pynotify_support)): 
+            if isnotify: 
                 self.notify_tablet.show()
 
     # force_rotate and popup menu item code submitted by gco
