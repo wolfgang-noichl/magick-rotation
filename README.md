@@ -7,7 +7,8 @@ Yo you're probably best off with just following the manual install instructions 
 Magick Rotation is an application that will help Dell, Fujitsu, HP, and Lenovo convertible tablet PC's automatically rotate screen orientation and devices that use the Wacom or evdev drivers.
 
 To install run the MAGICK-INSTALL file in the unpacked magick-rotation folder. (Fedora ensure 'beesu' package installed. For versions 1.5 and earlier run the magick-rotation file.)
-TESTING v. 1.7 beta - Unity App Indicator & gnome-shell updates at -> Code -> unstable branch -> rev. 45 -> download tarball, see FAQ 1406. (Saucy ensure 'gksu' package installed, Saucy Unity also install 'python-appindicator'.)
+Saucy Unity, maybe also later Unity editions also install 'python-appindicator'.
+
 Note: the xinput utility is required. If 'xinput list' entered in a terminal
 produces output it is installed.
 
