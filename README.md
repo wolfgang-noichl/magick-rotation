@@ -1,6 +1,6 @@
 This is a fork of the original launchpad project (https://launchpad.net/magick-rotation), which seems to be dead.
 The automatic installer isn't working anymore at least on *buntu, at least due to https://bugs.launchpad.net/magick-rotation/+bug/1621026.
-Yo you're probably best off with just following the manual install instructions in ./INSTALLER.txt, which are known to work at least for Xubuntu 18.04.
+*You're probably best off with just following the manual install instructions in ./INSTALLER.txt, which are known to work at least for Xubuntu 18.04 and 19.04.*
 
 -------
 
@@ -19,8 +19,7 @@ The Magick Rotation Installer possibly currently works with Fedora, LMDE, Mint a
 
 If the automatic installer does not work on your Distro follow the instructions in INSTALLER.txt.
 
-Arch Linux PKGBUILD by jaclar available here: https://aur.archlinux.org/packages.php?ID=53473
-Gentoo ebuild by Vadim Efimov available here: http://packages.gentoo.org/package/x11-misc/magick-rotation
+Gentoo ebuild by Vadim Efimov available here (probably outdated, though): http://packages.gentoo.org/package/x11-misc/magick-rotation
 
 Thank you to our testers on Ubuntu forums.
 For the Dell XT & XT2's: wildschweini, enneract, Ubuntiac
