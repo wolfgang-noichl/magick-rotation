@@ -1,9 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from sys import argv, exit
 from subprocess import getstatusoutput, getoutput
 
-debug = 0
+debug = True
 
 ## get current USB device information ##
 class devices:

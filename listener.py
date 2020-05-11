@@ -63,6 +63,8 @@ class listener:
                 else:
                     randr_check = self.win.get_path() + check_machine
                 self.debug.debug(randr_check)
+                # TODO this is the place where something went wrong.
+                # Apparently, from 20.04 this somehow returns different stuff (possibly just recompile?) 
                 cur_state = getstatusoutput(randr_check)[0] / 256
                 self.debug.debug("cur_state: %s " % cur_state)
                 self.debug.debug("old_state: %s " % old_state)
@@ -79,7 +81,8 @@ class listener:
                             self.debug.debug("I'm disabled, so do nothing.")
                     else:
                         print("Unknown state:", cur_state)
-            except:
+            except Exception as e:
                 self.debug.debug("The try in rotation check failed")
+                raise e
 
             old_state = cur_state
