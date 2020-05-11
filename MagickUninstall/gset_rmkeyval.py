@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-from commands import getstatusoutput, getoutput
+from subprocess import getstatusoutput, getoutput
 from sys import exit
 from ast import literal_eval
 
@@ -13,7 +13,7 @@ whitelist = []
 if not results_wl[0]:
     whitelist = literal_eval(results_wl[1])  # ignore whitelist empty case, highly unlikely
     if 'magick-rotation' not in whitelist:
-        print "magick-rotation already removed from whitelist"
+        print("magick-rotation already removed from whitelist")
     else:
         whitelist_remove = ['magick-rotation']
         whitelist_new = [x for x in whitelist if x not in whitelist_remove]
@@ -33,11 +33,11 @@ if not results_ex[0]:
     gshell_subver = int((gshell_ver.split('.'))[1])  # yields 4
     if gshell_subver >= 2:  # yes, 3.2 or better
         if results_ex[1] == "@as []":  # no extension enabled, len(results_ex) = 6
-            print "magick-rotation-extension already disabled"
+            print("magick-rotation-extension already disabled")
         else:
             enabled_extensions = literal_eval(results_ex[1])
             if 'magick-rotation-extension' not in enabled_extensions:
-                print "magick-rotation-extension already disabled"
+                print("magick-rotation-extension already disabled")
             elif enabled_extensions == "['magick-rotation-extension']":
                 command = 'gsettings set org.gnome.shell enabled-extensions "[]"'
                 results = getstatusoutput(command)

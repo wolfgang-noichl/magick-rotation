@@ -1,17 +1,19 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import gtk
-import pygtk
-import gobject
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk as gtk
+
+# import gobject
 import sys
 import os.path
-from commands import getstatusoutput
+from subprocess import getstatusoutput
 
 from config import *
 from listener import *
 
 # supports threads in pygtk
-gobject.threads_init()
+# gobject.threads_init()
 
 import notify2
 
@@ -23,7 +25,7 @@ if distro == "Ubuntu":
     version = (distro_raw[1].split(' '))[1]
     major_version = (version).split('.')[0] + "." + (version).split('.')[1]
     in_unity = getstatusoutput("echo $XDG_CURRENT_DESKTOP")[1]
-    if float(major_version) >= 13.04 and in_unity == "Unity":
+    if in_unity == "Unity":
         try:
             import appindicator # should only be available in Unity (and KDE?)
             have_appindicator = True
@@ -53,8 +55,8 @@ class about_dlg(gtk.Dialog):
         about_label.set_justify(gtk.JUSTIFY_CENTER)
         image = gtk.Image()
         image.set_from_file(image_filename)
-        HBox.pack_start(image)
-        HBox.pack_start(about_title)
+        HBox.pack_start(image, True, True, 0)
+        HBox.pack_start(about_title, True, True, 0)
         self.vbox.add(HBox)
         self.vbox.add(about_label)
         # OK button
@@ -210,7 +212,7 @@ class main_table(gtk.Table):
         swivel_label = gtk.Label("Rotation state in tablet mode?")
         swivel_label.set_alignment(0, .5)
 
-        self.swivel_option = gtk.combo_box_new_text()
+        self.swivel_option = gtk.ComboBoxText()
         self.swivel_option.append_text("right")
         self.swivel_option.append_text("inverted")
         self.swivel_option.append_text("left")
@@ -270,8 +272,8 @@ class magick_gui(gtk.Window):
             dir_name = "."
         self.path = dir_name + "/"
 
-	self.set_title("Magick Rotation Setup")  # title bar default is 'magick-rotation'
-        self.set_position(gtk.WIN_POS_CENTER)  # positions Setup window in center of screen
+        self.set_title("Magick Rotation Setup")  # title bar default is 'magick-rotation'
+        # self.set_position(gtk.WIN_POS_CENTER)  # positions Setup window in center of screen
         self.set_resizable(False)
         self.set_border_width(12)
 
@@ -281,7 +283,8 @@ class magick_gui(gtk.Window):
 
         self.basic_table = main_table()
 
-        adv_expander = gtk.Expander("<b>Advanced Setup</b>")
+        # adv_expander = gtk.Expander("<b>Advanced Setup</b>")
+        adv_expander = gtk.Expander()
         adv_expander.set_use_markup(True)
 
         self.adv_table = advanced_table()
@@ -292,21 +295,21 @@ class magick_gui(gtk.Window):
         # Save button
         save_button = gtk.Button(stock=gtk.STOCK_SAVE)
         save_button.connect('pressed', self.save_data)
-        button_box.pack_start(save_button)
+        button_box.pack_start(save_button, True, True, 0)
 
         # About button
         about_button =gtk.Button(stock=gtk.STOCK_ABOUT)
         about_button.connect("pressed", self.show_about)
-        button_box.pack_start(about_button)
+        button_box.pack_start(about_button, True, True, 0)
 
         # Close button
         close_button = gtk.Button(stock=gtk.STOCK_CLOSE)
         close_button.connect("pressed", self.close_window)
-        button_box.pack_start(close_button)
+        button_box.pack_start(close_button, True, True, 0)
 
-        box.pack_start(self.basic_table)
-        box.pack_start(adv_expander)
-        box.pack_start(button_box)
+        box.pack_start(self.basic_table, True, True, 0)
+        box.pack_start(adv_expander, True, True, 0)
+        box.pack_start(button_box, True, True, 0)
 
         self.load_xml()
  
@@ -407,14 +410,14 @@ if have_appindicator:
 # icon to toggle touch on and off and use right click to access Setup.  Changing touch toggle to a
 # MenuItem in class tray_menu_gui only reasonable alternative.
 
-        print "Magick is using an App Indicator."
+        print("Magick is using an App Indicator.")
 
 ## Adds Magick Rotation icon to System Tray. ##
 else:
     class tray_gui(gtk.StatusIcon):
         def __init__(self, engine):
             gtk.StatusIcon.__init__(self)
-            self.set_tooltip("Loading...")
+            # self.set_tooltip("Loading...")
             self.path = os.path.dirname(sys.argv[0]) + "/MagickIcons/"
             self.set_from_file(self.path + "magick-rotation-enabled.png")
             self.set_visible(True)
@@ -451,7 +454,7 @@ else:
                     else:
                         self.set_from_file(self.path + "magick-rotation-disabled-touchoff.png")
 
-        print "Magick is using a gtk.StatusIcon."
+        print("Magick is using a gtk.StatusIcon.")
 
 class tray_menu_gui(gtk.Menu):
     def __init__(self, engine):
@@ -497,12 +500,13 @@ class tray_menu_gui(gtk.Menu):
         self.append(option_exit)
 
     # With App Indicator right or left click opens the popup menu
-    def popup_menu(self, menu, button, time, data = None):
+    def popup_menu(self, menu, button, time, data=None):
         # button 3 is right click
         if button == 3:
             if data:
                 data.show_all()
-                data.popup(None, None, None, 3, time)
+                print(data)
+                data.popup(None, None, None, None, 3, time)
 
 if __name__ == "__main__":
     win = magick_gui()

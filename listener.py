@@ -4,7 +4,7 @@ from time import sleep
 import os.path
 import sys
 from xrotate import *
-from commands import getstatusoutput
+from subprocess import getstatusoutput
 import platform
 
 import datetime
@@ -78,7 +78,7 @@ class listener:
                         else:
                             self.debug.debug("I'm disabled, so do nothing.")
                     else:
-                        print "Unknown state:", cur_state
+                        print("Unknown state:", cur_state)
             except:
                 self.debug.debug("The try in rotation check failed")
 

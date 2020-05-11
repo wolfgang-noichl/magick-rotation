@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 from sys import argv, exit
-from commands import getstatusoutput, getoutput
+from subprocess import getstatusoutput, getoutput
 
 debug = 0
 
@@ -129,7 +129,7 @@ class driver:
             if prop_name == prop:
                 return prop_value
         if debug:
-            print prop, "property not found"
+            print(prop, "property not found")
         return None
 
 class wacom:
@@ -162,14 +162,14 @@ class wacom:
         # use xsetwacom for touch toggle to accommodate serial tablet PC's
         val_string = 'xsetwacom set "' + str(self.id_val) + '" Touch ' + switch
         if debug:
-            print val_string
+            print(val_string)
 
         # the system call to toggle touch
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
-            print
+                print(result)
+            print()
 
     def get_next_rotation(self):
 
@@ -191,7 +191,7 @@ class wacom:
     def rotate(self, direction):
         if direction:
             if debug:
-                print "skipping next rotation check"
+                print("skipping next rotation check")
             new_dir = self.randr_to_wac[direction]
         else:
             new_dir = self.get_next_rotation()
@@ -199,14 +199,14 @@ class wacom:
         # The command string to rotate
         val_string = "xsetwacom set " + str(self.id_val) + " rotate " + new_dir
         if debug:
-            print val_string
+            print(val_string)
 
         # The actual system call to rotate
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
-            print
+                print(result)
+            print()
 
 class linuxwacom:
     def __init__(self):
@@ -221,13 +221,13 @@ class linuxwacom:
 
         val_string = 'xsetwacom set "' + str(name) + '" Touch ' + switch
         if debug:
-            print val_string
+            print(val_string)
 
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
-            print
+                print(result)
+            print()
 
     def rotate(self, name, direction):
         self.randr_to_wac = {"normal":"none", "left":"ccw", "inverted":"half", "right":"cw"}
@@ -235,14 +235,14 @@ class linuxwacom:
         # The command string to rotate
         val_string = 'xsetwacom set "' + str(name) + '" rotate ' + new_dir
         if debug:
-            print val_string
+            print(val_string)
 
         # The actual system call to rotate
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
-            print
+                print(result)
+            print()
 
 class evdev:
     def __init__(self, device, id_val):
@@ -261,13 +261,13 @@ class evdev:
     def toggle_touch(self, toggle):
         val_string = "xinput set-prop " + str(self.id_val) + " 'Device Enabled' " + str(toggle)
         if debug:
-            print val_string
+            print(val_string)
 
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
-            print
+                print(result)
+            print()
 
     def get_next_rotation(self, inv_x, inv_y):
         inv_dict = {(0,0):"normal", (1,0):"left", (1,1):"inverted", (0,1):"right"}
@@ -340,14 +340,14 @@ class evdev:
         elif (direction == 'right'):
             ctm = right_ctm
         else:
-            print "Unable to select directional CTM."
+            print("Unable to select directional CTM.")
 
         if debug:
 #            print "current direction:", cur_dir
-            print "requested direction:", direction
-            print "directional CTM selected -> %s:" % direction, ctm
-            print "tablet.x:", tablet.x
-            print "tablet.y:", tablet.y
+            print("requested direction:", direction)
+            print("directional CTM selected -> %s:" % direction, ctm)
+            print("tablet.x:", tablet.x)
+            print("tablet.y:", tablet.y)
 
         # TODO: add connected monitor support feature for evdev and Wacom X drivers?
         # Partially implemented connected monitor scaling calculation code removed in Magick
@@ -367,13 +367,13 @@ class evdev:
         # the tablet PC xinput CTM command string
         val_string = "xinput set-prop " + str(self.id_val) + " 'Coordinate Transformation Matrix' " + str(ctm[0]) + " " + str(ctm[1]) + " " + str(ctm[2]) + " " + str(ctm[3]) + " " + str(ctm[4]) + " " + str(ctm[5]) + " " + str(ctm[6]) + " " + str(ctm[7]) + " " + str(ctm[8])
 
-        print "val_string:", val_string
+        print("val_string:", val_string)
 
         # the system call for xinput CTM rotation
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
+                print(result)
 
         return 1
 
@@ -386,11 +386,11 @@ class evdev:
         # (1, 1) - Inverted
         # (0, 1) - Right
         if debug:
-            print "checking axis inversion"
+            print("checking axis inversion")
         inv_val = self.dev.get_property("Evdev Axis Inversion")
         if not inv_val:
             if debug:
-                print "no value for inv_val"
+                print("no value for inv_val")
             return
         inv_val = inv_val.split(", ")
         inv_x = int(inv_val[0])
@@ -398,21 +398,21 @@ class evdev:
 
         # swap tells if the screen is sideways (1) or normal (0)
         if debug:
-            print "checking swap"
+            print("checking swap")
         swap_val = int(self.dev.get_property("Evdev Axes Swap"))
         if (not swap_val and swap_val != 0):
             if debug:
-                print "skiping no swap"
+                print("skiping no swap")
             return
 
         if debug:
-            print "checking calibration"
+            print("checking calibration")
         calib_val = self.dev.get_property("Evdev Axis Calibration")
         if debug:
-            print calib_val
+            print(calib_val)
         if not calib_val:
             if debug:
-                print "No calibration property.  Skipping"
+                print("No calibration property.  Skipping")
             return
         elif calib_val == "<no items>":
             calib_top_x = self.top_x
@@ -421,7 +421,7 @@ class evdev:
             calib_bottom_y = self.bottom_y
         elif calib_val == None:
             if debug:
-                print "skiping no calib"
+                print("skiping no calib")
             return
         else:
             calib_val = calib_val.split(", ")
@@ -437,13 +437,13 @@ class evdev:
             else:
                 if (len(calib_val) == 4):
                     if debug:
-                        print "invalid calib values ", calib_val[0], \
+                        print("invalid calib values ", calib_val[0], \
                             calib_val[1],\
                             calib_val[2],\
-                            calib_val[3]
+                            calib_val[3])
                 else:
                     if debug:
-                        print "invalid value: ", len(calib_val)
+                        print("invalid value: ", len(calib_val))
                 return
 
         if direction:
@@ -479,21 +479,21 @@ class evdev:
         val_string = "xinput set-prop " + str(self.id_val) + " 'Evdev Axis Inversion' " +\
                      str(new_inv_x) + " " + str(new_inv_y)
         if debug:
-            print val_string
+            print(val_string)
 
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
+                print(result)
 
         val_string = "xinput set-prop " + str(self.id_val) + " 'Evdev Axes Swap' " +\
                      str(new_swap_val)
         if debug:
-            print val_string
+            print(val_string)
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
+                print(result)
 
         if new_swap_val:
             val_string = "xinput set-prop " + str(self.id_val) + " 'Evdev Axis Calibration' " +\
@@ -508,22 +508,22 @@ class evdev:
                         str(self.top_y) + " " +\
                         str(self.bottom_y)
         if debug:
-            print val_string
+            print(val_string)
         result =  getstatusoutput(val_string)[1]
         if debug:
             if result:
-                print result
-            print
+                print(result)
+            print()
 
         if debug:
-            print "direction: ", new_dir
-            print "inv_x: ", inv_x, "    ", new_inv_x
-            print "inv_y: ", inv_y, "    ", new_inv_y
-            print "swap_val: ", swap_val, "    ", new_swap_val
-            print calib_top_x, "    ", new_top_x
-            print calib_bottom_x, "    ", new_bottom_x
-            print calib_top_y, "    ", new_top_y
-            print calib_bottom_y, "    ", new_bottom_y
+            print("direction: ", new_dir)
+            print("inv_x: ", inv_x, "    ", new_inv_x)
+            print("inv_y: ", inv_y, "    ", new_inv_y)
+            print("swap_val: ", swap_val, "    ", new_swap_val)
+            print(calib_top_x, "    ", new_top_x)
+            print(calib_bottom_x, "    ", new_bottom_x)
+            print(calib_top_y, "    ", new_top_y)
+            print(calib_bottom_y, "    ", new_bottom_y)
 
 ## change screen orientation ##
 class screen:
@@ -562,16 +562,16 @@ class screen:
         # the xrandr screen orientation command string
         val_string = "xrandr -o " + new_dir
         if debug:
-            print " Rotating screen"
-            print val_string
+            print(" Rotating screen")
+            print(val_string)
 
         # the system call to change screen orientation
         result =  getstatusoutput(val_string)[1]
         screen.direction = new_dir
         if debug:
             if result:
-                print result
-            print
+                print(result)
+            print()
 
         return new_dir
 
@@ -585,7 +585,7 @@ class monitor:
         connected_monitor_data = getoutput(cmd)
         monitor_data = connected_monitor_data.split("\n")
         monitor_count = len(monitor_data)
-        print "class monitor monitor_count:", monitor_count
+        print("class monitor monitor_count:", monitor_count)
 
 # current connected resolution marked with an asterix in xrandr, so: xrandr | grep '*'
 
@@ -659,19 +659,19 @@ class rotate:
         if self.dev.is_evdev(id_val):
             processing = "rotating evdev device "
             if debug:
-                print processing + self.dev.get_device_name(id_val)
+                print(processing + self.dev.get_device_name(id_val))
             evdev_dev = evdev(self.dev.get_device(id_val), id_val)
             # This will try to rotate using the Coordinate
             # Transformation Matrix but if it cannot, then
             # it will fall back to other rotation method
-            print "going: %s" % direction
+            print("going: %s" % direction)
             if not evdev_dev.rotate_ctm(direction):
                 evdev_dev.rotate(direction)
         elif self.dev.is_wacom(id_val):
             self.wacom_count += 1
             processing = "rotating wacom device "
             if debug:
-                print processing + self.dev.get_device_name(id_val)
+                print(processing + self.dev.get_device_name(id_val))
             wacom_dev = wacom(self.dev.get_device(id_val), id_val)
             wacom_dev.rotate(direction)
         else:
@@ -691,7 +691,7 @@ class rotate:
         if self.dev.is_evdev(id_val):
             processing = "rotating evdev device "
             if debug:
-                print processing + self.dev.get_device_name(id_val)
+                print(processing + self.dev.get_device_name(id_val))
             evdev_dev = evdev(self.dev.get_device(id_val), id_val)
             evdev_dev.rotate_ctm(direction)
 #        elif self.dev.is_wacom(id_val):
@@ -709,15 +709,15 @@ class rotate:
     # To rotate only the devices and not the screen
     def rotate_devices(self, direction):
         if debug:
-            print "Entered rotate_devices"
+            print("Entered rotate_devices")
         dev_list = self.dev.get_id_list()
         self.wacom_count = 0
         for id_val in dev_list:
             self.rotate_device(direction, id_val)
 
         if debug:
-            print "wacom count: ", self.wacom_count
-            print "direction: " + direction
+            print("wacom count: ", self.wacom_count)
+            print("direction: " + direction)
 
         # for versions less than Lucid we will check 
         # xsetwacom to see if there are any devices to 
@@ -737,7 +737,7 @@ class rotate:
                         if index != (len(item_list) - 2):
                             name += " "
                     if debug:
-                        print "name: " + name + " direction: " + direction
+                        print("name: " + name + " direction: " + direction)
                     wacom_dev.rotate(name, direction)
 
 
@@ -749,7 +749,7 @@ class rotate:
 
         if not display:
             if debug:
-                print "No tablet monitor found"
+                print("No tablet monitor found")
                 return None
 
 #        direction = display.direction
@@ -761,7 +761,7 @@ class rotate:
         self.wacom_count = 0
         for id_val in dev_list:
             if debug:
-                print "testing " , id_val
+                print("testing " , id_val)
             self.rotate_device(direction, id_val)
 
         # for versions less than Lucid we will check 
@@ -840,9 +840,9 @@ if __name__ == "__main__":
         device = argv[2]
         r.rotate_device(direction, device)
     else:
-        print "xrotate.py needs the direction.\n",
-        print "xrotate.py <normal/left/inverted/right>\n",
-        print "Example: xrotate.py left'"
+        print("xrotate.py needs the direction.\n", end=' ')
+        print("xrotate.py <normal/left/inverted/right>\n", end=' ')
+        print("Example: xrotate.py left'")
         exit(0)
 
 # These three lines are for testing the ctm rotation

@@ -3,7 +3,7 @@
 import sys
 import os.path
 from xml.dom import minidom
-from commands import getoutput
+from subprocess import getoutput
 
 class config:
     def __init__(self):
@@ -46,8 +46,8 @@ class config:
                                 opt_val = True
                             self.option[name] = opt_val
         else:
-            print "Configuration file ~/.magick-rotation.xml not found."
-            print "Will load the defaults instead."
+            print("Configuration file ~/.magick-rotation.xml not found.")
+            print("Will load the defaults instead.")
 
         return [self.option["rotate_mode"], self.option["touch_toggle"], self.option["hingevalue_toggle"], \
                 self.option["run_tablet_before"], self.option["run_tablet"], self.option["run_normal_before"], \
@@ -73,7 +73,7 @@ class config:
         # Convert back to xml format
         write_str = "<magick-rotation>\n"
         write_str += '    <version>"' + data[12] + '"</version>\n'
-        for name, value in self.option.iteritems():
+        for name, value in self.option.items():
             if name != "version":
                 write_str += '    <option name="' + str(name) + '">\n' + \
                             '        <value>"' + str(value) + '"</value>\n' + \
@@ -84,7 +84,7 @@ class config:
         conf = open(config, "w")
         conf.write(write_str)
         self.add_autostart(data[10])
-        print "Config written to", self.filename
+        print("Config written to", self.filename)
 
     def add_autostart(self, autostart):
         # uninstalled - run from folder .desktop file

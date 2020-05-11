@@ -2,9 +2,6 @@
 Magick Rotation 1.7						November 30, 2013
 
 
-IF YOU ARE READING THIS the Magick Rotation Installer did not work on your system or you opted not to install all the files and instead want to run Magick Rotation out of the magick-rotation folder.
-
-
 SUMMARY
 What you are going to do is install gcc, and the libraries libx11-dev and libxrandr-dev, if they aren't already installed.  Using gcc and the libraries you will compile a small file of C code called check.c.  That will create an executable binary called checkmagic32 or checkmagic64 depending on your system.  You will also copy into place 62-magick.rules which contains a udev rule to create a device node for your tablet PC and the symlink 'magick-rotation' at /dev/input for the node.  Then to access the new device node you will create a new group called 'magick' and add your username to the group.
 

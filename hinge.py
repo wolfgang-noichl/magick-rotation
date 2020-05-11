@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # For tablet PC's with switches that transmit hinge state (laptop or tablet)
 # through an oem-wmi or oem-acpi, permitting a 'magick-rotation' symlink to be
@@ -8,7 +8,7 @@
 
 import struct
 import os.path
-from commands import getstatusoutput, getoutput
+from subprocess import getstatusoutput, getoutput
 
 from config import *
 
@@ -25,7 +25,7 @@ class hinge:
         return ret_switch
 
     def run(self, listener=None):
-        fd = open(self.magick_symlink, "r")
+        fd = open(self.magick_symlink, "rb")
 
         while True:
             EV_SW = 5
@@ -41,9 +41,9 @@ class hinge:
 #            ev_type = struct.unpack("H", input[16:18])[0]
 #            ev_code = struct.unpack("H", input[18:20])[0]
 #            ev_val  = struct.unpack("H", input[20:22])[0]
-            print "type %x " % ev_type,
-            print "code %x " % ev_code, 
-            print "value %x" % ev_val
+            print("type %x " % ev_type, end=' ')
+            print("code %x " % ev_code, end=' ') 
+            print("value %x" % ev_val)
 
             
             if self.win:

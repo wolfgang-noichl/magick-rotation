@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 ###############################################################
 ##                                                           ##
@@ -10,12 +10,12 @@
 ##                     Contributor: Favux                    ##
 ###############################################################
 
-import thread
+import _thread
 import sys
 import os
 import pwd
 import platform
-from commands import getstatusoutput
+from subprocess import getstatusoutput
 
 from gui_gtk import *
 from listener import *
@@ -30,28 +30,18 @@ distro_raw = getstatusoutput(find_distro)
 distro = (distro_raw[1].split(' '))[0]
 if distro == "Ubuntu":
     version = (distro_raw[1].split(' '))[1]
-    major_version = (version).split('.')[0] + "." + (version).split('.')[1]
     in_unity = getstatusoutput("echo $XDG_CURRENT_DESKTOP")[1]
-    if float(major_version) >= 13.04 and in_unity == "Unity":
+    if in_unity == "Unity":
         try:
             import appindicator # should only be available in Unity (and KDE?)
             have_appindicator = True
         except:
-            print '''If you are using Unity but don't see the App Indicator icon in the
-System Tray install the 'python-appindicator' package.'''
+            print("If you are using Unity but don't see the App Indicator icon in the System Tray install the 'python-appindicator' package.")
             have_appindicator = False
     else:
         have_appindicator = False
 else:
     have_appindicator = False
-
-# Alternatives to "echo $XDG_CURRENT_DESKTOP":
-#     echo $DESKTOP_SESSION - returns 'ubuntu' when running Unity
-#     ps aux | grep unity
-# TODO: Better to use Unity version (unity --version) now that they are upgrading kernel
-# and X Server versions in Precise 12.04.2 and up?  Is the Unity version being upgraded?
-# Does that matter?  Or is it deliberate code removal necessitating an App Indicator in
-# 13.04 (12.04.3?) and later?
 
 prog_ver="1.7"
 
@@ -94,8 +84,8 @@ class engine:
 
     def run(self):
         if self.switch:
-            thread.start_new_thread(self.switch.run, (self.notifier,))
-        thread.start_new_thread(self.notifier.state_notifier, (self.state_change,))
+            _thread.start_new_thread(self.switch.run, (self.notifier,))
+        _thread.start_new_thread(self.notifier.state_notifier, (self.state_change,))
         gtk.main()
 
     def toggle_rotate(self, option=None, data=None):
@@ -219,11 +209,11 @@ if __name__ == "__main__":
             magick = engine()
             magick.run()
         else:
-            print "Please compile checkmagick."
-            print "See INSTALLER.txt in the unpacked magick-rotation folder."
+            print("Please compile checkmagick.")
+            print("See INSTALLER.txt in the unpacked magick-rotation folder.")
     else:
-        print "Please install 62-magick.rules in /etc/udev/rules.d."
-        print "See INSTALLER.txt in the unpacked magick-rotation folder."
+        print("Please install 62-magick.rules in /etc/udev/rules.d.")
+        print("See INSTALLER.txt in the unpacked magick-rotation folder.")
 
 #    magick = engine()
 #    magick.run()

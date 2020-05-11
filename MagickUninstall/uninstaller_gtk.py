@@ -4,9 +4,9 @@ import gtk
 import pygtk
 import gobject
 import sys
-import thread
+import _thread
 import os.path
-from commands import getstatusoutput, getoutput
+from subprocess import getstatusoutput, getoutput
 import platform
 import pango
 import datetime
@@ -49,7 +49,7 @@ class uninstaller_dialog(gtk.MessageDialog):
         
         if response == gtk.RESPONSE_ACCEPT:
             win.show_all()
-            thread.start_new_thread(engine.run_uninstaller,  (None, ))
+            _thread.start_new_thread(engine.run_uninstaller,  (None, ))
         else:
             win.close_window()
         
@@ -190,7 +190,7 @@ class uninstaller_engine:
     def remove_magick_icons(self):
         icon_filename = {"magick_icons":["MagickAbout.png", "magick-rotation-disabled.png", "magick-rotation-disabled-touchoff.png", "magick-rotation-enabled.png", "magick-rotation-enabled-touchoff.png"]}
         self.log.write("Removing MagickIcon files\n")
-        for magick_icons, filename_list in icon_filename.iteritems():
+        for magick_icons, filename_list in icon_filename.items():
             for filename in filename_list:
                 self.log.write("\n")
                 command = "rm /usr/share/magick-rotation/MagickIcons/" + filename
@@ -218,7 +218,7 @@ class uninstaller_engine:
     def remove_magick_files(self):
         magick_filename = {"magick_files":["ChangeLog", "config.py", "debug.py", "gui_gtk.py", "hinge.py", "listener.py", "Magick-README.txt", "magick-rotation", "xrotate.py"]}
         self.log.write("Removing magick-rotation files\n")
-        for magick_files, filename_list in magick_filename.iteritems():
+        for magick_files, filename_list in magick_filename.items():
             for filename in filename_list:
                 self.log.write("\n")
                 command = "rm /usr/share/magick-rotation/" + filename
@@ -326,7 +326,7 @@ class uninstaller_engine:
 
     def run(self):
         gobject.threads_init()
-        thread.start_new_thread(self.execute_steps, (None, ))
+        _thread.start_new_thread(self.execute_steps, (None, ))
         gtk.main()
 
 if __name__ == "__main__" :

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-from commands import getstatusoutput, getoutput
+from subprocess import getstatusoutput, getoutput
 from sys import exit
 from ast import literal_eval
 import os
@@ -14,7 +14,7 @@ whitelist = []
 if not results_wl[0]:
     whitelist = literal_eval(results_wl[1])  # ignore whitelist empty case, highly unlikely
     if 'magick-rotation' in whitelist:
-        print "magick-rotation has been found"
+        print("magick-rotation has been found")
     else:
         cmd = 'gsettings set com.canonical.Unity.Panel systray-whitelist "['
         for index in range(len(whitelist)):
@@ -38,14 +38,14 @@ if not results_ex[0]:
         if not os.path.isdir(os.path.expanduser('~')+"/.local/share/gnome-shell/extensions"):
             os.mkdir(os.path.expanduser('~')+"/.local/share/gnome-shell/extensions")
         else:
-            print "extensions folder already exists"
+            print("extensions folder already exists")
         if results_ex[1] == "@as []":  # no extension enabled, len(results_ex) = 6
             command = '''gsettings set org.gnome.shell enabled-extensions "['magick-rotation-extension']"'''
             results = getstatusoutput(command)
         else:
             enabled_extensions = literal_eval(results_ex[1])
             if 'magick-rotation-extension' in enabled_extensions:
-                print "magick-rotation-extension already enabled"
+                print("magick-rotation-extension already enabled")
             else:  # add 'magick-rotation-extension' to extension(s) in list
                 command = 'gsettings set org.gnome.shell enabled-extensions "['
                 for index in range(len(enabled_extensions)):

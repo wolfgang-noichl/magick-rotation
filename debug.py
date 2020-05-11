@@ -15,7 +15,7 @@ class debug:
         log_file = "~/magick-log_" + filedatestamp
 
         if self.debug_on:
-            print data
+            print(data)
 
         if debug_log:
             timestamp = curtime.strftime("%H:%M:%S")

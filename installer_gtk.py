@@ -4,9 +4,9 @@ import gtk
 import pygtk
 import gobject
 import sys
-import thread
+import _thread
 import os.path
-from commands import getstatusoutput, getoutput
+from subprocess import getstatusoutput, getoutput
 import platform
 import pango
 import datetime
@@ -119,7 +119,7 @@ class installer_dialog(gtk.MessageDialog):
         
         if response == gtk.RESPONSE_ACCEPT:
             win.show_all()
-            thread.start_new_thread(engine.run_installer,  (None, ))
+            _thread.start_new_thread(engine.run_installer,  (None, ))
         else:
             win.close_window()
         
@@ -214,7 +214,7 @@ class installer_engine:
     if packman == "YUM":
         def install_yum_packages(self):
             packages = {"yum_packages":["gcc", "libX11-devel", "libXrandr-devel"]}
-            for yum_packages, package_list in packages.iteritems():
+            for yum_packages, package_list in packages.items():
                 for package in package_list:
                     command = "yum -y install " + package
                     self.log.write(command)
@@ -228,7 +228,7 @@ class installer_engine:
     if packman == "YaST":
         def install_zypper_packages(self):
             packages = {"zypper_packages":["gcc", "xorg-x11-libX11-devel", "xorg-x11-devel"]}
-            for zypper_packages, package_list in packages.iteritems():
+            for zypper_packages, package_list in packages.items():
                 for package in package_list:
                     command = "zypper --non-interactive install " + package
                     self.log.write(command)
@@ -242,7 +242,7 @@ class installer_engine:
     if packman == "APT_DEB":
         def install_aptd_packages(self):
             packages = {"aptd_packages":["gcc", "libx11-dev", "libxrandr-dev"]}
-            for aptd_packages, package_list in packages.iteritems():
+            for aptd_packages, package_list in packages.items():
                 for package in package_list:
                     command = "apt-get -y install " + package
                     self.log.write(command)
@@ -359,7 +359,7 @@ class installer_engine:
     def install_magick_files(self):
         magick_filename = {"magick_files":["ChangeLog", "config.py", "debug.py", "gui_gtk.py", "hinge.py", "listener.py", "magick-rotation", "xrotate.py"]}
         self.log.write("Moving magick-rotation files\n")
-        for magick_files, filename_list in magick_filename.iteritems():
+        for magick_files, filename_list in magick_filename.items():
             for filename in filename_list:
                 self.log.write("\n")
                 command = "mv " + self.filepath + "/" + filename + " /usr/share/magick-rotation/" + filename
@@ -390,7 +390,7 @@ class installer_engine:
     def install_magick_icons(self):
         icon_filename = {"magick_icons":["MagickAbout.png", "magick-rotation-disabled.png", "magick-rotation-disabled-touchoff.png", "magick-rotation-enabled.png", "magick-rotation-enabled-touchoff.png"]}
         self.log.write("Moving MagickIcon files\n")
-        for magick_icons, filename_list in icon_filename.iteritems():
+        for magick_icons, filename_list in icon_filename.items():
             for filename in filename_list:
                 self.log.write("\n")
                 command = "mv " + self.filepath + "/MagickIcons/" + filename + " /usr/share/magick-rotation/MagickIcons/" + filename
@@ -495,7 +495,7 @@ class installer_engine:
     def remove_install_files(self):
         install_filename = {"install_files":["apt_installprogress_gtk.py", "apt_pm.py", "check.c", "installer_gtk.py", "MAGICK-INSTALL", "gset_addkeyval.py"]}
         self.log.write("Removing uneeded install files\n")
-        for install_files, filename_list in install_filename.iteritems():
+        for install_files, filename_list in install_filename.items():
             for filename in filename_list:
                 self.log.write("\n")
                 command = "rm " + self.filepath + "/" + filename
@@ -641,7 +641,7 @@ class installer_engine:
     def run(self):
         gobject.threads_init()
         #self.win.show_all()
-        thread.start_new_thread(self.execute_steps, (None, ))
+        _thread.start_new_thread(self.execute_steps, (None, ))
         gtk.main()
 
 if __name__ == "__main__" :
