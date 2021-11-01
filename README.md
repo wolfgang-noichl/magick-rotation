@@ -19,3 +19,4 @@ For the Fujitsu's: dog-soldier, pvdh, Cobuntu
 
 A special thank you to Robert Gerlach for his assistance in adding Fujitsu tablet PC support.
 
+License: GNU GPL v2
