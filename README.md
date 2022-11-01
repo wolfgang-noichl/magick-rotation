@@ -3,7 +3,7 @@
 Magick Rotation is an application that will help Dell, Fujitsu, HP, and Lenovo convertible tablet PC's automatically rotate screen orientation and devices that use the Wacom or evdev drivers.
 
 This is a fork of the [original launchpad project](https://launchpad.net/magick-rotation), which seems to be dead.
-To install, just follow the manual install instructions in ./INSTALLER.txt, which are known to work at least for Xubuntu 20.04.
+To install, just follow the manual install instructions in ./INSTALLER.txt, which are known to work at least for Xubuntu 18.04, 20.04 and 22.04.
 
 Saucy Unity, maybe also later Unity editions also install 'python-appindicator'.
 
