@@ -65,7 +65,7 @@ class listener:
                 self.debug.debug(randr_check)
                 # TODO this is the place where something went wrong.
                 # Apparently, from 20.04 this somehow returns different stuff (possibly just recompile?) 
-                cur_state = getstatusoutput(randr_check)[0] / 256
+                cur_state = getstatusoutput(randr_check)[0]
                 self.debug.debug("cur_state: %s " % cur_state)
                 self.debug.debug("old_state: %s " % old_state)
                 if (old_state != cur_state):

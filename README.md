@@ -15,7 +15,7 @@ Magick Rotation is not a Ubuntu specific application. Versions have worked in Ar
 Thank you to our testers on Ubuntu forums.
 For the Dell XT & XT2's: wildschweini, enneract, Ubuntiac
 For the Thinkpads: forti, supr0, linuxd00
-For the Fujitsu's: dog-soldier, pvdh, Cobuntu
+For the Fujitsus: dog-soldier, pvdh, Cobuntu
 
 A special thank you to Robert Gerlach for his assistance in adding Fujitsu tablet PC support.
 

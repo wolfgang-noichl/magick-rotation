@@ -123,8 +123,6 @@ class engine:
         return self.touch_toggle
 
     def process_rotation(self, direction):
-        # TODO I monkey-patched things here 
-        direction = int(direction > 0)
         device = rotate()
         rot_dir = ["normal", "left", "right", "inverted"]
 
@@ -159,12 +157,12 @@ class engine:
         self.process_rotation(direction)
         if (direction == 0):
             self.debug.debug("Change to normal state")
-            # self.tray.set_tooltip("Normal mode")
+            self.tray.set_tooltip("Normal mode")
             if isnotify: 
                 self.notify_normal.show()
         else:
             self.debug.debug("Change to Tablet mode")
-            # self.tray.set_tooltip("Tablet mode")
+            self.tray.set_tooltip("Tablet mode")
             if isnotify: 
                 self.notify_tablet.show()
 
