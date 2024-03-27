@@ -47,12 +47,10 @@ class about_dlg(gtk.Dialog):
         HBox = gtk.HBox()
         self.set_resizable(False)
         self.set_border_width(8)
-        self.set_has_separator(False)
         self.connect('delete_event', self.close_about)
         about_title=gtk.Label("""<b><span size="22000">Magick Rotation  </span></b>""")
         about_title.set_use_markup(True)
         about_label=gtk.Label("""\nThis program supports Dell, Fujitsu, HP, and Lenovo\nconvertible tablet PC's.\n\nVersion """ + version + """\n\nAuthors:  Jayhawk & Red_Lion\n\nContributor:  Favux""")
-        about_label.set_justify(gtk.JUSTIFY_CENTER)
         image = gtk.Image()
         image.set_from_file(image_filename)
         HBox.pack_start(image, True, True, 0)
@@ -62,7 +60,6 @@ class about_dlg(gtk.Dialog):
         # OK button
         ok_button = gtk.Button(stock=gtk.STOCK_OK)
         ok_button.connect("pressed", self.close_about)
-        self.action_area.pack_start(ok_button)
 
     def close_about(self, widget=None, data=None):
         self.destroy()
@@ -283,8 +280,7 @@ class magick_gui(gtk.Window):
 
         self.basic_table = main_table()
 
-        # adv_expander = gtk.Expander("<b>Advanced Setup</b>")
-        adv_expander = gtk.Expander()
+        adv_expander = gtk.Expander.new("<b>Advanced Setup</b>")
         adv_expander.set_use_markup(True)
 
         self.adv_table = advanced_table()
